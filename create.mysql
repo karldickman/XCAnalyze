@@ -1,0 +1,85 @@
+CREATE TABLE conferences
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100),
+    abbreviation VARCHAR(10),
+    PRIMARY KEY (id)
+) TYPE = INNODB;
+
+CREATE TABLE meets
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(150),
+    PRIMARY KEY (id)
+) TYPE = INNODB;
+
+CREATE TABLE runners
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    surname VARCHAR(100),
+    given_name VARCHAR(100),
+    nicknames VARCHAR(200),
+    gender ENUM('M', 'F') NOT NULL,
+    `year` YEAR,
+    PRIMARY KEY (id)
+) TYPE = INNODB;
+
+CREATE TABLE schools
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(150),
+    nicknames VARCHAR(100),
+    `type` VARCHAR(100),
+    name_order BOOLEAN,
+    conference_id INT UNSIGNED,
+    PRIMARY KEY (id),
+    FOREIGN KEY (conference_id) REFERENCES conferences (id)
+) TYPE = INNODB;
+
+CREATE TABLE affiliations
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    runner_id INT UNSIGNED,
+    school_id INT UNSIGNED,
+    `year` YEAR,
+    PRIMARY KEY (id),
+    FOREIGN KEY (runner_id) REFERENCES runners (id),
+    FOREIGN KEY (school_id) REFERENCES schools (id)
+) TYPE = INNODB;    
+
+
+CREATE TABLE venues
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(150),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    elevation INT,
+    PRIMARY KEY (id)
+) TYPE = INNODB;
+
+CREATE TABLE races
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    meet_id INT UNSIGNED,
+    `date` DATE,
+    venue_id INT UNSIGNED,
+    mens_distance INT,
+    womens_distance INT,
+    comments VARCHAR(500),
+    PRIMARY KEY (id),
+    FOREIGN KEY (meet_id) REFERENCES meets (id),
+    FOREIGN KEY (venue_id) REFERENCES venues (id)
+) TYPE = INNODB;
+
+CREATE TABLE results
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    runner_id INT UNSIGNED,
+    race_id INT UNSIGNED,
+    `time` double,
+    PRIMARY KEY (id),
+    FOREIGN KEY (runner_id) REFERENCES runners (id),
+    FOREIGN KEY (race_id) REFERENCES races (id)
+) TYPE = INNODB;
+
