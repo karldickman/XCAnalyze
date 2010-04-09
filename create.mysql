@@ -62,11 +62,10 @@ CREATE TABLE races
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     meet_id INT UNSIGNED,
-    `date` DATE,
     venue_id INT UNSIGNED,
-    mens_distance INT,
-    womens_distance INT,
-    comments VARCHAR(500),
+    `date` DATE,
+    gender ENUM('M', 'F') NOT NULL,
+    distance INT,
     PRIMARY KEY (id),
     FOREIGN KEY (meet_id) REFERENCES meets (id),
     FOREIGN KEY (venue_id) REFERENCES venues (id)
@@ -77,9 +76,24 @@ CREATE TABLE results
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     runner_id INT UNSIGNED,
     race_id INT UNSIGNED,
-    `time` double,
+    `time` DOUBLE,
     PRIMARY KEY (id),
     FOREIGN KEY (runner_id) REFERENCES runners (id),
     FOREIGN KEY (race_id) REFERENCES races (id)
 ) TYPE = INNODB;
 
+DELIMITER //
+CREATE PROCEDURE get_team(which_school INT UNSIGNED, competition_year YEAR)
+BEGIN
+    SELECT runner_id, surname, given_name, nicknames, gender, runners.`year`, school_id
+    FROM runners INNER JOIN affiliations
+    ON runners.id = affiliations.runner_id
+    WHERE affiliations.`year` = competition_year AND school_id = which_school
+    ORDER BY gender, surname, given_name, runners.`year`;
+END //
+DELIMITER ;
+
+CREATE VIEW performances
+    AS SELECT results.id, runner_id, race_id, `time`, distance, (`time`/distance*1609) AS pace
+    FROM results INNER JOIN runners ON results.runner_id = runners.id
+    INNER JOIN races ON results.race_id = races.id;
