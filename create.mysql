@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS conferences;
 CREATE TABLE conferences
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -6,6 +7,7 @@ CREATE TABLE conferences
     PRIMARY KEY (id)
 ) TYPE = INNODB;
 
+DROP TABLE IF EXISTS meets;
 CREATE TABLE meets
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -13,6 +15,7 @@ CREATE TABLE meets
     PRIMARY KEY (id)
 ) TYPE = INNODB;
 
+DROP TABLE IF EXISTS runners;
 CREATE TABLE runners
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -24,6 +27,7 @@ CREATE TABLE runners
     PRIMARY KEY (id)
 ) TYPE = INNODB;
 
+DROP TABLE IF EXISTS schools;
 CREATE TABLE schools
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -36,6 +40,7 @@ CREATE TABLE schools
     FOREIGN KEY (conference_id) REFERENCES conferences (id)
 ) TYPE = INNODB;
 
+DROP TABLE IF EXISTS affiliations;
 CREATE TABLE affiliations
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -47,7 +52,7 @@ CREATE TABLE affiliations
     FOREIGN KEY (school_id) REFERENCES schools (id)
 ) TYPE = INNODB;    
 
-
+DROP TABLE IF EXISTS VENUES;
 CREATE TABLE venues
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -58,6 +63,7 @@ CREATE TABLE venues
     PRIMARY KEY (id)
 ) TYPE = INNODB;
 
+DROP TABLE IF EXISTS races;
 CREATE TABLE races
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -71,6 +77,7 @@ CREATE TABLE races
     FOREIGN KEY (venue_id) REFERENCES venues (id)
 ) TYPE = INNODB;
 
+DROP TABLE IF EXISTS results;
 CREATE TABLE results
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -82,6 +89,7 @@ CREATE TABLE results
     FOREIGN KEY (race_id) REFERENCES races (id)
 ) TYPE = INNODB;
 
+DROP PROCEDURE IF EXISTS get_team;
 DELIMITER //
 CREATE PROCEDURE get_team(which_school INT UNSIGNED, competition_year YEAR)
 BEGIN
@@ -93,6 +101,7 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP VIEW IF EXISTS performances;
 CREATE VIEW performances
     AS SELECT results.id, runner_id, race_id, `time`, distance, (`time`/distance*1609) AS pace
     FROM results INNER JOIN runners ON results.runner_id = runners.id
