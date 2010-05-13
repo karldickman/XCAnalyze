@@ -105,4 +105,4 @@ DROP VIEW IF EXISTS performances;
 CREATE VIEW performances
     AS SELECT results.id, runner_id, race_id, `time`, distance, (`time`/distance*1609) AS pace
     FROM results INNER JOIN runners ON results.runner_id = runners.id
-    INNER JOIN races ON results.race_id = races.id;
+    INNER JOIN races ON results.race_id = races.id ORDER BY runner_id, distance, pace;
