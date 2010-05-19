@@ -34,7 +34,7 @@ CREATE TABLE schools
     name VARCHAR(150),
     nicknames VARCHAR(100),
     `type` VARCHAR(100),
-    name_order BOOLEAN,
+    name_first BOOLEAN,
     conference_id INT UNSIGNED,
     PRIMARY KEY (id),
     FOREIGN KEY (conference_id) REFERENCES conferences (id)
@@ -52,7 +52,7 @@ CREATE TABLE affiliations
     FOREIGN KEY (school_id) REFERENCES schools (id)
 ) TYPE = INNODB;    
 
-DROP TABLE IF EXISTS VENUES;
+DROP TABLE IF EXISTS venues;
 CREATE TABLE venues
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
