@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using xcanalyze.model;
 
-namespace xcanalyze.io {
+namespace xcanalyze.io.sql {
 
 	public abstract class TableReader<T> : IReader<List<T>> {
 		private IDataReader reader;
@@ -63,7 +62,7 @@ namespace xcanalyze.io {
 		public abstract T ReadRow();
 	}
 	
-	public class RunnersReader: TableReader<Runner> {
+	public class RunnersReader: TableReader<model.Runner> {
 		public RunnersReader (IDbConnection connection) : base(connection)
 		{
 			Command.CommandText = "SELECT surname, given_name, gender, year FROM runners";
@@ -75,28 +74,23 @@ namespace xcanalyze.io {
 		/// <returns>
 		/// A <see cref="Runner"/>
 		/// </returns>
-		public override Runner ReadRow ()
+		public override model.Runner ReadRow ()
 		{
 			string surname = (string)Reader["surname"];
 			string givenName = (string)Reader["given_name"];
-			Gender gender;
-			if ((string)Reader["gender"] == "M") {
-				gender = Gender.M;
-			} else {
-				gender = Gender.F;
-			}
+			model.Gender gender = model.Gender.FromString((string)Reader["gender"]);
 			int year = (int)Reader["year"];
-			return new Runner (surname, givenName, gender, year);
+			return new model.Runner (surname, givenName, gender, year);
 		}
 	}
 	
-	public class SchoolsReader : TableReader<School> {
+	public class SchoolsReader : TableReader<model.School> {
 		public SchoolsReader (IDbConnection connection) : base(connection)
 		{
 			Command.CommandText = "SELECT schools.name, type, name_first, conferences.name AS conference FROM schools LEFT OUTER JOIN conferences ON conferences.id = schools.conference_id";
 		}
 		
-		public override School ReadRow ()
+		public override model.School ReadRow ()
 		{
 			bool nameFirst = (bool)Reader["name_first"];
 			string name, type, conference;
@@ -115,11 +109,11 @@ namespace xcanalyze.io {
 			} else {
 				conference = (string)Reader["conference"];
 			}
-			return new School (name, type, nameFirst, conference);
+			return new model.School (name, type, nameFirst, conference);
 		}
 	}
 	
-	public class RacesReader : TableReader<Race> {
+	public class RacesReader : TableReader<model.Race> {
 	
 		public RacesReader (IDbConnection connection) : base(connection)
 		{
@@ -128,10 +122,10 @@ namespace xcanalyze.io {
 			Command.CommandText += " LEFT OUTER JOIN venues ON races.venue_id = venues.id";
 		}
 		
-		public override Race ReadRow ()
+		public override model.Race ReadRow ()
 		{
 			DateTime date;
-			Gender gender;
+			model.Gender gender;
 			int distance;
 			string name, venue, city, state;
 			if (Reader["name"] is DBNull) {
@@ -140,11 +134,7 @@ namespace xcanalyze.io {
 				name = (string)Reader["name"];
 			}
 			date = (DateTime)Reader["date"];
-			if ("M" == (string)Reader["gender"]) {
-				gender = Gender.M;
-			} else {
-				gender = Gender.F;
-			}
+			gender = model.Gender.FromString ((string)Reader["gender"]);
 			distance = (int)Reader["distance"];
 			if (Reader["venue"] is DBNull) {
 				venue = city = state = null;
@@ -153,7 +143,7 @@ namespace xcanalyze.io {
 				city = (string)Reader["city"];
 				state = (string)Reader["state"];
 			}
-			return new Race (name, date, gender, distance, venue, city, state);
+			return new model.Race (name, date, gender, distance, venue, city, state);
 		}
 		
 	}
