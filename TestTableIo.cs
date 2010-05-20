@@ -127,13 +127,12 @@ namespace xcanalyze.io
 	[TestFixture]
 	public class TestSchoolsIo : TestIoBase<School>
 	{
-		private SchoolsWriter sWriter;
 		[SetUp]
 		public void Setup ()
 		{
 			base.InitDatabase();
 			Reader = new SchoolsReader (Connection);
-			Writer = sWriter = new SchoolsWriter (Connection);
+			Writer = new SchoolsWriter (Connection);
 			Items = new List<School> ();
 			Items.Add (new School ("Lewis & Clark", "College", true, conferences[0]));
 			Items.Add (new School ("Puget Sound", "University", false, conferences[0]));
@@ -147,32 +146,6 @@ namespace xcanalyze.io
 		public void TestIo ()
 		{
 			base.BaseTestIo ();
-		}
-		
-		[Test]
-		public void TestCreateConference ()
-		{
-			uint id1 = sWriter.ConferenceId (conferences[conferences.Length - 1]);
-			sWriter.CreateConference ("Southern Collegiate Athletic Conference");
-			sWriter.CreateConference ("Inter Mountain Conference");
-			uint id2 = sWriter.ConferenceId ("Southern Collegiate Athletic Conference");
-			uint id3 = sWriter.ConferenceId ("Inter Mountain Conference");
-			Assert.AreEqual (id2 + 1, id3);
-			Assert.Less (id1, id2);
-		}
-		
-		[Test]
-		public void TestConferenceId ()
-		{
-			//Check that it does not find invalid conferences.
-			try {
-				sWriter.ConferenceId ("xkcd");
-				Assert.Fail ("Searching for xkcd should throw a TooFewResultsException.");
-			} catch (TooFewResultsException exception) {
-			}
-			uint id0 = sWriter.ConferenceId (conferences[0]);
-			uint id1 = sWriter.ConferenceId (conferences[1]);
-			Assert.AreEqual (id0 + 1, id1);
 		}
 	}
 	
@@ -200,18 +173,6 @@ namespace xcanalyze.io
 		}
 				
 		[Test]
-		public void TestCreateMeet ()
-		{
-			uint id1 = rWriter.MeetId (meets[meets.Length - 1]);
-			rWriter.CreateMeet ("Charles Bowles Invitational");
-			rWriter.CreateMeet ("Sundodger Invitational");
-			uint id2 = rWriter.MeetId("Charles Bowles Invitational");
-			uint id3 = rWriter.MeetId("Sundodger Invitational");
-			Assert.AreEqual (id2 + 1, id3);
-			Assert.Less (id1, id2);
-		}
-		
-		[Test]
 		public void TestCreateVenue ()
 		{
 			int numVenues = venues.Length;
@@ -222,19 +183,6 @@ namespace xcanalyze.io
 			uint id3 = rWriter.VenueId ("Willamette Mission State Park");
 			Assert.AreEqual (id2 + 1, id3);
 			Assert.Less (id1, id2);
-		}
-		
-		[Test]
-		public void testMeetId ()
-		{
-			try {
-				rWriter.MeetId ("xkcd");
-				Assert.Fail ("Searching for xkcd should raise a TooFewResultsException.");
-			} catch (TooFewResultsException exception) {
-			}
-			uint id0 = rWriter.MeetId (meets[0]);
-			uint id1 = rWriter.MeetId (meets[1]);
-			Assert.AreEqual (id0 + 1, id1);
 		}
 		
 		[Test]

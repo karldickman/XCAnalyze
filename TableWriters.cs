@@ -46,6 +46,25 @@ namespace xcanalyze.io
 			command.Dispose ();
 		}
 		
+		public uint CreateForeignKey(string table, string name)
+		{
+			IDbCommand command = Connection.CreateCommand ();
+			command.CommandText = "INSERT INTO " + table + " (name) VALUES (" + SqlFormat (name) + ")";
+			command.ExecuteNonQuery ();
+			return NameToForeignKey(table, name);
+		}
+		
+		public uint NameToForeignKey (string table, string name)
+		{
+			IDbCommand command = Connection.CreateCommand ();
+			command.CommandText = "SELECT id FROM " + table + " WHERE name = " + SqlFormat (name);
+			try {
+				return (uint)command.ExecuteScalar ();
+			} catch (NullReferenceException exception) {
+				throw(new TooFewResultsException());
+			}
+		}
+		
 		public static string SqlFormat(bool toFormat) {
 			if(toFormat) {
 				return "1";
@@ -120,34 +139,14 @@ namespace xcanalyze.io
 			if (school.Conference == null) {
 				Command.CommandText += SqlFormat (null);
 			} else {
-				uint conferenceId = ConferenceId (school.Conference);
+				uint conferenceId = NameToForeignKey ("conferences", school.Conference);
 				if (conferenceId < 0) {
-					conferenceId = CreateConference (school.Conference);
+					conferenceId = CreateForeignKey ("conferences", school.Conference);
 				}
 				Command.CommandText += SqlFormat (conferenceId);
 			}
 			Command.CommandText += ");";
 		}
-		
-		public uint ConferenceId (string name)
-		{
-			IDbCommand confCommand = Connection.CreateCommand ();
-			confCommand.CommandText = "SELECT id FROM conferences WHERE name = " + SqlFormat (name);
-			try {
-				return (uint)confCommand.ExecuteScalar ();
-			} catch (NullReferenceException exception) {
-				throw (new TooFewResultsException ());
-			}
-		}
-		
-		public uint CreateConference (string name)
-		{
-			IDbCommand confCommand = Connection.CreateCommand ();
-			confCommand.CommandText = "INSERT INTO conferences (name) VALUES (" + SqlFormat (name) + ")";
-			confCommand.ExecuteNonQuery ();
-			return ConferenceId (name);
-		}
-		
 	}
 	
 	public class RacesWriter: TableWriter<Race> {
@@ -164,9 +163,9 @@ namespace xcanalyze.io
 				Command.CommandText += SqlFormat (null);
 			} else {
 				try {
-					meetId = MeetId (race.Meet);
+					meetId = NameToForeignKey ("meets", race.Meet);
 				} catch (TooFewResultsException exception) {
-					meetId = CreateMeet (race.Meet);
+					meetId = CreateForeignKey ("meets", race.Meet);
 				}
 				Command.CommandText += SqlFormat (meetId);
 			}
@@ -186,14 +185,6 @@ namespace xcanalyze.io
 			Command.CommandText += ");";
 		}
 		
-		public uint CreateMeet (string name)
-		{
-			IDbCommand command = Connection.CreateCommand ();
-			command.CommandText = "INSERT INTO meets (name) VALUES (" + SqlFormat (name) + ")";
-			command.ExecuteNonQuery ();
-			return MeetId (name);
-		}
-		
 		public uint CreateVenue (string name, string city, string state)
 		{
 			IDbCommand command = Connection.CreateCommand ();
@@ -201,17 +192,6 @@ namespace xcanalyze.io
 			command.CommandText += ", " + SqlFormat (city) + ", " + SqlFormat (state) + ")";
 			command.ExecuteNonQuery ();
 			return VenueId (name, city, state);
-		}
-		
-		public uint MeetId (string name)
-		{
-			IDbCommand meetCommand = Connection.CreateCommand ();
-			meetCommand.CommandText = "SELECT id FROM meets WHERE name = " + SqlFormat (name);
-			try {
-				return (uint)meetCommand.ExecuteScalar ();
-			} catch (NullReferenceException exception) {
-				throw(new TooFewResultsException());
-			}
 		}
 		
 		protected uint VenueId (IDbCommand command) {
