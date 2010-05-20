@@ -5,13 +5,13 @@ using xcanalyze.model;
 namespace xcanalyze.io.sql
 {
 
-	public class SqlAffiliation : model.Affiliation
+	public class SqlAffiliation : Affiliation
 	{
-		private int id;
-		private int runnerId;
-		private int schoolId;
+		private uint id;
+		private uint runnerId;
+		private uint schoolId;
 
-		public int Id {
+		public uint Id {
 			get { return id; }
 		}
 
@@ -19,7 +19,7 @@ namespace xcanalyze.io.sql
 			get { return SqlRunner.Get (runnerId); }
 		}
 
-		public int RunnerId {
+		public uint RunnerId {
 			get { return runnerId; }
 		}
 
@@ -27,11 +27,11 @@ namespace xcanalyze.io.sql
 			get { return SqlSchool.Get (schoolId); }
 		}
 
-		public int SchoolId {
+		public uint SchoolId {
 			get { return schoolId; }
 		}
 
-		public SqlAffiliation (int id, int runnerId, int schoolId, int year)
+		public SqlAffiliation (uint id, uint runnerId, uint schoolId, int year) : base(year)
 		{
 			this.id = id;
 			this.runnerId = runnerId;
@@ -42,9 +42,9 @@ namespace xcanalyze.io.sql
 
 	public class SqlConference
 	{
-		private static Dictionary<int, SqlConference> idMap = new Dictionary<int, SqlConference> ();
+		private static Dictionary<uint?, SqlConference> idMap = new Dictionary<uint?, SqlConference> ();
 
-		private int id;
+		private uint id;
 		private string name;
 		private string abbreviation;
 
@@ -52,7 +52,7 @@ namespace xcanalyze.io.sql
 			get { return abbreviation; }
 		}
 
-		public int Id {
+		public uint Id {
 			get { return id; }
 		}
 
@@ -60,7 +60,7 @@ namespace xcanalyze.io.sql
 			get { return name; }
 		}
 
-		public SqlConference (int id, string name, string abbreviation)
+		public SqlConference (uint id, string name, string abbreviation)
 		{
 			this.id = id;
 			this.name = name;
@@ -68,7 +68,7 @@ namespace xcanalyze.io.sql
 			idMap[id] = this;
 		}
 
-		public static SqlConference Get (int id)
+		public static SqlConference Get (uint? id)
 		{
 			return idMap[id];
 		}
@@ -76,11 +76,11 @@ namespace xcanalyze.io.sql
 
 	public class SqlMeet
 	{
-		private static Dictionary<int, SqlMeet> idMap = new Dictionary<int, SqlMeet> ();
-		private int id;
+		private static Dictionary<uint?, SqlMeet> idMap = new Dictionary<uint?, SqlMeet> ();
+		private uint id;
 		private string name;
 
-		public int Id {
+		public uint Id {
 			get { return id; }
 		}
 
@@ -88,26 +88,26 @@ namespace xcanalyze.io.sql
 			get { return name; }
 		}
 
-		public SqlMeet (int id, string name)
+		public SqlMeet (uint id, string name)
 		{
 			this.id = id;
 			this.name = name;
 			idMap[id] = this;
 		}
 
-		public static SqlMeet Get (int id)
+		public static SqlMeet Get (uint? id)
 		{
 			return idMap[id];
 		}
 	}
 	
 	public class SqlPerformance : Performance {
-		private static Dictionary<int, SqlPerformance> idMap = new Dictionary<int, SqlPerformance>();
-		private int id;
-		private int runnerId;
-		private int raceId;
+		private static Dictionary<uint, SqlPerformance> idMap = new Dictionary<uint, SqlPerformance>();
+		private uint id;
+		private uint runnerId;
+		private uint raceId;
 		
-		public int Id {
+		public uint Id {
 			get {
 				return id;
 			}
@@ -117,7 +117,7 @@ namespace xcanalyze.io.sql
 			get { return SqlRace.Get (raceId); }
 		}
 		
-		public int RaceId {
+		public uint RaceId {
 			get {
 				return raceId;
 			}
@@ -127,13 +127,13 @@ namespace xcanalyze.io.sql
 			get { return SqlRunner.Get (runnerId); }
 		}
 		
-		public int RunnerId {
+		public uint RunnerId {
 			get {
 				return runnerId;
 			}
 		}
 		
-		public SqlPerformance (int id, int runnerId, int raceId, float time)
+		public SqlPerformance (uint id, uint runnerId, uint raceId, double time) : base(time)
 		{
 			this.id = id;
 			this.runnerId = runnerId;
@@ -142,7 +142,7 @@ namespace xcanalyze.io.sql
 			idMap[id] = this;
 		}
 		
-		public SqlPerformance Get (int id)
+		public SqlPerformance Get (uint id)
 		{
 			return idMap[id];
 		}
@@ -150,51 +150,72 @@ namespace xcanalyze.io.sql
 
 	public class SqlRace : Race
 	{
-		private static Dictionary<int, SqlRace> idMap = new Dictionary<int, SqlRace>();
-		private int id;
-		private int meetId;
-		private int venueId;
+		private static Dictionary<uint, SqlRace> idMap = new Dictionary<uint, SqlRace>();
+		private uint id;
+		private uint? meetId;
+		private uint? venueId;
 
 		public new string City {
-			get { return SqlVenue.Get (venueId).City; }
+			get {
+				if (venueId == null) 
+				{
+					return null;
+				}
+				return SqlVenue.Get (venueId).City;
+			}
 		}
 
-		public int Id {
+		public uint Id {
 			get { return id; }
 		}
 
 		public new string Meet {
-			get { return SqlMeet.Get (meetId).Name; }
+			get {
+				if (meetId == null) 
+				{
+					return null;
+				}
+				return SqlMeet.Get (meetId).Name;
+			}
 		}
 
-		public int MeetId {
+		public uint? MeetId {
 			get { return meetId; }
 		}
 
 		public new string State {
-			get { return SqlVenue.Get (venueId).State; }
+			get {
+				if (venueId == null) 
+				{
+					return null;
+				}
+				return SqlVenue.Get (venueId).State;
+			}
 		}
 
 		public new string Venue {
-			get { return SqlVenue.Get (venueId).Name; }
+			get {
+				if (venueId == null) 
+				{
+					return null;
+				}
+				return SqlVenue.Get (venueId).Name;
+			}
 		}
 
-		public int VenueId {
+		public uint? VenueId {
 			get { return venueId; }
 		}
 
-		public SqlRace (int id, int meetId, int venueId, DateTime date, model.Gender gender, int distance)
+		public SqlRace (uint id, uint? meetId, uint? venueId, DateTime date, Gender gender, int distance) : base(date, gender, distance)
 		{
 			this.id = id;
 			this.meetId = meetId;
 			this.venueId = venueId;
-			this.Date = date;
-			this.Gender = gender;
-			this.Distance = distance;
 			idMap[id] = this;
 		}
 
-		public static SqlRace Get (int id)
+		public static SqlRace Get (uint id)
 		{
 			return idMap[id];
 		}
@@ -203,9 +224,25 @@ namespace xcanalyze.io.sql
 
 	public class SqlRunner : Runner
 	{
-		private static Dictionary<int, SqlRunner> idMap = new Dictionary<int, SqlRunner>();
+		private static Dictionary<uint, SqlRunner> idMap = new Dictionary<uint, SqlRunner>();
+		private uint id;
+		private string[] nicknames;
+		
+		public uint Id {
+			get { return id; }
+		}
+		
+		public string[] Nicknames {
+			get { return nicknames; }
+		}
+		
+		public SqlRunner (uint id, string surname, string givenName, string[] nicknames, Gender gender, int? year) : base(surname, givenName, gender, year)
+		{
+			this.id = id;
+			this.nicknames = nicknames;
+		}
 
-		public static SqlRunner Get (int id)
+		public static SqlRunner Get (uint id)
 		{
 			return idMap[id];
 		}
@@ -213,22 +250,25 @@ namespace xcanalyze.io.sql
 
 	public class SqlSchool : School
 	{
-		private static Dictionary<int, School> idMap = new Dictionary<int, School>();
-		private int id;
-		private int conferenceId;
+		private static Dictionary<uint, School> idMap = new Dictionary<uint, School>();
+		private uint id;
+		private uint? conferenceId;
 		private string[] nicknames;
 		
 		public new string Conference {
-			get { return SqlConference.Get (ConferenceId).Name; }
-		}
-		
-		public int ConferenceId {
 			get {
-				return conferenceId;
+				if (ConferenceId == null) {
+					return null;
+				}
+				return SqlConference.Get (ConferenceId).Name;
 			}
 		}
 		
-		public int Id {
+		public uint? ConferenceId {
+			get { return conferenceId; }
+		}
+		
+		public uint Id {
 			get { return id; }
 		}
 		
@@ -238,18 +278,15 @@ namespace xcanalyze.io.sql
 			}
 		}
 		
-		public SqlSchool (int id, string name, string[] nicknames, string type, bool nameFirst, int conferenceId)
+		public SqlSchool (uint id, string name, string[] nicknames, string type, bool nameFirst, uint? conferenceId) : base(name, type, nameFirst)
 		{
 			this.id = id;
-			Name = name;
 			this.nicknames = nicknames;
-			Type = type;
-			NameFirst = nameFirst;
 			this.conferenceId = conferenceId;
 			idMap[id] = this;
 		}
 
-		public static School Get (int id)
+		public static School Get (uint id)
 		{
 			return idMap[id];
 		}
@@ -257,12 +294,12 @@ namespace xcanalyze.io.sql
 
 	public class SqlVenue
 	{
-		private static Dictionary<int, SqlVenue> idMap = new Dictionary<int, SqlVenue>();
-		private int id;
+		private static Dictionary<uint?, SqlVenue> idMap = new Dictionary<uint?, SqlVenue>();
+		private uint id;
 		private string name;
 		private string city;
 		private string state;
-		private int elevation;
+		private int? elevation;
 		
 		public string State {
 			get { return state; }
@@ -272,11 +309,11 @@ namespace xcanalyze.io.sql
 			get { return name; }
 		}
 
-		public int Id {
+		public uint Id {
 			get { return id; }
 		}
 
-		public int Elevation {
+		public int? Elevation {
 			get { return elevation; }
 		}
 
@@ -284,7 +321,7 @@ namespace xcanalyze.io.sql
 			get { return city; }
 		}
 
-		public SqlVenue (int id, string name, string city, string state, int elevation)
+		public SqlVenue (uint id, string name, string city, string state, int? elevation)
 		{
 			this.id = id;
 			this.name = name;
@@ -294,7 +331,7 @@ namespace xcanalyze.io.sql
 			idMap[id] = this;
 		}
 		
-		public static SqlVenue Get (int id)
+		public static SqlVenue Get (uint? id)
 		{
 			return idMap[id];
 		}

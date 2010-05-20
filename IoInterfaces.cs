@@ -3,8 +3,8 @@ using System;
 namespace xcanalyze.io {
 
 	public interface IReader<T> {
-		T Read();
 		void Close();
+		T Read();
 	}
 	
 	public interface IWriter<T> {

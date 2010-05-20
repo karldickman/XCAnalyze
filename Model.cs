@@ -94,13 +94,15 @@ namespace xcanalyze.model
 			protected set { year = value; }
 		}
 
-		protected Affiliation() {}
+		protected Affiliation (int year)
+		{
+			this.year = year;
+		}
 		
-		public Affiliation (Runner runner, School school, int year)
+		public Affiliation (Runner runner, School school, int year) : this(year)
 		{
 			this.runner = runner;
 			this.school = school;
-			this.year = year;
 		}
 	}
 
@@ -111,7 +113,7 @@ namespace xcanalyze.model
 	{
 		private Runner runner;
 		private Race race;
-		private float time;
+		private double time;
 		
 		/// <summary>
 		/// The length of the race whereat the time was run.
@@ -137,18 +139,20 @@ namespace xcanalyze.model
 		/// <summary>
 		/// The time that was run.
 		/// </summary>
-		public float Time {
+		public double Time {
 			get { return time; }
 			protected set { time = value; }
 		}
-
-		public Performance() {}
 		
-		public Performance (Runner runner, Race race, float time)
+		protected Performance (double time)
+		{
+			this.time = time;
+		}
+		
+		public Performance (Runner runner, Race race, double time) : this(time)
 		{
 			this.runner = runner;
 			this.race = race;
-			this.time = time;
 		}
 		
 		public int CompareTo (Performance that)
@@ -178,13 +182,13 @@ namespace xcanalyze.model
 		
 		public override int GetHashCode ()
 		{
-			return (new float[] {Pace (), Distance}).GetHashCode ();
+			return (new double[] {Pace (), Distance}).GetHashCode ();
 		}
 		
 		/// <summary>
 		/// The pace in minutes per mile of the performance.
 		/// </summary>
-		public float Pace ()
+		public double Pace ()
 		{
 			return Time / Distance * 60;
 		}
@@ -249,14 +253,16 @@ namespace xcanalyze.model
 			get { return state; }
 		}
 		
-		protected Race() {}
-		
-		public Race (string meet, DateTime date, Gender gender, int distance, string venue, string city, string state)
+		public Race (DateTime date, Gender gender, int distance)
 		{
-			this.meet = meet;
 			this.date = date;
 			this.gender = gender;
 			this.distance = distance;
+		}
+		
+		public Race (string meet, DateTime date, Gender gender, int distance, string venue, string city, string state) : this(date, gender, distance)
+		{
+			this.meet = meet;
 			this.venue = venue;
 			this.city = city;
 			this.state = state;
@@ -341,7 +347,7 @@ namespace xcanalyze.model
 		private string surname;
 		private string givenName;
 		private Gender gender;
-		private int year;
+		private int? year;
 
 		/// <summary>
 		/// The runner's surname.
@@ -367,13 +373,11 @@ namespace xcanalyze.model
 		/// <summary>
 		/// The runner's original graduation year.
 		/// </summary>
-		public int Year {
+		public int? Year {
 			get { return year; }
 		}
-
-		public Runner() {}
 		
-		public Runner (string surname, string givenName, Gender gender, int year)
+		public Runner (string surname, string givenName, Gender gender, int? year)
 		{
 			this.surname = surname;
 			this.givenName = givenName;
@@ -395,9 +399,20 @@ namespace xcanalyze.model
 			if (comparison != 0) {
 				return comparison;
 			}
-			comparison = Year.CompareTo (that.Year);
-			if (comparison != 0) {
-				return comparison;
+			if (Year != null && that.Year != null) {
+				if (Year != null) 
+				{
+					return -1;
+				}
+				if (that.Year != null) 
+				{
+					return 1;
+				}
+				comparison = Year.Value.CompareTo (that.Year.Value);
+				if (comparison != 0) 
+				{
+					return comparison;
+				}
 			}
 			if (Gender == that.Gender) {
 				return 0;
@@ -463,14 +478,16 @@ namespace xcanalyze.model
 		public string Conference {
 			get { return conference; }
 		}
-		
-		protected School() {}
 
-		public School (string name, string type, bool nameFirst, string conference)
+		public School (string name, string type, bool nameFirst)
 		{
 			this.name = name;
 			this.type = type;
 			this.nameFirst = nameFirst;
+		}
+		
+		public School (string name, string type, bool nameFirst, string conference) : this(name, type, nameFirst)
+		{
 			this.conference = conference;
 		}
 		
