@@ -3,21 +3,24 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using xcanalyze.io;
 using xcanalyze.model;
 
-namespace xcanalyze.io.test
+namespace xcanalyze.io
 {
 
-	public class IoTest<T>
+	public class TestIoBase<T>
 	{
 
 		private IDbConnection connection;
 		private IReader<List<T>> reader;
 		private IWriter<List<T>> writer;
 		private List<T> items;
-		protected readonly static string[] tables = {"venues", "meets", "races", "schools", "conferences", "runners", "affiliations", "results"};
+		protected readonly static string[] cities = {"Estacada", "Forest Grove", "Seattle"};
 		protected readonly static string[] conferences = {"Northwest Conference", "Southern California Intercollegiate Athletic Conference"};
+		protected readonly static string[] meets = {"Lewis & Clark Invitational", "Northwest Conference Championships"};
+		protected readonly static string[] states = {"OR", "OR", "WA"};
+		protected readonly static string[] tables = {"results", "races", "meets", "venues", "schools", "conferences", "affiliations", "runners"};
+		protected readonly static string[] venues = {"Milo McIver State Park", "Lincoln Park", "Lincoln Park"};
 
 		/// <summary>
 		/// The database connection to be used for the tests.
@@ -50,7 +53,7 @@ namespace xcanalyze.io.test
 			set { writer = value; }
 		}
 
-		public void Setup ()
+		public void InitDatabase ()
 		{
 			connection = new MySqlConnection ("Server=localhost; Database=xca_test; User ID=xcanalyze; Pooling = false");
 			connection.Open ();
@@ -59,7 +62,22 @@ namespace xcanalyze.io.test
 				command.CommandText = "DELETE FROM " + table;
 				command.ExecuteNonQuery ();
 			}
-			command.CommandText = "INSERT INTO conferences (name) VALUES (\"" + conferences[0] + "\"), (\"" + conferences[1] + "\")";
+			command.CommandText = "INSERT INTO conferences (name) VALUES (";
+			command.CommandText += TableWriter<T>.SqlFormat (conferences[0]) + "), (";
+			command.CommandText += TableWriter<T>.SqlFormat (conferences[1]) + ");";
+			command.CommandText += "INSERT INTO meets (name) VALUES (";
+			command.CommandText += TableWriter<T>.SqlFormat (meets[0]) + "), (";
+			command.CommandText += TableWriter<T>.SqlFormat (meets[1]) + ");";
+			command.CommandText += "INSERT INTO venues (name, city, state) VALUES (";
+			command.CommandText += TableWriter<T>.SqlFormat (venues[0]) + ", ";
+			command.CommandText += TableWriter<T>.SqlFormat (cities[0]) + ", ";
+			command.CommandText += TableWriter<T>.SqlFormat (states[0]) + "), (";
+			command.CommandText += TableWriter<T>.SqlFormat (venues[1]) + ", ";
+			command.CommandText += TableWriter<T>.SqlFormat (cities[1]) + ", ";
+			command.CommandText += TableWriter<T>.SqlFormat (states[1]) + "), (";
+			command.CommandText += TableWriter<T>.SqlFormat (venues[2]) + ", ";
+			command.CommandText += TableWriter<T>.SqlFormat (cities[2]) + ", ";
+			command.CommandText += TableWriter<T>.SqlFormat (states[2]) + ");";
 			command.ExecuteNonQuery ();
 		}
 
@@ -69,7 +87,7 @@ namespace xcanalyze.io.test
 			connection.Close ();
 		}
 		
-		public void TestIo ()
+		public void BaseTestIo ()
 		{
 			writer.Write (items);
 			writer.Close ();
@@ -83,13 +101,13 @@ namespace xcanalyze.io.test
 	}
 
 	[TestFixture]
-	public class RunnersIo : IoTest<Runner>
+	public class TestRunnersIo : TestIoBase<Runner>
 	{
 
 		[SetUp]
 		public void Setup ()
 		{
-			base.Setup ();
+			base.InitDatabase();
 			Reader = new RunnersReader (Connection);
 			Writer = new RunnersWriter (Connection);
 			Items = new List<Runner> ();
@@ -102,19 +120,20 @@ namespace xcanalyze.io.test
 		[Test]
 		public void TestIo ()
 		{
-			base.TestIo ();
+			base.BaseTestIo ();
 		}
 	}
 
 	[TestFixture]
-	public class SchoolsIo : IoTest<School>
+	public class TestSchoolsIo : TestIoBase<School>
 	{
+		private SchoolsWriter sWriter;
 		[SetUp]
 		public void Setup ()
 		{
-			base.Setup ();
+			base.InitDatabase();
 			Reader = new SchoolsReader (Connection);
-			Writer = new SchoolsWriter (Connection);
+			Writer = sWriter = new SchoolsWriter (Connection);
 			Items = new List<School> ();
 			Items.Add (new School ("Lewis & Clark", "College", true, conferences[0]));
 			Items.Add (new School ("Puget Sound", "University", false, conferences[0]));
@@ -125,19 +144,19 @@ namespace xcanalyze.io.test
 		}
 		
 		[Test]
-		public void TestIo() {
-			base.TestIo();
+		public void TestIo ()
+		{
+			base.BaseTestIo ();
 		}
 		
 		[Test]
 		public void TestCreateConference ()
 		{
-			SchoolsWriter sWriter = (SchoolsWriter)Writer;
-			int id1 = sWriter.ConferenceId (conferences[conferences.Length - 1]);
+			uint id1 = sWriter.ConferenceId (conferences[conferences.Length - 1]);
 			sWriter.CreateConference ("Southern Collegiate Athletic Conference");
 			sWriter.CreateConference ("Inter Mountain Conference");
-			int id2 = sWriter.ConferenceId ("Southern Collegiate Athletic Conference");
-			int id3 = sWriter.ConferenceId ("Inter Mountain Conference");
+			uint id2 = sWriter.ConferenceId ("Southern Collegiate Athletic Conference");
+			uint id3 = sWriter.ConferenceId ("Inter Mountain Conference");
 			Assert.AreEqual (id2 + 1, id3);
 			Assert.Less (id1, id2);
 		}
@@ -145,35 +164,97 @@ namespace xcanalyze.io.test
 		[Test]
 		public void TestConferenceId ()
 		{
-			SchoolsWriter sWriter = (SchoolsWriter)Writer;
-			Assert.AreEqual (-1, sWriter.ConferenceId ("xkcd"));
-			int id0 = sWriter.ConferenceId (conferences[0]);
-			int id1 = sWriter.ConferenceId (conferences[1]);
-			Assert.AreNotEqual (-1, id0);
-			Assert.AreNotEqual (-1, id1);
+			//Check that it does not find invalid conferences.
+			try {
+				sWriter.ConferenceId ("xkcd");
+				Assert.Fail ("Searching for xkcd should throw a TooFewResultsException.");
+			} catch (TooFewResultsException exception) {
+			}
+			uint id0 = sWriter.ConferenceId (conferences[0]);
+			uint id1 = sWriter.ConferenceId (conferences[1]);
 			Assert.AreEqual (id0 + 1, id1);
 		}
 	}
 	
 	[TestFixture]
-	public class RacesIo : IoTest<Race>
+	public class TestRacesIo : TestIoBase<Race>
 	{
+		private RacesWriter rWriter;
+		
 		[SetUp]
 		public void Setup ()
 		{
-			base.Setup ();
+			base.InitDatabase();
 			Reader = new RacesReader (Connection);
-			Writer = new RacesWriter (Connection);
+			Writer = rWriter = new RacesWriter (Connection);
 			Items = new List<Race> ();
-			Items.Add (new Race ("Lewis & Clark Invitational", new DateTime (2009, 9, 23), Gender.M, 8000, "Milo McIver State Park", "Estacada", "OR"));
-			Items.Add (new Race ("Northwest Conference Championship", new DateTime (2008, 11, 1), Gender.F, 6000, null, "Walla Walla", "WA"));
+			Items.Add (new Race (meets[0], new DateTime (2009, 9, 23), Gender.M, 8000, "Milo McIver State Park", "Estacada", "OR"));
+			Items.Add (new Race (meets[1], new DateTime (2008, 11, 1), Gender.F, 6000, null, "Walla Walla", "WA"));
 			Items.Add (new Race (null, new DateTime (2005, 8, 1), Gender.M, 8000, null, null, null));
 		}
 		
 		[Test]
-		public void testIo ()
+		public void TestIo ()
 		{
-			base.TestIo ();
+			base.BaseTestIo ();
+		}
+				
+		[Test]
+		public void TestCreateMeet ()
+		{
+			uint id1 = rWriter.MeetId (meets[meets.Length - 1]);
+			rWriter.CreateMeet ("Charles Bowles Invitational");
+			rWriter.CreateMeet ("Sundodger Invitational");
+			uint id2 = rWriter.MeetId("Charles Bowles Invitational");
+			uint id3 = rWriter.MeetId("Sundodger Invitational");
+			Assert.AreEqual (id2 + 1, id3);
+			Assert.Less (id1, id2);
+		}
+		
+		[Test]
+		public void TestCreateVenue ()
+		{
+			int numVenues = venues.Length;
+			uint id1 = rWriter.VenueId (venues[numVenues - 1], cities[numVenues - 1], states[numVenues - 1]);
+			rWriter.CreateVenue ("PLU Golf Course", "Spanaway", "WA");
+			rWriter.CreateVenue ("Willamette Mission State Park", "Brooks", "OR");
+			uint id2 = rWriter.VenueId ("PLU Golf Course");
+			uint id3 = rWriter.VenueId ("Willamette Mission State Park");
+			Assert.AreEqual (id2 + 1, id3);
+			Assert.Less (id1, id2);
+		}
+		
+		[Test]
+		public void testMeetId ()
+		{
+			try {
+				rWriter.MeetId ("xkcd");
+				Assert.Fail ("Searching for xkcd should raise a TooFewResultsException.");
+			} catch (TooFewResultsException exception) {
+			}
+			uint id0 = rWriter.MeetId (meets[0]);
+			uint id1 = rWriter.MeetId (meets[1]);
+			Assert.AreEqual (id0 + 1, id1);
+		}
+		
+		[Test]
+		public void testVenueId ()
+		{
+			try {
+				rWriter.VenueId ("xkcd");
+				Assert.Fail ("Searching for xkcd should raise a TooFewResultsException.");
+			} catch (TooFewResultsException exception) {
+			}
+			try {
+				rWriter.VenueId ("Lincoln Park");
+				Assert.Fail ("Searching for Lincoln Park should raise a TooManyResultsException.");
+			} catch (TooManyResultsException exception) {
+			}
+			uint id0 = rWriter.VenueId (venues[0]);
+			uint id1 = rWriter.VenueId (venues[1], cities[1]);
+			uint id2 = rWriter.VenueId (venues[2], cities[2]);
+			Assert.AreEqual (id0 + 1, id1);
+			Assert.AreEqual (id1 + 1, id2);
 		}
 	}
 }

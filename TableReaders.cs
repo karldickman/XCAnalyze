@@ -121,13 +121,39 @@ namespace xcanalyze.io {
 	
 	public class RacesReader : TableReader<Race> {
 	
-		public RacesReader(IDbConnection connection) : base(connection) {
-			Command.CommandText = "SELECT meet.name, date, gender, distance, venue.name AS venue, venue.city, venue.state FROM races";
+		public RacesReader (IDbConnection connection) : base(connection)
+		{
+			Command.CommandText = "SELECT meets.name, date, gender, distance, venues.name AS venue, venues.city, venues.state FROM races";
+			Command.CommandText += " LEFT OUTER JOIN meets ON races.meet_id = meets.id";
+			Command.CommandText += " LEFT OUTER JOIN venues ON races.venue_id = venues.id";
 		}
 		
 		public override Race ReadRow ()
 		{
-			throw new System.NotImplementedException();
+			DateTime date;
+			Gender gender;
+			int distance;
+			string name, venue, city, state;
+			if (Reader["name"] is DBNull) {
+				name = null;
+			} else {
+				name = (string)Reader["name"];
+			}
+			date = (DateTime)Reader["date"];
+			if ("M" == (string)Reader["gender"]) {
+				gender = Gender.M;
+			} else {
+				gender = Gender.F;
+			}
+			distance = (int)Reader["distance"];
+			if (Reader["venue"] is DBNull) {
+				venue = city = state = null;
+			} else {
+				venue = (string)Reader["venue"];
+				city = (string)Reader["city"];
+				state = (string)Reader["state"];
+			}
+			return new Race (name, date, gender, distance, venue, city, state);
 		}
 		
 	}

@@ -92,7 +92,7 @@ namespace xcanalyze.model
 	/// <summary>
 	/// An instance of a meet.
 	/// </summary>
-	public class Race
+	public class Race : IComparable<Race>
 	{
 		private string meet;
 		private DateTime date;
@@ -101,18 +101,6 @@ namespace xcanalyze.model
 		private string venue;
 		private string city;
 		private string state;
-
-
-		public Race (string meet, DateTime date, Gender gender, int distance, string venue, string city, string state)
-		{
-			this.meet = meet;
-			this.date = date;
-			this.gender = gender;
-			this.distance = distance;
-			this.venue = venue;
-			this.city = city;
-			this.state = state;
-		}
 
 		/// <summary>
 		/// The name of the meet.
@@ -157,6 +145,79 @@ namespace xcanalyze.model
 			get { return state; }
 		}
 		
+		public Race (string meet, DateTime date, Gender gender, int distance, string venue, string city, string state)
+		{
+			this.meet = meet;
+			this.date = date;
+			this.gender = gender;
+			this.distance = distance;
+			this.venue = venue;
+			this.city = city;
+			this.state = state;
+		}
+		
+		public int CompareTo (Race that)
+		{
+			int comparison;
+			if (this == that) {
+				return 0;
+			}
+			comparison = date.CompareTo (that.date);
+			if (comparison != 0) {
+				return comparison;
+			}
+			comparison = meet.CompareTo (that.meet);
+			if (comparison != 0) {
+				return comparison;
+			}
+			comparison = venue.CompareTo (that.venue);
+			if (comparison != 0) {
+				return comparison;
+			}
+			comparison = city.CompareTo (that.city);
+			if (comparison != 0) {
+				return comparison;
+			}
+			comparison = state.CompareTo (that.state);
+			if (comparison != 0) {
+				return comparison;
+			}
+			if (gender == that.gender) {
+				return 0;
+			}
+			if (gender == Gender.M) {
+				return -1;
+			}
+			return 1;
+		}
+		
+		public override bool Equals (object other)
+		{
+			if (this == other) {
+				return true;
+			}
+			if (other is Race) {
+				Race that = (Race)other;
+				return meet == that.meet && date.Year == that.date.Year && date.Month == that.date.Month && date.Day == that.date.Day && gender == that.gender && venue == that.venue && city == that.city;
+			}
+			return false;
+		}
+		
+		public override int GetHashCode ()
+		{
+			return ToString ().GetHashCode ();
+		}
+		
+		public override string ToString ()
+		{
+			string result;
+			if (gender == Gender.M) {
+				result = "Men";
+			} else {
+				result = "Women";
+			}
+			return result + "'s " + distance + " m run, " + meet + " (" + date + "), " + venue + ", " + city + ", " + state;
+		}
 	}
 
 	/// <summary>
