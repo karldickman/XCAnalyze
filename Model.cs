@@ -9,21 +9,22 @@ namespace xcanalyze.model
 		M,
 		F
 	}
-	
+
 	/// <summary>
 	/// A handy enumeration for gender.
 	/// </summary>
-	
-	public class Gender {
+
+	public class Gender
+	{
 		private _gender gender;
-		private static Gender male = new Gender(_gender.M);
-		private static Gender female = new Gender(_gender.F);
-		
+		private static Gender male = new Gender (_gender.M);
+		private static Gender female = new Gender (_gender.F);
+
 		protected Gender (_gender gender)
 		{
 			this.gender = gender;
 		}
-		
+
 		public static Gender FromString (string genderString)
 		{
 			if (genderString == "M") {
@@ -34,29 +35,28 @@ namespace xcanalyze.model
 			}
 			return null;
 		}
-		
+
 		public static Gender Male {
 			get { return male; }
 		}
-		
+
 		public static Gender Female {
 			get { return female; }
 		}
-		
+
 		public bool isMale ()
 		{
 			return gender == _gender.M;
 		}
-		
+
 		public bool isFemale ()
 		{
 			return gender == _gender.F;
 		}
-		
+
 		public override String ToString ()
 		{
-			if (isMale ())
-			{
+			if (isMale ()) {
 				return "M";
 			}
 			return "F";
@@ -66,7 +66,7 @@ namespace xcanalyze.model
 	/// <summary>
 	/// Describes in which year a runner ran for a particular school.
 	/// </summary>
-	public class Affiliation
+	public class Affiliation : IComparable<Affiliation>
 	{
 		private Runner runner;
 		private School school;
@@ -94,16 +94,46 @@ namespace xcanalyze.model
 			protected set { year = value; }
 		}
 
-		protected Affiliation (int year)
-		{
-			this.year = year;
-		}
-		
-		public Affiliation (Runner runner, School school, int year) : this(year)
+		public Affiliation (Runner runner, School school, int year)
 		{
 			this.runner = runner;
 			this.school = school;
+			this.year = year;
 		}
+
+		public int CompareTo (Affiliation other)
+		{
+			int comparison;
+			if (this == other) {
+				return 0;
+			}
+			comparison = Year.CompareTo (other.Year);
+			if (comparison != 0) {
+				return comparison;
+			}
+			comparison = School.CompareTo (other.School);
+			if (comparison != 0) {
+				return comparison;
+			}
+			return Runner.CompareTo (other.Runner);
+		}
+
+		public override bool Equals (object obj)
+		{
+			if (this == obj) {
+				return true;
+			}
+			if (obj is Affiliation) {
+				return 0 == CompareTo ((Affiliation)obj);
+			}
+			return false;
+		}
+
+		public override int GetHashCode ()
+		{
+			return Runner.GetHashCode () + School.GetHashCode () + Year.GetHashCode ();
+		}
+		
 	}
 
 	/// <summary>
@@ -114,7 +144,7 @@ namespace xcanalyze.model
 		private Runner runner;
 		private Race race;
 		private double time;
-		
+
 		/// <summary>
 		/// The length of the race whereat the time was run.
 		/// </summary>
@@ -128,7 +158,7 @@ namespace xcanalyze.model
 		public Race Race {
 			get { return race; }
 		}
-		
+
 		/// <summary>
 		/// The runner who ran the time.
 		/// </summary>
@@ -144,17 +174,13 @@ namespace xcanalyze.model
 			protected set { time = value; }
 		}
 		
-		protected Performance (double time)
-		{
-			this.time = time;
-		}
-		
-		public Performance (Runner runner, Race race, double time) : this(time)
+		public Performance (Runner runner, Race race, double time)
 		{
 			this.runner = runner;
 			this.race = race;
+			this.time = time;
 		}
-		
+
 		public int CompareTo (Performance that)
 		{
 			int comparison;
@@ -167,7 +193,7 @@ namespace xcanalyze.model
 			}
 			return Distance.CompareTo (that.Distance);
 		}
-		
+
 		public override bool Equals (object other)
 		{
 			if (this == other) {
@@ -179,12 +205,12 @@ namespace xcanalyze.model
 			}
 			return false;
 		}
-		
+
 		public override int GetHashCode ()
 		{
-			return (new double[] {Pace (), Distance}).GetHashCode ();
+			return (new double[] { Pace (), Distance }).GetHashCode ();
 		}
-		
+
 		/// <summary>
 		/// The pace in minutes per mile of the performance.
 		/// </summary>
@@ -213,13 +239,13 @@ namespace xcanalyze.model
 		public string Meet {
 			get { return meet; }
 		}
-		
+
 		/// <summary>
 		/// The date on which the race was held.
 		/// </summary>
 		public DateTime Date {
 			get { return date; }
-			protected set { date = value;}
+			protected set { date = value; }
 		}
 
 		/// <summary>
@@ -237,7 +263,7 @@ namespace xcanalyze.model
 			get { return distance; }
 			protected set { distance = value; }
 		}
-		
+
 		/// <summary>
 		/// The name of the venue.
 		/// </summary>
@@ -252,22 +278,18 @@ namespace xcanalyze.model
 		public string State {
 			get { return state; }
 		}
-		
-		public Race (DateTime date, Gender gender, int distance)
+
+		public Race (string meet, DateTime date, Gender gender, int distance, string venue, string city, string state)
 		{
 			this.date = date;
 			this.gender = gender;
 			this.distance = distance;
-		}
-		
-		public Race (string meet, DateTime date, Gender gender, int distance, string venue, string city, string state) : this(date, gender, distance)
-		{
 			this.meet = meet;
 			this.venue = venue;
 			this.city = city;
 			this.state = state;
 		}
-		
+
 		public int CompareTo (Race that)
 		{
 			int comparison;
@@ -305,12 +327,12 @@ namespace xcanalyze.model
 			if (Gender == that.Gender) {
 				return 0;
 			}
-			if (Gender.isMale()) {
+			if (Gender.isMale ()) {
 				return -1;
 			}
 			return 1;
 		}
-		
+
 		public override bool Equals (object other)
 		{
 			if (this == other) {
@@ -321,16 +343,16 @@ namespace xcanalyze.model
 			}
 			return false;
 		}
-		
+
 		public override int GetHashCode ()
 		{
 			return ToString ().GetHashCode ();
 		}
-		
+
 		public override string ToString ()
 		{
 			string result;
-			if(gender.isMale()) {
+			if (gender.isMale ()) {
 				result = "Men";
 			} else {
 				result = "Women";
@@ -348,6 +370,7 @@ namespace xcanalyze.model
 		private string givenName;
 		private Gender gender;
 		private int? year;
+		private List<Affiliation> affiliations;
 
 		/// <summary>
 		/// The runner's surname.
@@ -376,13 +399,28 @@ namespace xcanalyze.model
 		public int? Year {
 			get { return year; }
 		}
-		
-		public Runner (string surname, string givenName, Gender gender, int? year)
+
+		public List<Affiliation> Affiliations {
+			get { return affiliations; }
+		}
+
+		public Runner (string surname, string givenName, Gender gender, int? year) : this(surname, givenName, gender, year, new List<Affiliation>())
+		{
+		}
+
+		public Runner (string surname, string givenName, Gender gender, int? year, List<Affiliation> affiliations)
 		{
 			this.surname = surname;
 			this.givenName = givenName;
 			this.gender = Gender;
 			this.year = year;
+			this.affiliations = affiliations;
+		}
+
+		public void AddAffiliation (Affiliation affiliation)
+		{
+			Affiliations.Add (affiliation);
+			Affiliations.Sort ();
 		}
 
 		public int CompareTo (Runner that)
@@ -400,36 +438,33 @@ namespace xcanalyze.model
 				return comparison;
 			}
 			if (Year != null && that.Year != null) {
-				if (Year != null) 
-				{
+				if (Year != null) {
 					return -1;
 				}
-				if (that.Year != null) 
-				{
+				if (that.Year != null) {
 					return 1;
 				}
 				comparison = Year.Value.CompareTo (that.Year.Value);
-				if (comparison != 0) 
-				{
+				if (comparison != 0) {
 					return comparison;
 				}
 			}
 			if (Gender == that.Gender) {
 				return 0;
 			}
-			if(Gender.isMale()) {
+			if (Gender.isMale ()) {
 				return -1;
 			}
 			return 1;
 		}
-		
+
 		public override bool Equals (object other)
 		{
 			if (this == other) {
 				return true;
 			}
 			if (other is Runner) {
-				return 0 == CompareTo ((Runner) other);
+				return 0 == CompareTo ((Runner)other);
 			}
 			return false;
 		}
@@ -437,6 +472,22 @@ namespace xcanalyze.model
 		public override int GetHashCode ()
 		{
 			return (surname + ", " + givenName + gender + year).GetHashCode ();
+		}
+
+		/// <summary>
+		/// The most recent school with which the runner was affiliated.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="School"/>
+		/// </returns>
+		public School LastSchool ()
+		{
+			return Affiliations[Affiliations.Count - 1].School;
+		}
+
+		public override string ToString ()
+		{
+			return givenName + " " + surname + " (" + LastSchool () + " " + year + ")";
 		}
 		
 	}
@@ -447,7 +498,8 @@ namespace xcanalyze.model
 		private string type;
 		private bool nameFirst;
 		private string conference;
-		
+		private List<Affiliation> affiliations;
+
 		/// <summary>
 		/// The name of the school (Linfield, Willamette, etc.)
 		/// </summary>
@@ -479,18 +531,33 @@ namespace xcanalyze.model
 			get { return conference; }
 		}
 
-		public School (string name, string type, bool nameFirst)
+		/// <summary>
+		/// The runners who have competed for this school.
+		/// </summary>
+		public List<Affiliation> Affiliations {
+			get { return affiliations; }
+		}
+
+
+		public School (string name, string type, bool nameFirst, string conference) : this(name, type, nameFirst, conference, new List<Affiliation>())
+		{
+		}
+
+		public School (string name, string type, bool nameFirst, string conference, List<Affiliation> affiliations)
 		{
 			this.name = name;
 			this.type = type;
 			this.nameFirst = nameFirst;
-		}
-		
-		public School (string name, string type, bool nameFirst, string conference) : this(name, type, nameFirst)
-		{
 			this.conference = conference;
+			this.affiliations = affiliations;
 		}
-		
+
+		public void AddAffiliation (Affiliation affiliation)
+		{
+			Affiliations.Add (affiliation);
+			Affiliations.Sort ();
+		}
+
 		public int CompareTo (School that)
 		{
 			int comparison;
@@ -513,7 +580,7 @@ namespace xcanalyze.model
 			}
 			return Conference.CompareTo (that.Conference);
 		}
-		
+
 		public override bool Equals (object other)
 		{
 			if (this == other) {
@@ -525,15 +592,17 @@ namespace xcanalyze.model
 			return false;
 		}
 
-		public string FullName () {
+		public string FullName ()
+		{
 			if (nameFirst) {
 				return name + " " + type;
 			}
 			return type + " of " + name;
 		}
-		
-		public override int GetHashCode () {
-			return (ToString() + ", " + conference).GetHashCode();
+
+		public override int GetHashCode ()
+		{
+			return (ToString () + ", " + conference).GetHashCode ();
 		}
 
 		public override string ToString ()
@@ -578,6 +647,22 @@ namespace xcanalyze.model
 			this.races = races;
 			this.runners = runners;
 			this.schools = schools;
+			foreach (Affiliation affiliation in affiliations) {
+				Affiliate (affiliation);
+			}
+		}
+		
+		protected void Affiliate (Affiliation affiliation)
+		{
+			affiliation.Runner.AddAffiliation (affiliation);
+			affiliation.School.AddAffiliation (affiliation);
+		}
+		
+		public void Affiliate (Runner runner, School school, int year)
+		{
+			Affiliation affiliation = new Affiliation (runner, school, year);
+			Affiliations.Add (affiliation);
+			Affiliate (affiliation);
 		}
 
 		public List<Runner> Team (School school, int year, Gender gender)

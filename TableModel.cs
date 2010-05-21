@@ -8,42 +8,19 @@ namespace xcanalyze.io.sql
 	public class SqlAffiliation : Affiliation
 	{
 		private uint id;
-		private uint runnerId;
-		private uint schoolId;
-
+		
 		public uint Id {
 			get { return id; }
 		}
 
-		public new Runner Runner {
-			get { return SqlRunner.Get (runnerId); }
-		}
-
-		public uint RunnerId {
-			get { return runnerId; }
-		}
-
-		public new model.School School {
-			get { return SqlSchool.Get (schoolId); }
-		}
-
-		public uint SchoolId {
-			get { return schoolId; }
-		}
-
-		public SqlAffiliation (uint id, uint runnerId, uint schoolId, int year) : base(year)
+		public SqlAffiliation (uint id, Runner runner, School school, int year) : base(runner, school, year)
 		{
 			this.id = id;
-			this.runnerId = runnerId;
-			this.schoolId = schoolId;
-			this.Year = year;
 		}
 	}
 
 	public class SqlConference
 	{
-		private static Dictionary<uint?, SqlConference> idMap = new Dictionary<uint?, SqlConference> ();
-
 		private uint id;
 		private string name;
 		private string abbreviation;
@@ -65,18 +42,17 @@ namespace xcanalyze.io.sql
 			this.id = id;
 			this.name = name;
 			this.abbreviation = abbreviation;
-			idMap[id] = this;
+		}
+		
+		public override string ToString ()
+		{
+			return name;
 		}
 
-		public static SqlConference Get (uint? id)
-		{
-			return idMap[id];
-		}
 	}
 
 	public class SqlMeet
 	{
-		private static Dictionary<uint?, SqlMeet> idMap = new Dictionary<uint?, SqlMeet> ();
 		private uint id;
 		private string name;
 
@@ -92,139 +68,73 @@ namespace xcanalyze.io.sql
 		{
 			this.id = id;
 			this.name = name;
-			idMap[id] = this;
-		}
-
-		public static SqlMeet Get (uint? id)
-		{
-			return idMap[id];
 		}
 	}
 	
 	public class SqlPerformance : Performance {
-		private static Dictionary<uint, SqlPerformance> idMap = new Dictionary<uint, SqlPerformance>();
 		private uint id;
-		private uint runnerId;
-		private uint raceId;
 		
 		public uint Id {
-			get {
-				return id;
-			}
+			get { return id; }
 		}
-		
-		public new model.Race Race {
-			get { return SqlRace.Get (raceId); }
-		}
-		
-		public uint RaceId {
-			get {
-				return raceId;
-			}
-		}
-		
-		public new model.Runner Runner {
-			get { return SqlRunner.Get (runnerId); }
-		}
-		
-		public uint RunnerId {
-			get {
-				return runnerId;
-			}
-		}
-		
-		public SqlPerformance (uint id, uint runnerId, uint raceId, double time) : base(time)
+
+		public SqlPerformance (uint id, Runner runner, Race race, double time) : base(runner, race, time)
 		{
 			this.id = id;
-			this.runnerId = runnerId;
-			this.raceId = raceId;
-			this.Time = time;
-			idMap[id] = this;
-		}
-		
-		public SqlPerformance Get (uint id)
-		{
-			return idMap[id];
 		}
 	}
 
 	public class SqlRace : Race
 	{
-		private static Dictionary<uint, SqlRace> idMap = new Dictionary<uint, SqlRace>();
 		private uint id;
-		private uint? meetId;
-		private uint? venueId;
-
-		public new string City {
-			get {
-				if (venueId == null) 
-				{
-					return null;
-				}
-				return SqlVenue.Get (venueId).City;
-			}
-		}
+		private SqlMeet meet;
+		private SqlVenue venue;
 
 		public uint Id {
 			get { return id; }
 		}
-
-		public new string Meet {
-			get {
-				if (meetId == null) 
-				{
-					return null;
-				}
-				return SqlMeet.Get (meetId).Name;
-			}
+		
+		public new SqlMeet Meet {
+			get { return meet; }
+		}
+		
+		public new SqlVenue Venue {
+			get { return venue; }
 		}
 
-		public uint? MeetId {
-			get { return meetId; }
-		}
-
-		public new string State {
-			get {
-				if (venueId == null) 
-				{
-					return null;
-				}
-				return SqlVenue.Get (venueId).State;
-			}
-		}
-
-		public new string Venue {
-			get {
-				if (venueId == null) 
-				{
-					return null;
-				}
-				return SqlVenue.Get (venueId).Name;
-			}
-		}
-
-		public uint? VenueId {
-			get { return venueId; }
-		}
-
-		public SqlRace (uint id, uint? meetId, uint? venueId, DateTime date, Gender gender, int distance) : base(date, gender, distance)
+		protected SqlRace (uint id, SqlMeet meet, string meetName, SqlVenue venue, string venueName, string city, string state, DateTime date, Gender gender, int distance) : base(meetName, date, gender, distance, venueName, city, state)
 		{
 			this.id = id;
-			this.meetId = meetId;
-			this.venueId = venueId;
-			idMap[id] = this;
+			this.meet = meet;
+			this.venue = venue;
 		}
-
-		public static SqlRace Get (uint id)
+		
+		public static SqlRace NewInstance (uint id, SqlMeet meet, SqlVenue venue, DateTime date, Gender gender, int distance)
 		{
-			return idMap[id];
+			string meetName, venueName, city, state;
+			if (meet == null) 
+			{
+				meetName = null;
+			} else {
+				meetName = meet.Name;
+			}
+			if (venue == null) 
+			{
+				venueName = null;
+				city = null;
+				state = null;
+			} else {
+				venueName = venue.Name;
+				city = venue.City;
+				state = venue.State;
+			}
+			return new SqlRace (id, meet, meetName, venue, venueName, city, state, date, gender, distance);
 		}
 		
 	}
 
 	public class SqlRunner : Runner
 	{
-		private static Dictionary<uint, SqlRunner> idMap = new Dictionary<uint, SqlRunner>();
 		private uint id;
 		private string[] nicknames;
 		
@@ -241,31 +151,16 @@ namespace xcanalyze.io.sql
 			this.id = id;
 			this.nicknames = nicknames;
 		}
-
-		public static SqlRunner Get (uint id)
-		{
-			return idMap[id];
-		}
 	}
 
 	public class SqlSchool : School
 	{
-		private static Dictionary<uint, School> idMap = new Dictionary<uint, School>();
 		private uint id;
-		private uint? conferenceId;
+		private SqlConference conference;
 		private string[] nicknames;
 		
-		public new string Conference {
-			get {
-				if (ConferenceId == null) {
-					return null;
-				}
-				return SqlConference.Get (ConferenceId).Name;
-			}
-		}
-		
-		public uint? ConferenceId {
-			get { return conferenceId; }
+		public new SqlConference Conference {
+			get { return conference; }
 		}
 		
 		public uint Id {
@@ -278,23 +173,26 @@ namespace xcanalyze.io.sql
 			}
 		}
 		
-		public SqlSchool (uint id, string name, string[] nicknames, string type, bool nameFirst, uint? conferenceId) : base(name, type, nameFirst)
+		protected SqlSchool (uint id, string name, string[] nicknames, string type, bool nameFirst, SqlConference conference, string conferenceName) : base(name, type, nameFirst, conferenceName)
 		{
 			this.id = id;
 			this.nicknames = nicknames;
-			this.conferenceId = conferenceId;
-			idMap[id] = this;
+			this.conference = conference;
 		}
-
-		public static School Get (uint id)
-		{
-			return idMap[id];
+		
+		public static SqlSchool NewInstance(uint id, string name, string[] nicknames, string type, bool nameFirst, SqlConference conference) {
+			string conferenceName;
+			if(conference == null) {
+				conferenceName = null;
+			} else {
+				conferenceName = conference.Name;
+			}
+			return new SqlSchool(id, name, nicknames, type, nameFirst, conference, conferenceName);
 		}
 	}
 
 	public class SqlVenue
 	{
-		private static Dictionary<uint?, SqlVenue> idMap = new Dictionary<uint?, SqlVenue>();
 		private uint id;
 		private string name;
 		private string city;
@@ -328,12 +226,6 @@ namespace xcanalyze.io.sql
 			this.city = city;
 			this.state = state;
 			this.elevation = elevation;
-			idMap[id] = this;
-		}
-		
-		public static SqlVenue Get (uint? id)
-		{
-			return idMap[id];
 		}
 		
 	}
