@@ -50,21 +50,21 @@ namespace XcAnalyze.Model
 		public int CompareTo (Affiliation other)
 		{
 			int comparison;
-			IComparable[] fields = { (IComparable)School, (IComparable)Runner, Year };
-			IComparable[] otherFields = { (IComparable)other.School, (IComparable)other.Runner, other.Year };
 			if (this == other) 
 			{
 				return 0;
 			}
-			for (int i = 0; i < fields.Length; i++) 
+			comparison = School.CompareTo (other.School);
+			if (comparison != 0) 
 			{
-				comparison = fields[i].CompareTo (otherFields[i]);
-				if (comparison != 0) 
-				{
-					return comparison;
-				}
+				return comparison;
 			}
-			return 0;
+			comparison = Runner.CompareTo (other.Runner);
+			if (comparison != 0) 
+			{
+				return comparison;
+			}
+			return Year.CompareTo(other.Year);
 		}
 		
 		public override bool Equals (object other)

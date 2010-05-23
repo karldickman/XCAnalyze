@@ -156,6 +156,78 @@ namespace XcAnalyze.Model {
 
 		public void Score ()
 		{
+			Dictionary<School, TeamScore> scores = new Dictionary<School, TeamScore> ();
+			//Add the runners to the school
+			foreach (Performance result in Results) 
+			{
+				if (result.School != null) 
+				{
+					result.Points = 0;
+					if (scores.ContainsKey (result.School))
+					{
+						scores[result.School].Runners.Add (result);
+					}
+					else
+					{
+						scores[result.School] = new TeamScore (result.School);
+					}
+				}
+			}
+			//Tag runners on teams with fewer than five as scoreless
+			//Tag runner 8 and beyond on each team as scorelss
+			foreach (TeamScore score in scores.Values) 
+			{
+				if (score.Runners.Count < 5)
+				{
+					foreach (Performance runner in score.Runners)
+					{
+						runner.Points = null;
+					}
+				}
+				else if (score.Runners.Count > 7) 
+				{
+					for (int i = 7; i < score.Runners.Count; i++) 
+					{
+						score.Runners[i].Points = null;
+					}
+				}
+			}
+			//Find first runner with a score
+			int firstWithScore;
+			for (firstWithScore = 0; firstWithScore < Results.Count; firstWithScore++) 
+			{
+				if (Results[firstWithScore].Points != null) 
+				{
+					Results[firstWithScore].Points = 1;
+					break;
+				}
+			}
+			//Tag each runner with their points
+			Performance previous = Results[firstWithScore];
+			int points = 2;
+			for (int i = firstWithScore + 1; i < Results.Count; i++)
+			{
+				if (Results[i].Points != null) 
+				{
+					if (Results[i].Time != previous.Time) 
+					{
+						Results[i].Points = points;
+					}
+					else 
+					{
+						Results[i].Points = previous.Points;
+					}
+					points++;
+				}
+			}
+			//Create the final list
+			List<TeamScore> scoreList = new List<TeamScore> ();
+			foreach (TeamScore score in scores.Values) 
+			{
+				scoreList.Add (score);
+			}
+			scoreList.Sort ();
+			this.scores = scoreList;
 		}
 
 		public override string ToString ()

@@ -41,9 +41,17 @@ namespace XcAnalyze.Model
 		/// <summary>
 		/// The runner who ran the time.
 		/// </summary>
-		public Runner Runner
+		protected Runner Runner
 		{
 			get { return runner; }
+		}
+		
+		/// <summary>
+		/// The school with which this runner was associated when he ran this time.
+		/// </summary>
+		public School School
+		{
+			get { return Runner.School(Race.Date.Year); }
 		}
 
 		/// <summary>

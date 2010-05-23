@@ -9,7 +9,7 @@ namespace XcAnalyze.Model
 	/// </summary>
 	public class Runner : IComparable<Runner>
 	{
-		private List<Affiliation> affiliations;
+		private Dictionary<int, Affiliation> affiliations;
 		private Gender gender;
 		private string givenName;
 		private string surname;
@@ -18,7 +18,7 @@ namespace XcAnalyze.Model
 		/// <summary>
 		/// The affiliations of the runner over their career.
 		/// </summary>
-		public List<Affiliation> Affiliations {
+		protected Dictionary<int, Affiliation> Affiliations {
 			get { return affiliations; }
 		}
 
@@ -52,11 +52,11 @@ namespace XcAnalyze.Model
 			get { return year; }
 		}
 		
-		public Runner (string surname, string givenName, Gender gender, int? year) : this(surname, givenName, gender, year, new List<Affiliation> ())
+		public Runner (string surname, string givenName, Gender gender, int? year) : this(surname, givenName, gender, year, new Dictionary<int, Affiliation> ())
 		{
 		}
 
-		public Runner (string surname, string givenName, Gender gender, int? year, List<Affiliation> affiliations)
+		public Runner (string surname, string givenName, Gender gender, int? year, Dictionary<int, Affiliation> affiliations)
 		{
 			this.surname = surname;
 			this.givenName = givenName;
@@ -70,8 +70,7 @@ namespace XcAnalyze.Model
 		/// </summary>
 		public void AddAffiliation (Affiliation affiliation)
 		{
-			Affiliations.Add (affiliation);
-			Affiliations.Sort ();
+			Affiliations.Add (affiliation.Year, affiliation);
 		}
 
 		/// <summary>
@@ -125,6 +124,18 @@ namespace XcAnalyze.Model
 		public School LastSchool ()
 		{
 			return Affiliations[Affiliations.Count - 1].School;
+		}
+		
+		/// <summary>
+		/// The school the runner was associated with in the given year.
+		/// </summary>
+		public School School (int year)
+		{
+			if (Affiliations.ContainsKey (year))
+			{
+				return Affiliations[year].School;
+			}
+			return null;
 		}
 
 		public override string ToString ()
