@@ -1,6 +1,6 @@
 using System;
 
-namespace xcanalyze.io {
+namespace XcAnalyze.Io {
 
 	public interface IReader<T> {
 		void Close();

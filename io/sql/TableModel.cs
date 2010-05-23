@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using xcanalyze.model;
+using XcAnalyze.Model;
 
-namespace xcanalyze.io.sql
+namespace XcAnalyze.Io.Sql
 {
 
 	public class SqlAffiliation : Affiliation

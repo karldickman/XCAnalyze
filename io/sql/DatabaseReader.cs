@@ -1,14 +1,15 @@
+using MySql.Data.MySqlClient;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using xcanalyze.model;
+using XcAnalyze.Model;
 
-namespace xcanalyze.io.sql
+namespace XcAnalyze.Io.Sql
 {
 
-	public class DatabaseReader : IReader<Model>
+	public class DatabaseReader : IReader<Model.Model>
 	{
-
 		private IDataReader reader;
 		private IDbCommand command;
 		private IDbConnection connection;
@@ -38,7 +39,7 @@ namespace xcanalyze.io.sql
 			Command.Dispose ();
 		}
 
-		public Model Read ()
+		public Model.Model Read ()
 		{
 			Dictionary<uint, SqlConference> conferences = ReadConferences ();
 			Dictionary<uint, Runner> runners = ReadRunners ();
@@ -48,7 +49,7 @@ namespace xcanalyze.io.sql
 			Dictionary<uint, SqlVenue> venues = ReadVenues ();
 			Dictionary<uint, Race> races = ReadRaces (meets, venues);
 			Dictionary<uint, Performance> performances = ReadPerformances (runners, races);
-			return new Model (new List<Affiliation>(affiliations.Values), new List<Performance>(performances.Values), new List<Race>(races.Values), new List<Runner>(runners.Values), new List<School>(schools.Values));
+			return new Model.Model (new List<Affiliation>(affiliations.Values), new List<Performance>(performances.Values), new List<Race>(races.Values), new List<Runner>(runners.Values), new List<School>(schools.Values));
 		}
 		
 		Dictionary<uint, Affiliation> ReadAffiliations (Dictionary<uint, Runner> runners, Dictionary<uint, School> schools)
@@ -229,6 +230,47 @@ namespace xcanalyze.io.sql
 			Reader.Close ();
 			return venues;
 		}
-		
+	}
+	
+	[TestFixture]
+	public class TestDatabaseReader
+	{
+		private IDbConnection connection;
+		private string connectionString;
+		private DatabaseReader reader;
+
+		protected IDbConnection Connection {
+			get { return connection; }
+			set { connection = value; }
+		}
+
+		protected string ConnectionString {
+			get { return connectionString; }
+			set { connectionString = value; }
+		}
+
+		protected DatabaseReader Reader {
+			get { return reader; }
+			set { reader = value; }
+		}
+
+		[SetUp]
+		public void Setup ()
+		{
+			ConnectionString = "Server=localhost;";
+			ConnectionString += "Database=xcanalyze;";
+			ConnectionString += "User ID=xcanalyze;";
+			ConnectionString += "Pooling=false;";
+			Connection = new MySqlConnection (ConnectionString);
+			Connection.Open ();
+			Reader = new DatabaseReader (Connection);
+		}
+
+		[Test]
+		public void TestRead ()
+		{
+			Reader.Read ();
+			Reader.Close ();
+		}
 	}
 }
