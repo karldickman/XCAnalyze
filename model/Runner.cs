@@ -35,6 +35,14 @@ namespace XcAnalyze.Model
 		public string GivenName {
 			get { return givenName; }
 		}
+				
+		/// <summary>
+		/// The runner's full name.
+		/// </summary>
+		public string Name
+		{
+			get { return GivenName + " " + Surname; }
+		}
 
 		/// <summary>
 		/// The runner's surname.
@@ -140,7 +148,7 @@ namespace XcAnalyze.Model
 
 		public override string ToString ()
 		{
-			return givenName + " " + surname + " (" + LastSchool () + " " + year + ")";
+			return Name + " (" + LastSchool () + " " + Year + ")";
 		}	
 	}
 }

@@ -14,8 +14,8 @@ namespace XcAnalyze.Model
 	public class Gender : IComparable<Gender>
 	{
 		private gender gender;
-		private static Gender male = new Gender (gender.M);
-		private static Gender female = new Gender (gender.F);
+		private static readonly Gender MALE = new Gender (gender.M);
+		private static readonly Gender FEMALE = new Gender (gender.F);
 
 		internal Gender (gender gender)
 		{
@@ -29,29 +29,13 @@ namespace XcAnalyze.Model
 		{
 			if (genderString == "M")
 			{
-				return Male;
+				return MALE;
 			}
 			if (genderString == "F")
 			{
-				return Female;
+				return FEMALE;
 			}
 			return null;
-		}
-		
-		/// <summary>
-		/// Get the male instance.
-		/// </summary>
-		public static Gender Male
-		{
-			get { return male; }
-		}
-
-		/// <summary>
-		/// Get the female instance.
-		/// </summary>
-		public static Gender Female
-		{
-			get { return female; }
 		}
 
 		/// <summary>
@@ -63,7 +47,7 @@ namespace XcAnalyze.Model
 			{
 				return 0;
 			}
-			if (this == Male)
+			if (this == MALE)
 			{
 				return -1;
 			}
@@ -80,7 +64,7 @@ namespace XcAnalyze.Model
 		/// </summary>>
 		public bool IsMale ()
 		{
-			return gender == gender.M;
+			return this == MALE;
 		}
 
 		/// <summary>
@@ -88,7 +72,7 @@ namespace XcAnalyze.Model
 		/// </summary>
 		public bool IsFemale ()
 		{
-			return gender == gender.F;
+			return this == FEMALE;
 		}
 
 		/// <summary>

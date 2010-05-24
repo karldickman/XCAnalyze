@@ -84,5 +84,10 @@ namespace XcAnalyze.Model
 		{
 			return base.GetHashCode ();
 		}
+		
+		public override string ToString ()
+		{
+			return Runner.Name + ", " + School.Name + " " + Year;
+		}
 	}
 }

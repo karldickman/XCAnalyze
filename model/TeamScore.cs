@@ -51,8 +51,6 @@ namespace XcAnalyze.Model
 			if (item2.Runners.Count < breakAt) {
 				return -1;
 			}
-			Console.WriteLine(item1.Runners[breakAt - 1].Points);
-			Console.WriteLine(item2.Runners[breakAt - 1].Points);
 			return item1.Runners[breakAt - 1].Points.Value.CompareTo (item2.Runners[breakAt - 1].Points.Value);
 		}
 		
