@@ -62,7 +62,7 @@ namespace XcAnalyze.Io.Sql
 				id = (uint)reader["id"];
 				runnerId = (uint)reader["runner_id"];
 				schoolId = (uint)reader["school_id"];
-				affiliations.Add (id, new SqlAffiliation (id, runners[runnerId], schools[schoolId], (int)reader["year"]));
+				affiliations.Add (id, new SqlAffiliation ((int)id, runners[runnerId], schools[schoolId], (int)reader["year"]));
 			}
 			Reader.Close ();
 			return affiliations;
@@ -106,7 +106,7 @@ namespace XcAnalyze.Io.Sql
 				id = (uint)reader["id"];
 				runnerId = (uint)reader["runner_id"];
 				raceId = (uint)reader["race_id"];
-				performances.Add (id, new SqlPerformance (id, runners[runnerId], races[raceId], new Time((double)reader["time"])));
+				performances.Add (id, new SqlPerformance ((int)id, runners[runnerId], races[raceId], new Time((double)reader["time"])));
 			}
 			Reader.Close ();
 			return performances;
@@ -161,7 +161,7 @@ namespace XcAnalyze.Io.Sql
 				} else {
 					year = (int?)reader["year"];
 				}
-				runners.Add (id, new SqlRunner (id, (string)reader["surname"], (string)reader["given_name"], nicknames, Gender.FromString ((string)reader["gender"]), year));
+				runners.Add (id, new SqlRunner ((int)id, (string)reader["surname"], (string)reader["given_name"], nicknames, Gender.FromString ((string)reader["gender"]), year));
 			}
 			Reader.Close ();
 			return runners;
@@ -239,38 +239,23 @@ namespace XcAnalyze.Io.Sql
 		private string connectionString;
 		private DatabaseReader reader;
 
-		protected IDbConnection Connection {
-			get { return connection; }
-			set { connection = value; }
-		}
-
-		protected string ConnectionString {
-			get { return connectionString; }
-			set { connectionString = value; }
-		}
-
-		protected DatabaseReader Reader {
-			get { return reader; }
-			set { reader = value; }
-		}
-
 		[SetUp]
 		public void Setup ()
 		{
-			ConnectionString = "Server=localhost;";
-			ConnectionString += "Database=xcanalyze;";
-			ConnectionString += "User ID=xcanalyze;";
-			ConnectionString += "Pooling=false;";
-			Connection = new MySqlConnection (ConnectionString);
-			Connection.Open ();
-			Reader = new DatabaseReader (Connection);
+			connectionString = "Server=localhost;";
+			connectionString += "Database=xcanalyze;";
+			connectionString += "User ID=xcanalyze;";
+			connectionString += "Pooling=false;";
+			connection = new MySqlConnection (connectionString);
+			connection.Open ();
+			reader = new DatabaseReader (connection);
 		}
 
 		[Test]
 		public void TestRead ()
 		{
-			Reader.Read ();
-			Reader.Close ();
+			reader.Read ();
+			reader.Close ();
 		}
 	}
 }

@@ -12,6 +12,7 @@ namespace XcAnalyze.Model
         private Dictionary<int, Affiliation> affiliations;
         private Gender gender;
         private string givenName;
+        private int id;
         private List<Performance> performances;
         private string surname;
         private int? year;
@@ -38,6 +39,11 @@ namespace XcAnalyze.Model
         public string GivenName
         {
             get { return givenName; }
+        }
+        
+        public int Id
+        {
+            get { return id; }
         }
                 
         /// <summary>
@@ -72,12 +78,13 @@ namespace XcAnalyze.Model
             get { return year; }
         }     
         
-        public Runner (string surname, string givenName, Gender gender, int? year) : this(surname, givenName, gender, year, new Dictionary<int, Affiliation> (), new List<Performance>())
+        public Runner (int id, string surname, string givenName, Gender gender, int? year) : this(id, surname, givenName, gender, year, new Dictionary<int, Affiliation> (), new List<Performance>())
         {
         }
             
-        public Runner (string surname, string givenName, Gender gender, int? year, Dictionary<int, Affiliation> affiliations, List<Performance> performances)
+        public Runner (int id, string surname, string givenName, Gender gender, int? year, Dictionary<int, Affiliation> affiliations, List<Performance> performances)
         {
+            this.id = id;
             this.surname = surname;
             this.givenName = givenName;
             this.gender = gender;

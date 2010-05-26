@@ -62,9 +62,21 @@ namespace XcAnalyze.Model
         
         public void Affiliate (Runner runner, School school, int year)
         {
-            Affiliation affiliation = new Affiliation (runner, school, year);
+            Affiliation affiliation = new Affiliation (0, runner, school, year);
             affiliations.Add (affiliation);
             Affiliate (affiliation);
+        }
+        
+        public Race GetRace (int id)
+        {
+            foreach (Race race in races)
+            {
+                if (race.Id == id) 
+                {
+                    return race;
+                }
+            }
+            return null;
         }
         
         public void RegisterPerformance (Performance performance)
@@ -75,7 +87,7 @@ namespace XcAnalyze.Model
         
         public void RegisterPerformance (Race race, Runner runner, Time time)
         {
-            Performance performance = new Performance (runner, race, time);
+            Performance performance = new Performance (0, runner, race, time);
             performances.Add (performance);
             RegisterPerformance (performance);
         }
