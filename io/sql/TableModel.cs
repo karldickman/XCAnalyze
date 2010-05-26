@@ -78,7 +78,7 @@ namespace XcAnalyze.Io.Sql
 			get { return id; }
 		}
 
-		public SqlPerformance (uint id, Runner runner, Race race, double time) : base(runner, race, time)
+		public SqlPerformance (uint id, Runner runner, Race race, Time time) : base(runner, race, time)
 		{
 			this.id = id;
 		}
@@ -102,14 +102,14 @@ namespace XcAnalyze.Io.Sql
 			get { return venue; }
 		}
 
-		protected SqlRace (uint id, SqlMeet meet, string meetName, SqlVenue venue, string venueName, string city, string state, DateTime date, Gender gender, int distance) : base(meetName, date, gender, distance, venueName, city, state)
+		protected SqlRace (uint id, SqlMeet meet, string meetName, SqlVenue venue, string venueName, string city, string state, Date date, Gender gender, int distance) : base(meetName, date, gender, distance, venueName, city, state)
 		{
 			this.id = id;
 			this.meet = meet;
 			this.venue = venue;
 		}
 		
-		public static SqlRace NewInstance (uint id, SqlMeet meet, SqlVenue venue, DateTime date, Gender gender, int distance)
+		public static SqlRace NewInstance (uint id, SqlMeet meet, SqlVenue venue, Date date, Gender gender, int distance)
 		{
 			string meetName, venueName, city, state;
 			if (meet == null) 

@@ -8,7 +8,7 @@ using XcAnalyze.Model;
 namespace XcAnalyze.Io.Sql
 {
 
-	public class DatabaseReader : IReader<Model.Model>
+	public class DatabaseReader : IReader<Data>
 	{
 		private IDataReader reader;
 		private IDbCommand command;
@@ -39,7 +39,7 @@ namespace XcAnalyze.Io.Sql
 			Command.Dispose ();
 		}
 
-		public Model.Model Read ()
+		public Data Read ()
 		{
 			Dictionary<uint, SqlConference> conferences = ReadConferences ();
 			Dictionary<uint, Runner> runners = ReadRunners ();
@@ -49,7 +49,7 @@ namespace XcAnalyze.Io.Sql
 			Dictionary<uint, SqlVenue> venues = ReadVenues ();
 			Dictionary<uint, Race> races = ReadRaces (meets, venues);
 			Dictionary<uint, Performance> performances = ReadPerformances (runners, races);
-			return new Model.Model (new List<Affiliation>(affiliations.Values), new List<Performance>(performances.Values), new List<Race>(races.Values), new List<Runner>(runners.Values), new List<School>(schools.Values));
+			return new Data (new List<Affiliation>(affiliations.Values), new List<Performance>(performances.Values), new List<Race>(races.Values), new List<Runner>(runners.Values), new List<School>(schools.Values));
 		}
 		
 		Dictionary<uint, Affiliation> ReadAffiliations (Dictionary<uint, Runner> runners, Dictionary<uint, School> schools)
@@ -106,7 +106,7 @@ namespace XcAnalyze.Io.Sql
 				id = (uint)reader["id"];
 				runnerId = (uint)reader["runner_id"];
 				raceId = (uint)reader["race_id"];
-				performances.Add (id, new SqlPerformance (id, runners[runnerId], races[raceId], (double)reader["time"]));
+				performances.Add (id, new SqlPerformance (id, runners[runnerId], races[raceId], new Time((double)reader["time"])));
 			}
 			Reader.Close ();
 			return performances;
@@ -132,7 +132,7 @@ namespace XcAnalyze.Io.Sql
 				} else {
 					venue = venues[(uint)reader["venue_id"]];
 				}
-				races.Add (id, SqlRace.NewInstance (id, meet, venue, (DateTime)reader["date"], Gender.FromString ((string)reader["gender"]), (int)reader["distance"]));
+				races.Add (id, SqlRace.NewInstance (id, meet, venue, new Date((DateTime)reader["date"]), Gender.FromString ((string)reader["gender"]), (int)reader["distance"]));
 			}
 			Reader.Close ();
 			return races;

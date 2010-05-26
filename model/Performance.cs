@@ -11,14 +11,14 @@ namespace XcAnalyze.Model
 		private int? points;
 		private Race race;
 		private Runner runner;
-		private double time;
+		private Time time;
 
 		/// <summary>
 		/// The length of the race whereat the time was run.
 		/// </summary>
 		public int Distance
 		{
-			get { return Race.Distance; }
+			get { return race.Distance; }
 		}
 		
 		/// <summary>
@@ -41,7 +41,7 @@ namespace XcAnalyze.Model
 		/// <summary>
 		/// The runner who ran the time.
 		/// </summary>
-		protected Runner Runner
+		public Runner Runner
 		{
 			get { return runner; }
 		}
@@ -57,13 +57,12 @@ namespace XcAnalyze.Model
 		/// <summary>
 		/// The time that was run.
 		/// </summary>
-		public double Time
+		public Time Time
 		{
 			get { return time; }
-			protected set { time = value; }
-		}
+		}     
 
-		public Performance (Runner runner, Race race, double time)
+		public Performance (Runner runner, Race race, Time time)
 		{
 			this.runner = runner;
 			this.race = race;
@@ -112,7 +111,7 @@ namespace XcAnalyze.Model
 		/// </summary>
 		public double Pace ()
 		{
-			return Time / Distance * 60;
+			return time.Seconds / Distance * 60;
 		}
-	}
+    }
 }

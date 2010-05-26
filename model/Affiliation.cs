@@ -34,7 +34,6 @@ namespace XcAnalyze.Model
 		public int Year
 		{
 			get { return year; }
-			protected set { year = value; }
 		}
 		
 		public Affiliation (Runner runner, School school, int year)
@@ -54,17 +53,17 @@ namespace XcAnalyze.Model
 			{
 				return 0;
 			}
-			comparison = School.CompareTo (other.School);
+			comparison = school.CompareTo (other.school);
 			if (comparison != 0) 
 			{
 				return comparison;
 			}
-			comparison = Runner.CompareTo (other.Runner);
+			comparison = runner.CompareTo (other.runner);
 			if (comparison != 0) 
 			{
 				return comparison;
 			}
-			return Year.CompareTo(other.Year);
+			return year.CompareTo(other.year);
 		}
 		
 		public override bool Equals (object other)
@@ -87,7 +86,7 @@ namespace XcAnalyze.Model
 		
 		public override string ToString ()
 		{
-			return Runner.Name + ", " + School.Name + " " + Year;
+			return runner.Name + ", " + school.Name + " " + year;
 		}
 	}
 }

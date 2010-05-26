@@ -70,8 +70,8 @@ namespace XcAnalyze.Model {
 
 		public void AddAffiliation (Affiliation affiliation)
 		{
-			Affiliations.Add (affiliation);
-			Affiliations.Sort ();
+			affiliations.Add (affiliation);
+			affiliations.Sort ();
 		}
 
 		/// <summary>
@@ -84,16 +84,16 @@ namespace XcAnalyze.Model {
 			{
 				return 0;
 			}
-			comparison = Name.CompareTo (other.Name);
+			comparison = name.CompareTo (other.name);
 			if (comparison != 0)
 			{
 				return comparison;
 			}
-			comparison = Type.CompareTo (other.Type);
+			comparison = type.CompareTo (other.type);
 			if (comparison != 0) {
 				return comparison;
 			}
-			if (NameFirst != other.NameFirst)
+			if (nameFirst != other.nameFirst)
 			{
 				comparison = FullName ().CompareTo (other.FullName ());
 				if (comparison != 0)
@@ -101,7 +101,7 @@ namespace XcAnalyze.Model {
 					return comparison;
 				}
 			}
-			return Conference.CompareTo (other.Conference);
+			return conference.CompareTo (other.conference);
 		}
 
 		public override bool Equals (object other)
