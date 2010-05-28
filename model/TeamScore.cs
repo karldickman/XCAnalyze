@@ -139,7 +139,7 @@ namespace XcAnalyze.Model
             {
                 sum += runners[i].Time.Seconds;
             }
-            return new Performance(0, null, race, new Time(sum / number));
+            return new Performance(null, race, new Time(sum / number));
         }
         
         public override string ToString ()
@@ -157,9 +157,9 @@ namespace XcAnalyze.Model
             int breakAt = 5;
             List<Performance>[] performances = new List<Performance>[2] { new List<Performance> (), new List<Performance> () };
             Performance[] fifthMen = new Performance[2];
-            Race race = new Race(0, null, new Date(DateTime.Now), null, 8000, null, null, null);
-            fifthMen[0] = new Performance (0, null, race, new Time(1500));
-            fifthMen[1] = new Performance (0, null, race, new Time(1600));
+            Race race = new Race(null, new Date(DateTime.Now), null, 8000, null, null, null);
+            fifthMen[0] = new Performance (null, race, new Time(1500));
+            fifthMen[1] = new Performance (null, race, new Time(1600));
             fifthMen[0].Points = 5;
             fifthMen[1].Points = 9;
             TeamScore[] scores = new TeamScore[2] { new TeamScore (null, null, performances[0]), new TeamScore (null, null, performances[1]) };

@@ -8,15 +8,9 @@ namespace XcAnalyze.Model
     /// </summary>
     public class Affiliation : IComparable<Affiliation>
     {
-        private int id;
         private Runner runner;
         private School school;
         private int year;
-        
-        public int Id
-        {
-            get { return id; }
-        }
 
         /// <summary>
         /// The runner affiliated with a school.
@@ -42,9 +36,8 @@ namespace XcAnalyze.Model
             get { return year; }
         }
         
-        public Affiliation (int id, Runner runner, School school, int year)
+        public Affiliation (Runner runner, School school, int year)
         {
-            this.id = id;
             this.runner = runner;
             this.school = school;
             this.year = year;

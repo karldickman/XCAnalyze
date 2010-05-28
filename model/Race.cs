@@ -12,7 +12,6 @@ namespace XcAnalyze.Model {
         private Date date;
         private int distance;
         private Gender gender;
-        private int id;
         private string meet;
         private List<Performance> results;
         private List<TeamScore> scores;
@@ -57,11 +56,6 @@ namespace XcAnalyze.Model {
         public Gender Gender
         {
             get { return gender; }
-        }
-        
-        public int Id
-        {
-            get { return id; }
         }
         
         public string Location
@@ -125,13 +119,12 @@ namespace XcAnalyze.Model {
             get { return venue; }
         }    
 
-        public Race (int id, string meet, Date date, Gender gender, int distance, string venue, string city, string state) : this(id, meet, date, gender, distance, venue, city, state, false, new List<Performance>())
+        public Race (string meet, Date date, Gender gender, int distance, string venue, string city, string state) : this(meet, date, gender, distance, venue, city, state, false, new List<Performance>())
         {
         }
 
-        public Race (int id, string meet, Date date, Gender gender, int distance, string venue, string city, string state, bool scoreMeet, List<Performance> results)
+        public Race (string meet, Date date, Gender gender, int distance, string venue, string city, string state, bool scoreMeet, List<Performance> results)
         {
-            this.id = id;
             this.date = date;
             this.gender = gender;
             this.distance = distance;

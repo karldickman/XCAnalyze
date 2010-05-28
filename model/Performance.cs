@@ -8,16 +8,10 @@ namespace XcAnalyze.Model
     /// </summary>
     public class Performance : IComparable<Performance>
     {
-        private int id;
         private int? points;
         private Race race;
         private Runner runner;
         private Time time;
-
-        public int Id
-        {
-            get { return id; }
-        }
         
         /// <summary>
         /// The length of the race whereat the time was run.
@@ -68,9 +62,8 @@ namespace XcAnalyze.Model
             get { return time; }
         }     
 
-        public Performance (int id, Runner runner, Race race, Time time)
+        public Performance (Runner runner, Race race, Time time)
         {
-            this.id = id;
             this.runner = runner;
             this.race = race;
             this.time = time;

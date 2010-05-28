@@ -10,7 +10,6 @@ namespace XcAnalyze.Model {
     {
         private List<Affiliation> affiliations;
         private string conference;
-        private int id;
         private string name;
         private bool nameFirst;
         private string type;
@@ -29,11 +28,6 @@ namespace XcAnalyze.Model {
         public string Conference
         {
             get { return conference; }
-        }
-        
-        public int Id
-        {
-            get { return id; }
         }
 
         /// <summary>
@@ -63,11 +57,10 @@ namespace XcAnalyze.Model {
             protected set { type = value; }
         }
 
-        public School (int id, string name, string type, bool nameFirst, string conference) : this(id, name, type, nameFirst, conference, new List<Affiliation> ()) {}
+        public School (string name, string type, bool nameFirst, string conference) : this(name, type, nameFirst, conference, new List<Affiliation> ()) {}
 
-        public School (int id, string name, string type, bool nameFirst, string conference, List<Affiliation> affiliations)
+        public School (string name, string type, bool nameFirst, string conference, List<Affiliation> affiliations)
         {
-            this.id = id;
             this.name = name;
             this.type = type;
             this.nameFirst = nameFirst;
