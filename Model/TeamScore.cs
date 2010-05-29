@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace XcAnalyze.Model
+namespace XCAnalyze.Model
 {
     
     /// <summary>

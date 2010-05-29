@@ -1,6 +1,6 @@
 using System;
 
-namespace XcAnalyze
+namespace XCAnalyze
 {
 	/// <summary>
 	/// Some commonly used functions.

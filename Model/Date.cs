@@ -1,6 +1,6 @@
 using System;
 
-namespace XcAnalyze.Model
+namespace XCAnalyze.Model
 {
 
     public class Date

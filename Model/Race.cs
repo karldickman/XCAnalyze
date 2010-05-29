@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace XcAnalyze.Model {
+namespace XCAnalyze.Model {
     
     /// <summary>
     /// An instance of a meet.

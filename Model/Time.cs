@@ -1,4 +1,4 @@
-namespace XcAnalyze.Model
+namespace XCAnalyze.Model
 {
     public class Time
     {

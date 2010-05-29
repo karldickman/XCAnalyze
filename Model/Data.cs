@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace XcAnalyze.Model
+namespace XCAnalyze.Model
 {
 
     public class Data

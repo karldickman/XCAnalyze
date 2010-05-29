@@ -3,9 +3,9 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using XcAnalyze.Model;
+using XCAnalyze.Model;
 
-namespace XcAnalyze.Io.Sql
+namespace XCAnalyze.Io.Sql
 {
 
 	public class DatabaseReader : IReader<Data>

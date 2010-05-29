@@ -1,10 +1,10 @@
-using Formatting;
-using Formatting.Table;
 using System;
 using System.Collections.Generic;
-using XcAnalyze.Model;
+using TextFormat;
+using TextFormat.Table;
+using XCAnalyze.Model;
 
-namespace XcAnalyze.Hytek
+namespace XCAnalyze.Hytek
 {
     public interface IFormatter<T>
     {
