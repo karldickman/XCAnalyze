@@ -1,0 +1,102 @@
+DROP TABLE IF EXISTS conferences;
+CREATE TABLE conferences
+(
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100),
+    abbreviation VARCHAR(10)
+);
+
+DROP TABLE IF EXISTS meets;
+CREATE TABLE meets
+(
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(150)
+);
+
+DROP TABLE IF EXISTS runners;
+CREATE TABLE runners
+(
+    id INTEGER PRIMARY KEY,
+    surname VARCHAR(100),
+    given_name VARCHAR(100),
+    nicknames VARCHAR(200),
+    gender VARCHAR(1) NOT NULL,
+    `year` YEAR
+);
+
+DROP TABLE IF EXISTS schools;
+CREATE TABLE schools
+(
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(150),
+    nicknames VARCHAR(100),
+    `type` VARCHAR(100),
+    name_first BOOLEAN,
+    conference_id INT UNSIGNED,
+    FOREIGN KEY (conference_id) REFERENCES conferences (id)
+);
+
+DROP TABLE IF EXISTS affiliations;
+CREATE TABLE affiliations
+(
+    id INTEGER PRIMARY KEY,
+    runner_id INT UNSIGNED,
+    school_id INT UNSIGNED,
+    `year` YEAR,
+    FOREIGN KEY (runner_id) REFERENCES runners (id),
+    FOREIGN KEY (school_id) REFERENCES schools (id)
+);    
+
+DROP TABLE IF EXISTS venues;
+CREATE TABLE venues
+(
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(150),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    elevation INT
+);
+
+DROP TABLE IF EXISTS races;
+CREATE TABLE races
+(
+    id INTEGER PRIMARY KEY,
+    meet_id INT UNSIGNED,
+    venue_id INT UNSIGNED,
+    `date` DATE,
+    gender VARCHAR(1) NOT NULL,
+    distance INT,
+    FOREIGN KEY (meet_id) REFERENCES meets (id),
+    FOREIGN KEY (venue_id) REFERENCES venues (id)
+);
+
+DROP TABLE IF EXISTS results;
+CREATE TABLE results
+(
+    id INTEGER PRIMARY KEY,
+    runner_id INT UNSIGNED,
+    race_id INT UNSIGNED,
+    `time` DOUBLE,
+    FOREIGN KEY (runner_id) REFERENCES runners (id),
+    FOREIGN KEY (race_id) REFERENCES races (id)
+);
+
+/*
+DROP PROCEDURE IF EXISTS get_team;
+DELIMITER //
+CREATE PROCEDURE get_team(which_school INT UNSIGNED, competition_year YEAR)
+BEGIN
+    SELECT runner_id, surname, given_name, nicknames, gender, runners.`year`, school_id
+    FROM runners INNER JOIN affiliations
+    ON runners.id = affiliations.runner_id
+    WHERE affiliations.`year` = competition_year AND school_id = which_school
+    ORDER BY gender, surname, given_name, runners.`year`;
+END //
+DELIMITER ;
+*/
+
+DROP VIEW IF EXISTS performances;
+CREATE VIEW performances
+    AS SELECT results.id, runner_id, race_id, `time`, distance, (`time`/distance*1609) AS pace
+    FROM results INNER JOIN runners ON results.runner_id = runners.id
+    INNER JOIN races ON results.race_id = races.id ORDER BY runner_id, distance, pace;

@@ -3,47 +3,67 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Model
 {
-
     public class Data
     {
-        private List<Affiliation> affiliations;
-        private List<Performance> performances;
-        private List<Race> races;
-        private List<Runner> runners;
-        private List<School> schools;
+        private IList<Affiliation> affiliations;
+        private IList<string> conferences;
+        private IList<string> meets;
+        private IList<Performance> performances;
+        private IList<Race> races;
+        private IList<Runner> runners;
+        private IList<School> schools;
+        private IList<string> venues;
 
-        public List<Affiliation> Affiliations
+        public IList<Affiliation> Affiliations
         {
             get { return affiliations; }
         }
 
-        public List<Performance> Performances
+        public IList<string> Conferences
+        {
+            get { return conferences; }
+        }
+
+        public IList<string> Meets
+        {
+            get { return meets; }
+        }
+
+        public IList<Performance> Performances
         {
             get { return performances; }
         }
 
-        public List<Race> Races
+        public IList<Race> Races
         {
             get { return races; }
         }
 
-        public List<Runner> Runners
+        public IList<Runner> Runners
         {
             get { return runners; }
         }
 
-        public List<School> Schools
+        public IList<School> Schools
         {
             get { return schools; }
         }
 
-        public Data (List<Affiliation> affiliations, List<Performance> performances, List<Race> races, List<Runner> runners, List<School> schools)
+        public IList<string> Venues
+        {
+            get { return venues; }
+        }
+
+        public Data (IList<Affiliation> affiliations, IList<string> conferences, IList<string> meets, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<string> venues)
         {
             this.affiliations = affiliations;
+            this.conferences = conferences;
+            this.meets = meets;
             this.performances = performances;
             this.races = races;
             this.runners = runners;
             this.schools = schools;
+            this.venues = venues;
             foreach (Affiliation affiliation in affiliations)
             {
                 Affiliate (affiliation);

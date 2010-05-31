@@ -4,6 +4,64 @@ using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
 {
+    public class SqlData : Data
+    {
+        private IList<SqlConference> conferences;
+        private IList<SqlMeet> meets;
+        private IList<SqlVenue> venues;
+
+        new public IList<SqlConference> Conferences
+        {
+            get { return conferences; }
+        }
+
+        new public IList<SqlMeet> Meets
+        {
+            get { return meets; }
+        }
+
+        new public IList<SqlVenue> Venues
+        {
+            get { return venues; }
+        }
+
+        protected SqlData(IList<Affiliation> affiliations, IList<SqlConference> conferences, IList<string> conferenceNames, IList<SqlMeet> meets, IList<string> meetNames, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<SqlVenue> venues, IList<string> venueNames) : base(affiliations, conferenceNames, meetNames, performances, races, runners, schools, venueNames)
+        {
+            this.conferences = conferences;
+            this.meets = meets;
+            this.venues = venues;
+        }
+
+        public static SqlData NewInstance(IList<Affiliation> affiliations, IList<SqlConference> conferences, IList<SqlMeet> meets, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<SqlVenue> venues)
+        {
+            IList<string> conferenceNames = new List<string>();
+            IList<string> meetNames = new List<string>();
+            IList<string> venueNames = new List<string>();
+            foreach(SqlConference conference in conferences)
+            {
+                if(!conferenceNames.Contains(conference.Name))
+                {
+                    conferenceNames.Add(conference.Name);
+                }
+            }
+            foreach(SqlMeet meet in meets)
+            {
+                if(!meetNames.Contains(meet.Name))
+                {
+                    meetNames.Add(meet.Name);
+                }
+            }
+            foreach(SqlVenue venue in venues)
+            {
+                if(!venueNames.Contains(venue.Name))
+                {
+                    venueNames.Add(venue.Name);
+                }
+            }
+            return new SqlData(affiliations, conferences, conferenceNames, meets, meetNames, performances, races, runners, schools, venues, venueNames);
+        }
+    }
+
     public class SqlAffiliation : Affiliation
     {
         private int id;
@@ -101,12 +159,12 @@ namespace XCAnalyze.Io.Sql
             get { return id; }
         }
         
-        public new SqlMeet Meet
+        new public SqlMeet Meet
         {
             get { return meet; }
         }
         
-        public new SqlVenue Venue
+        new public SqlVenue Venue
         {
             get { return venue; }
         }
@@ -139,7 +197,6 @@ namespace XCAnalyze.Io.Sql
             }
             return new SqlRace ((int)id, meet, meetName, venue, venueName, city, state, date, gender, distance);
         }
-        
     }
 
     public class SqlRunner : Runner
@@ -169,7 +226,7 @@ namespace XCAnalyze.Io.Sql
         private int id;
         private string[] nicknames;
         
-        public new SqlConference Conference
+        new public SqlConference Conference
         {
             get { return conference; }
         }

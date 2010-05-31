@@ -8,7 +8,7 @@ namespace XCAnalyze.Hytek
 {
     public interface IFormatter<T>
     {
-        List<string> Format(T thing);
+        IList<string> Format(T thing);
     }
     
     public class HytekFormatter
@@ -37,9 +37,9 @@ namespace XCAnalyze.Hytek
             tableFormatter = new LabeledTableFormatter ('\0', ' ', '\0', '=', '\0', '=', '\0', '=');
         }
         
-        protected internal List<string> Format (List<object[]> values, Alignment[] alignments)
+        protected internal IList<string> Format (IList<object[]> values, Alignment[] alignments)
         {
-            List<string> tableLines = tableFormatter.Format (header, values, alignments);
+            IList<string> tableLines = tableFormatter.Format (header, values, alignments);
             List<string> lines = new List<string>();
             if(label == null)
             {
@@ -51,7 +51,7 @@ namespace XCAnalyze.Hytek
         }
     }
     
-    public class ResultsFormatter : HytekFormatter, IFormatter<List<Performance>>
+    public class ResultsFormatter : HytekFormatter, IFormatter<IList<Performance>>
     {        
         public ResultsFormatter() : base(new string[] {null, "Name", "Year", "School", "Finals", "Points"}) {}
         
@@ -60,7 +60,7 @@ namespace XCAnalyze.Hytek
             return StringFormatting.RightPadded (points, 3) + "   ";
         }
        
-        public List<string> Format (List<Performance> results)
+        public IList<string> Format (IList<Performance> results)
         {
             Alignment[] alignments = new Alignment[] { StringFormatting.RightJustified, null, null, null, null, AlignPoints };
             List<object[]> values = new List<object[]> ();
@@ -79,18 +79,18 @@ namespace XCAnalyze.Hytek
             return base.Format (values, alignments);
         }
         
-        public List<string> Format (int distance, List<Performance> results)
+        public IList<string> Format (int distance, IList<Performance> results)
         {
             Label = distance + " m run CC";
             return Format (results);
         }
     }
     
-    public class ScoreFormatter : HytekFormatter, IFormatter<List<TeamScore>>
+    public class ScoreFormatter : HytekFormatter, IFormatter<IList<TeamScore>>
     {
         public ScoreFormatter() : base("Team Scores", new string[] {"Rank", "Team", "Total", "   1", "   2", "   3", "   4", "   5", "  *6", "  *7"}) {}
         
-        public List<string> Format (List<TeamScore> scores)
+        public IList<string> Format (IList<TeamScore> scores)
         {
             Alignment R = StringFormatting.RightJustified;
             Alignment[] alignments = new Alignment[] { R, null, R, R, R, R, R, R, R, R };
@@ -157,9 +157,9 @@ namespace XCAnalyze.Hytek
             scoreFormatter = new ScoreFormatter ();
         }
         
-        public List<string> Format (Race race)
+        public IList<string> Format (Race race)
         {
-            List<string> resultsLines = resultsFormatter.Format (race.Distance, race.Results);
+            IList<string> resultsLines = resultsFormatter.Format (race.Distance, race.Results);
             List<string> lines = new List<string> ();
             int width = resultsLines[0].Length;
             lines.Add (StringFormatting.Centered (race.Meet, width));
