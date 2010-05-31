@@ -9,37 +9,16 @@ namespace XCAnalyze.Model
     /// </summary>
     public class Runner : IComparable<Runner>
     {
-        private Dictionary<int, Affiliation> affiliations;
-        private Gender gender;
-        private string givenName;
-        private List<Performance> performances;
-        private string surname;
-        private int? year;
-        
-        /// <summary>
-        /// The affiliations of the runner over their career.
-        /// </summary>
-        protected Dictionary<int, Affiliation> Affiliations
-        {
-            get { return affiliations; }
-        }
-
         /// <summary>
         /// The runner's gender.
         /// </summary>
-        public Gender Gender
-        {
-            get { return gender; }
-        }
-        
+        public Gender Gender { get; protected internal set; }
+
         /// <summary>
         /// The runner's given name.
         /// </summary>
-        public string GivenName
-        {
-            get { return givenName; }
-        }
-            
+        public string GivenName { get; protected internal set; }
+
         /// <summary>
         /// The runner's full name.
         /// </summary>
@@ -47,56 +26,52 @@ namespace XCAnalyze.Model
         {
             get { return GivenName + " " + Surname; }
         }
-        
+
         /// <summary>
         /// The performances this runner has achieved.
         /// </summary>
-        public List<Performance> Performances
-        {
-            get { return performances; }
-        }
+        public List<Performance> Performances { get; protected internal set; }
+
+        /// <summary>
+        /// The affiliations of the runner over their career.
+        /// </summary>
+        public Dictionary<int, Affiliation> Schools { get; protected internal set; }
 
         /// <summary>
         /// The runner's surname.
         /// </summary>
-        public string Surname
-        {
-            get { return surname; }
-        }
+        public string Surname { get; protected internal set; }
 
         /// <summary>
         /// The runner's original graduation year.
         /// </summary>
-        public int? Year
-        {
-            get { return year; }
-        }     
+        public int? Year { get; protected internal set; }
         
         public Runner (string surname, string givenName, Gender gender, int? year) : this(surname, givenName, gender, year, new Dictionary<int, Affiliation> (), new List<Performance>())
         {
         }
             
-        public Runner (string surname, string givenName, Gender gender, int? year, Dictionary<int, Affiliation> affiliations, List<Performance> performances)
+        public Runner (string surname, string givenName, Gender gender, int? year, Dictionary<int, Affiliation> schools, List<Performance> performances)
         {
-            this.surname = surname;
-            this.givenName = givenName;
-            this.gender = gender;
-            this.year = year;
-            this.affiliations = affiliations;
-            this.performances = performances;
+            Surname = surname;
+            GivenName = givenName;
+            Gender = gender;
+            Year = year;
+            Schools = schools;
+            Performances = performances;
         }
 
         /// <summary>
         /// Register a new affiliation for this runner.
         /// </summary>
-        public void AddAffiliation (Affiliation affiliation)
+        public void AddSchool (Affiliation affiliation)
         {
-            affiliations.Add (affiliation.Year, affiliation);
+            Schools.Add (affiliation.Year, affiliation);
         }
         
         public void AddPerformance (Performance performance)
         {
-            performances.Add (performance);
+            Performances.Add (performance);
         }
 
         /// <summary>
@@ -109,12 +84,12 @@ namespace XCAnalyze.Model
             {
                 return 0;
             }
-            comparison = surname.CompareTo (other.Surname);
+            comparison = Surname.CompareTo (other.Surname);
             if (comparison != 0)
             {
                 return comparison;
             }
-            comparison = givenName.CompareTo (other.GivenName);
+            comparison = GivenName.CompareTo (other.GivenName);
             if (comparison != 0)
             {
                 return comparison;
@@ -124,7 +99,7 @@ namespace XCAnalyze.Model
             {
                 return comparison;
             }
-            return gender.CompareTo (other.Gender);
+            return Gender.CompareTo (other.Gender);
         }
 
         public override bool Equals (object other)
@@ -148,9 +123,9 @@ namespace XCAnalyze.Model
         /// </summary>
         public School School (int year)
         {
-            if (affiliations.ContainsKey (year))
+            if (Schools.ContainsKey (year))
             {
-                return affiliations[year].School;
+                return Schools[year].School;
             }
             return null;
         }

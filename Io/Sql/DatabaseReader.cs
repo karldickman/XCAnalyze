@@ -10,33 +10,21 @@ namespace XCAnalyze.Io.Sql
 
 	public class DatabaseReader : IReader<Data>
 	{
-		private IDataReader reader;
-		private IDbCommand command;
-		private IDbConnection connection;
-		
-		protected IDataReader Reader {
-			get { return reader; }
-			set { reader = value; }
-		}
-		
-		protected IDbCommand Command {
-			get { return command; }
-		}
-		
-		protected IDbConnection Connection {
-			get { return connection; }
-		}
+		protected internal IDataReader Reader { get; set; }
+		protected internal IDbCommand Command { get; set; }
+		protected internal IDbConnection Connection { get; set; }
 
 		public DatabaseReader (IDbConnection connection)
 		{
-			this.connection = connection;
-			command = connection.CreateCommand ();
+			Connection = connection;
+			Command = Connection.CreateCommand ();
 		}
 
 		public void Close ()
 		{
 			Reader.Close ();
 			Command.Dispose ();
+            Connection.Close();
 		}
 
 		public Data Read ()
@@ -59,10 +47,10 @@ namespace XCAnalyze.Io.Sql
 			Command.CommandText = "SELECT * FROM affiliations";
 			Reader = Command.ExecuteReader ();
 			while (Reader.Read ()) {
-				id = (int)(uint)reader["id"];
-				runnerId = (int)(uint)reader["runner_id"];
-				schoolId = (int)(uint)reader["school_id"];
-				affiliations.Add (id, new SqlAffiliation ((int)id, runners[runnerId], schools[schoolId], (int)reader["year"]));
+				id = (int)(uint)Reader["id"];
+				runnerId = (int)(uint)Reader["runner_id"];
+				schoolId = (int)(uint)Reader["school_id"];
+				affiliations.Add (id, new SqlAffiliation ((int)id, runners[runnerId], schools[schoolId], (int)Reader["year"]));
 			}
 			Reader.Close ();
 			return affiliations;
@@ -75,8 +63,8 @@ namespace XCAnalyze.Io.Sql
 			Command.CommandText = "SELECT * FROM conferences";
 			Reader = Command.ExecuteReader ();
 			while (Reader.Read ()) {
-				id = (int)(uint)reader["id"];
-				conferences.Add (id, new SqlConference (id, (string)reader["name"], (string)reader["abbreviation"]));
+				id = (int)(uint)Reader["id"];
+				conferences.Add (id, new SqlConference (id, (string)Reader["name"], (string)Reader["abbreviation"]));
 			}
 			Reader.Close ();
 			return conferences;
@@ -89,8 +77,8 @@ namespace XCAnalyze.Io.Sql
 			Command.CommandText = "SELECT * FROM meets";
 			Reader = Command.ExecuteReader ();
 			while (Reader.Read ()) {
-				id = (int)(uint)reader["id"];
-				meets.Add (id, new SqlMeet (id, (string)reader["name"]));
+				id = (int)(uint)Reader["id"];
+				meets.Add (id, new SqlMeet (id, (string)Reader["name"]));
 			}
 			Reader.Close ();
 			return meets;
@@ -103,10 +91,10 @@ namespace XCAnalyze.Io.Sql
 			Command.CommandText = "SELECT * FROM results";
 			Reader = Command.ExecuteReader ();
 			while (Reader.Read ()) {
-				id = (int)(uint)reader["id"];
-				runnerId = (int)(uint)reader["runner_id"];
-				raceId = (int)(uint)reader["race_id"];
-				performances.Add (id, new SqlPerformance ((int)id, runners[runnerId], races[raceId], new Time((double)reader["time"])));
+				id = (int)(uint)Reader["id"];
+				runnerId = (int)(uint)Reader["runner_id"];
+				raceId = (int)(uint)Reader["race_id"];
+				performances.Add (id, new SqlPerformance ((int)id, runners[runnerId], races[raceId], new Time((double)Reader["time"])));
 			}
 			Reader.Close ();
 			return performances;
@@ -121,18 +109,18 @@ namespace XCAnalyze.Io.Sql
 			Command.CommandText = "SELECT * FROM races";
 			Reader = Command.ExecuteReader ();
 			while (Reader.Read ()) {
-				id = (int)(uint)reader["id"];
-				if (reader["meet_id"] is DBNull) {
+				id = (int)(uint)Reader["id"];
+				if (Reader["meet_id"] is DBNull) {
 					meet = null;
 				} else {
-					meet = meets[(int)(uint)reader["meet_id"]];
+					meet = meets[(int)(uint)Reader["meet_id"]];
 				}
-				if (reader["venue_id"] is DBNull) {
+				if (Reader["venue_id"] is DBNull) {
 					venue = null;
 				} else {
-					venue = venues[(int)(uint)reader["venue_id"]];
+					venue = venues[(int)(uint)Reader["venue_id"]];
 				}
-				races.Add (id, SqlRace.NewInstance (id, meet, venue, new Date((DateTime)reader["date"]), Gender.FromString ((string)reader["gender"]), (int)reader["distance"]));
+				races.Add (id, SqlRace.NewInstance (id, meet, venue, new Date((DateTime)Reader["date"]), Gender.FromString ((string)Reader["gender"]), (int)Reader["distance"]));
 			}
 			Reader.Close ();
 			return races;
@@ -147,21 +135,21 @@ namespace XCAnalyze.Io.Sql
 			Command.CommandText = "SELECT * FROM runners";
 			Reader = Command.ExecuteReader ();
 			while (Reader.Read ()) {
-				id = (int)(uint)reader["id"];
-				if (reader["nicknames"] is DBNull) {
+				id = (int)(uint)Reader["id"];
+				if (Reader["nicknames"] is DBNull) {
 					nicknames = null;
 				} else {
-					nicknames = ((string)reader["nicknames"]).Split (',');
+					nicknames = ((string)Reader["nicknames"]).Split (',');
 					foreach (string nickname in nicknames) {
 						nickname.Trim ();
 					}
 				}
-				if (reader["year"] is DBNull) {
+				if (Reader["year"] is DBNull) {
 					year = null;
 				} else {
-					year = (int?)reader["year"];
+					year = (int?)Reader["year"];
 				}
-				runners.Add (id, new SqlRunner ((int)id, (string)reader["surname"], (string)reader["given_name"], nicknames, Gender.FromString ((string)reader["gender"]), year));
+				runners.Add (id, new SqlRunner ((int)id, (string)Reader["surname"], (string)Reader["given_name"], nicknames, Gender.FromString ((string)Reader["gender"]), year));
 			}
 			Reader.Close ();
 			return runners;
@@ -177,26 +165,26 @@ namespace XCAnalyze.Io.Sql
 			Command.CommandText = "SELECT * FROM schools";
 			Reader = Command.ExecuteReader ();
 			while (Reader.Read ()) {
-				id = (int)(uint)reader["id"];
-				if (reader["nicknames"] is DBNull) {
+				id = (int)(uint)Reader["id"];
+				if (Reader["nicknames"] is DBNull) {
 					nicknames = null;
 				} else {
-					nicknames = ((string)reader["nicknames"]).Split (',');
+					nicknames = ((string)Reader["nicknames"]).Split (',');
 					foreach (string nickname in nicknames) {
 						nickname.Trim ();
 					}
 				}
-				if (reader["type"] is DBNull) {
+				if (Reader["type"] is DBNull) {
 					type = null;
 				} else {
-					type = (string)reader["type"];
+					type = (string)Reader["type"];
 				}
-				if (reader["conference_id"] is DBNull) {
+				if (Reader["conference_id"] is DBNull) {
 					conference = null;
 				} else {
-					conference = conferences[(int)(uint)reader["conference_id"]];
+					conference = conferences[(int)(uint)Reader["conference_id"]];
 				}
-				schools.Add (id, SqlSchool.NewInstance (id, (string)reader["name"], nicknames, type, (bool)reader["name_first"], conference));
+				schools.Add (id, SqlSchool.NewInstance (id, (string)Reader["name"], nicknames, type, (bool)Reader["name_first"], conference));
 			}
 			Reader.Close ();
 			return schools;
@@ -212,20 +200,20 @@ namespace XCAnalyze.Io.Sql
 			Reader = Command.ExecuteReader ();
 			while (Reader.Read ())
 			{
-				id = (int)(uint)reader["id"];
-				if (reader["name"] is DBNull) 
+				id = (int)(uint)Reader["id"];
+				if (Reader["name"] is DBNull) 
 				{
 					name = null;
 				} else {
-					name = (string)reader["name"];
+					name = (string)Reader["name"];
 				}
-				if (reader["elevation"] is DBNull) 
+				if (Reader["elevation"] is DBNull) 
 				{
 					elevation = null;
 				} else {
-					elevation = (int)reader["elevation"];
+					elevation = (int)Reader["elevation"];
 				}
-				venues.Add (id, new SqlVenue (id, name, (string)reader["city"], (string)reader["state"], elevation));
+				venues.Add (id, new SqlVenue (id, name, (string)Reader["city"], (string)Reader["state"], elevation));
 			}
 			Reader.Close ();
 			return venues;
@@ -235,27 +223,26 @@ namespace XCAnalyze.Io.Sql
 	[TestFixture]
 	public class TestDatabaseReader
 	{
-		private IDbConnection connection;
-		private string connectionString;
-		private DatabaseReader reader;
+		protected internal IDbConnection Connection;
+		protected internal DatabaseReader Reader;
 
 		[SetUp]
 		public void Setup ()
 		{
-			connectionString = "Server=localhost;";
+			string connectionString = "Server=localhost;";
 			connectionString += "Database=xcanalyze;";
 			connectionString += "User ID=xcanalyze;";
 			connectionString += "Pooling=false;";
-			connection = new MySqlConnection (connectionString);
-			connection.Open ();
-			reader = new DatabaseReader (connection);
+			Connection = new MySqlConnection (connectionString);
+			Connection.Open ();
+			Reader = new DatabaseReader (Connection);
 		}
 
 		[Test]
 		public void TestRead ()
 		{
-			reader.Read ();
-			reader.Close ();
+			Reader.Read ();
+			Reader.Close ();
 		}
 	}
 }

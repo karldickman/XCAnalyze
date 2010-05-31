@@ -4,47 +4,34 @@ namespace XCAnalyze.Model
 {
     
     /// <summary>
-    /// Describes in which year a runner ran for a particular school.
+    /// Describes in which Year a Runner ran for a particular School.
     /// </summary>
     public class Affiliation : IComparable<Affiliation>
     {
-        private Runner runner;
-        private School school;
-        private int year;
-
         /// <summary>
-        /// The runner affiliated with a school.
+        /// The <see cref="Runner"/> affiliated with a School.
         /// </summary>
-        public Runner Runner
-        {
-            get { return runner; }
-        }
+        public Runner Runner { get; protected internal set;}
 
         /// <summary>
-        /// The school with which a runner is affiliated.
-        /// </summary>     
-        public School School
-        {
-            get { return school; }
-        }
-
-        /// <summary>
-        /// The year in which the runner was affiliated with the school.
+        /// The <see cref="School"/> with which a Runner is affiliated.
         /// </summary>
-        public int Year
-        {
-            get { return year; }
-        }
+        public School School { get; protected internal set;}
+
+        /// <summary>
+        /// The Year in which the Runner was affiliated with the School.
+        /// </summary>
+        public int Year { get; protected internal set;}
         
         public Affiliation (Runner runner, School school, int year)
         {
-            this.runner = runner;
-            this.school = school;
-            this.year = year;
+            Runner = runner;
+            School = school;
+            Year = year;
         }
 
         /// <summary>
-        /// Affiliations are compared first by school, then by runner, then by year.
+        /// Affiliations are compared first by School, then by Runner, then by Year.
         /// </summary>
         public int CompareTo (Affiliation other)
         {
@@ -53,17 +40,17 @@ namespace XCAnalyze.Model
             {
                 return 0;
             }
-            comparison = school.CompareTo (other.school);
+            comparison = School.CompareTo (other.School);
             if (comparison != 0) 
             {
                 return comparison;
             }
-            comparison = runner.CompareTo (other.runner);
+            comparison = Runner.CompareTo (other.Runner);
             if (comparison != 0) 
             {
                 return comparison;
             }
-            return year.CompareTo(other.year);
+            return Year.CompareTo(other.Year);
         }
         
         public override bool Equals (object other)
@@ -86,7 +73,7 @@ namespace XCAnalyze.Model
         
         public override string ToString ()
         {
-            return runner.Name + ", " + school.Name + " " + year;
+            return Runner.Name + ", " + School.Name + " " + Year;
         }
     }
 }

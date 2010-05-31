@@ -10,33 +10,25 @@ namespace XCAnalyze.Model
     /// </summary>
     public class TeamScore : IComparable<TeamScore>
     {
-        private School school;
-        private Race race;
-        private List<Performance> runners;
-
         /// <summary>
         /// The school which earned the score.
         /// </summary>
-        public School School
-        {
-            get { return school; }
-        }
+        public School School { get; protected internal set; }
+
+        public Race Race { get; protected internal set; }
 
         /// <summary>
         /// The runners who were on the team at that particular race.
         /// </summary>
-        public List<Performance> Runners
-        {
-            get { return runners; }
-        }
+        public List<Performance> Runners { get; protected internal set; }
         
         public TeamScore(Race race, School school) : this(race, school, new List<Performance>()) {}
 
         internal TeamScore (Race race, School school, List<Performance> runners)
         {
-            this.race = race;
-            this.school = school;
-            this.runners = runners;
+            Race = race;
+            School = school;
+            Runners = runners;
         }
         
         /// <summary>
@@ -44,16 +36,19 @@ namespace XCAnalyze.Model
         /// </summary>
         protected internal static int BreakTie (TeamScore item1, TeamScore item2, int breakAt)
         {
-            if (item1.runners.Count < breakAt && item2.runners.Count < breakAt) {
+            if (item1.Runners.Count < breakAt && item2.Runners.Count < breakAt)
+            {
                 return 0;
             }
-            if (item1.runners.Count < breakAt) {
+            if (item1.Runners.Count < breakAt)
+            {
                 return 1;
             }
-            if (item2.runners.Count < breakAt) {
+            if (item2.Runners.Count < breakAt)
+            {
                 return -1;
             }
-            return item1.runners[breakAt - 1].Points.Value.CompareTo (item2.runners[breakAt - 1].Points.Value);
+            return item1.Runners[breakAt - 1].Points.Value.CompareTo (item2.Runners[breakAt - 1].Points.Value);
         }
         
         /// <summary>
@@ -94,12 +89,12 @@ namespace XCAnalyze.Model
         /// </summary>
         public int? Score ()
         {
-            if (runners.Count < 5) {
+            if (Runners.Count < 5) {
                 return null;
             }
             int? score = 0;
             for (int i = 0; i < 5; i++) {
-                score += runners[i].Points;
+                score += Runners[i].Points;
             }
             return score;
         }
@@ -127,9 +122,9 @@ namespace XCAnalyze.Model
         {
             double sum = 0.0;
             int number;
-            if (runners.Count < x) 
+            if (Runners.Count < x)
             {
-                number = runners.Count;
+                number = Runners.Count;
             }
             else
             {
@@ -137,14 +132,14 @@ namespace XCAnalyze.Model
             }
             for (int i = 0; i < number; i++)
             {
-                sum += runners[i].Time.Seconds;
+                sum += Runners[i].Time.Seconds;
             }
-            return new Performance(null, race, new Time(sum / number));
+            return new Performance(null, Race, new Time(sum / number));
         }
         
         public override string ToString ()
         {
-            return school.Name + " " + Score ();
+            return School.Name + " " + Score ();
         }
     }
     

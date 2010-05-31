@@ -8,70 +8,46 @@ namespace XCAnalyze.Model {
     /// </summary>
     public class School : IComparable<School>
     {
-        private List<Affiliation> affiliations;
-        private string conference;
-        private string name;
-        private bool nameFirst;
-        private string type;
-        
-        /// <summary>
-        /// The runners who have competed for this school.
-        /// </summary>
-        public List<Affiliation> Affiliations
-        {
-            get { return affiliations; }
-        }
-        
         /// <summary>
         /// The athletic conference with which the school is affiliated.
         /// </summary>
-        public string Conference
-        {
-            get { return conference; }
-        }
+        public string Conference { get; protected internal set; }
 
         /// <summary>
         /// The name of the school (Linfield, Willamette, etc.)
         /// </summary>
-        public string Name
-        {
-            get { return name; }
-            protected set { name = value; }
-        }
+        public string Name { get; protected internal set; }
 
         /// <summary>
         /// Should the name of the school go before its type (true Linfield College, false for University of Puget Sound).
         /// </summary>
-        public bool NameFirst
-        {
-            get { return nameFirst; }
-            protected set { nameFirst = value; }
-        }
+        public bool NameFirst { get; protected internal set; }
+
+        /// <summary>
+        /// The runners who have competed for this school.
+        /// </summary>
+        public List<Affiliation> Runners { get; protected internal set; }
 
         /// <summary>
         /// The type of the school (University, College, etc.)
         /// </summary>
-        public string Type
-        {
-            get { return type; }
-            protected set { type = value; }
-        }
+        public string Type { get; protected internal set; }
 
         public School (string name, string type, bool nameFirst, string conference) : this(name, type, nameFirst, conference, new List<Affiliation> ()) {}
 
-        public School (string name, string type, bool nameFirst, string conference, List<Affiliation> affiliations)
+        public School (string name, string type, bool nameFirst, string conference, List<Affiliation> runners)
         {
-            this.name = name;
-            this.type = type;
-            this.nameFirst = nameFirst;
-            this.conference = conference;
-            this.affiliations = affiliations;
+            Name = name;
+            Type = type;
+            NameFirst = nameFirst;
+            Conference = conference;
+            Runners = runners;
         }
 
-        public void AddAffiliation (Affiliation affiliation)
+        public void AddRunner (Affiliation runner)
         {
-            affiliations.Add (affiliation);
-            affiliations.Sort ();
+            Runners.Add (runner);
+            Runners.Sort ();
         }
 
         /// <summary>
@@ -84,16 +60,17 @@ namespace XCAnalyze.Model {
             {
                 return 0;
             }
-            comparison = name.CompareTo (other.name);
+            comparison = Name.CompareTo (other.Name);
             if (comparison != 0)
             {
                 return comparison;
             }
-            comparison = type.CompareTo (other.type);
-            if (comparison != 0) {
+            comparison = Type.CompareTo (other.Type);
+            if (comparison != 0)
+            {
                 return comparison;
             }
-            if (nameFirst != other.nameFirst)
+            if (NameFirst != other.NameFirst)
             {
                 comparison = FullName ().CompareTo (other.FullName ());
                 if (comparison != 0)
@@ -101,15 +78,17 @@ namespace XCAnalyze.Model {
                     return comparison;
                 }
             }
-            return conference.CompareTo (other.conference);
+            return Conference.CompareTo (other.Conference);
         }
 
         public override bool Equals (object other)
         {
-            if (this == other) {
+            if (this == other)
+            {
                 return true;
             }
-            if (other is School) {
+            if (other is School)
+            {
                 return 0 == CompareTo ((School)other);
             }
             return false;
@@ -121,10 +100,11 @@ namespace XCAnalyze.Model {
         /// </summary>
         public string FullName ()
         {
-            if (nameFirst) {
-                return name + " " + type;
+            if (NameFirst)
+            {
+                return Name + " " + Type;
             }
-            return type + " of " + name;
+            return Type + " of " + Name;
         }
         
         public override int GetHashCode ()
