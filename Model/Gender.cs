@@ -14,8 +14,8 @@ namespace XCAnalyze.Model
 	public class Gender : IComparable<Gender>
 	{
 		private gender gender;
-		private static readonly Gender MALE = new Gender (gender.M);
-		private static readonly Gender FEMALE = new Gender (gender.F);
+		public static readonly Gender MALE = new Gender (gender.M);
+		public static readonly Gender FEMALE = new Gender (gender.F);
 
 		internal Gender (gender gender)
 		{
@@ -54,7 +54,7 @@ namespace XCAnalyze.Model
 			return 1;
 		}
 
-		public override int GetHashCode ()
+		override public int GetHashCode ()
 		{
 			return gender.GetHashCode ();
 		}
@@ -78,7 +78,7 @@ namespace XCAnalyze.Model
 		/// <summary>
 		/// "M" if male, "F" if female.
 		/// </summary>
-		public override String ToString ()
+		override public String ToString ()
 		{
 			if (IsMale ())
 			{

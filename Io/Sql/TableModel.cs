@@ -64,116 +64,66 @@ namespace XCAnalyze.Io.Sql
 
     public class SqlAffiliation : Affiliation
     {
-        private int id;
-        
-        public int Id
-        {
-            get { return id; }
-        }
-        
+        public int Id { get; protected internal set; }
+
         public SqlAffiliation (int id, Runner runner, School school, int year) : base(runner, school, year)
         {
-            this.id = id;
+            Id = id;
         }
     }
 
     public class SqlConference
     {
-        private int id;
-        private string name;
-        private string abbreviation;
-
-        public string Abbreviation
-        {
-            get { return abbreviation; }
-        }
-
-        public int Id
-        {
-            get { return id; }
-        }
-
-        public string Name
-        {
-            get { return name; }
-        }
+        public int Id { get; protected internal set; }
+        public string Name { get; protected internal set; }
+        public string Abbreviation { get; protected internal set; }
 
         public SqlConference (int id, string name, string abbreviation)
         {
-            this.id = id;
-            this.name = name;
-            this.abbreviation = abbreviation;
+            Id = id;
+            Name = name;
+            Abbreviation = abbreviation;
         }
         
-        public override string ToString ()
+        override public string ToString ()
         {
-            return name;
+            return Name;
         }
     }
 
     public class SqlMeet
     {
-        private int id;
-        private string name;
-
-        public int Id
-        {
-            get { return id; }
-        }
-
-        public string Name
-        {
-            get { return name; }
-        }
+        public int Id { get; protected internal set; }
+        public string Name { get; protected internal set; }
 
         public SqlMeet (int id, string name)
         {
-            this.id = id;
-            this.name = name;
+            Id = id;
+            Name = name;
         }
     }
     
     public class SqlPerformance : Performance
     {
-        private int id;
-        
-        public int Id
-        {
-            get { return id; }
-        }
+        public int Id { get; protected internal set; }
         
         public SqlPerformance (int id, Runner runner, Race race, Time time) : base(runner, race, time)
         {
-            this.id = id;
+            Id = id;
         }
     }
 
     public class SqlRace : Race
     {
-        private int id;
-        private SqlMeet meet;
-        private SqlVenue venue;
-        
-        public int Id
-        {
-            get { return id; }
-        }
-        
-        new public SqlMeet Meet
-        {
-            get { return meet; }
-        }
-        
-        new public SqlVenue Venue
-        {
-            get { return venue; }
-        }
+        public int Id { get; protected internal set; }
+        new public SqlMeet Meet { get; protected internal set; }
+        new public SqlVenue Venue { get; protected internal set; }
 
         protected internal SqlRace (int id, SqlMeet meet, string meetName, SqlVenue venue, string venueName, string city, string state, Date date, Gender gender, int distance) : base(meetName, date, gender, distance, venueName, city, state)
         {
-            this.id = id;
-            this.meet = meet;
-            this.venue = venue;
+            Id = id;
+            Meet = meet;
+            Venue = venue;
         }
         
         public static SqlRace NewInstance (int id, SqlMeet meet, SqlVenue venue, Date date, Gender gender, int distance)
@@ -182,7 +132,9 @@ namespace XCAnalyze.Io.Sql
             if (meet == null) 
             {
                 meetName = null;
-            } else {
+            }
+            else
+            {
                 meetName = meet.Name;
             }
             if (venue == null) 
@@ -190,7 +142,9 @@ namespace XCAnalyze.Io.Sql
                 venueName = null;
                 city = null;
                 state = null;
-            } else {
+            }
+            else
+            {
                 venueName = venue.Name;
                 city = venue.City;
                 state = venue.State;
@@ -201,53 +155,27 @@ namespace XCAnalyze.Io.Sql
 
     public class SqlRunner : Runner
     {
-        private int id;
-        private string[] nicknames;
-
-        public int Id
-        {
-            get { return id; }
-        }
-        public string[] Nicknames
-        {
-            get { return nicknames; }
-        }
+        public int Id { get; protected internal set; }
+        public string[] Nicknames { get; protected internal set; }
         
         public SqlRunner (int id, string surname, string givenName, string[] nicknames, Gender gender, int? year) : base(surname, givenName, gender, year)
         {
-            this.id = id;
-            this.nicknames = nicknames;
+            Id = id;
+            Nicknames = nicknames;
         }
     }
 
     public class SqlSchool : School
     {
-        private SqlConference conference;
-        private int id;
-        private string[] nicknames;
-        
-        new public SqlConference Conference
-        {
-            get { return conference; }
-        }
-        
-        public int Id
-        {
-            get { return id; }
-        }
-        
-        public string[] Nicknames
-        {
-            get {
-                return nicknames;
-            }
-        }
+        new public SqlConference Conference { get; protected internal set; }
+        public int Id { get; protected internal set; }
+        public string[] Nicknames { get; protected internal set; }
         
         protected SqlSchool (int id, string name, string[] nicknames, string type, bool nameFirst, SqlConference conference, string conferenceName) : base(name, type, nameFirst, conferenceName)
         {
-            this.id = id;
-            this.nicknames = nicknames;
-            this.conference = conference;
+            Id = id;
+            Nicknames = nicknames;
+            Conference = conference;
         }
         
         public static SqlSchool NewInstance (int id, string name, string[] nicknames, string type, bool nameFirst, SqlConference conference)
@@ -256,7 +184,8 @@ namespace XCAnalyze.Io.Sql
             if (conference == null)
             {
                 conferenceName = null;
-            } else
+            }
+            else
             {
                 conferenceName = conference.Name;
             }
@@ -266,44 +195,19 @@ namespace XCAnalyze.Io.Sql
 
     public class SqlVenue
     {
-        private int id;
-        private string name;
-        private string city;
-        private string state;
-        private int? elevation;
-        
-        public string State
-        {
-            get { return state; }
-        }
-
-        public string Name
-        {
-            get { return name; }
-        }
-
-        public int Id
-        {
-            get { return id; }
-        }
-
-        public int? Elevation
-        {
-            get { return elevation; }
-        }
-
-        public string City
-        {
-            get { return city; }
-        }
+        public int Id { get; protected internal set; }
+        public string Name { get; protected internal set; }
+        public string City { get; protected internal set; }
+        public string State { get; protected internal set; }
+        public int? Elevation { get; protected internal set; }
 
         public SqlVenue (int id, string name, string city, string state, int? elevation)
         {
-            this.id = id;
-            this.name = name;
-            this.city = city;
-            this.state = state;
-            this.elevation = elevation;
+            Id = id;
+            Name = name;
+            City = city;
+            State = state;
+            Elevation = elevation;
         }       
     }
 }

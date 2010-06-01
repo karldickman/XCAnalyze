@@ -5,65 +5,24 @@ namespace XCAnalyze.Model
 {
     public class Data
     {
-        private IList<Affiliation> affiliations;
-        private IList<string> conferences;
-        private IList<string> meets;
-        private IList<Performance> performances;
-        private IList<Race> races;
-        private IList<Runner> runners;
-        private IList<School> schools;
-        private IList<string> venues;
-
-        public IList<Affiliation> Affiliations
-        {
-            get { return affiliations; }
-        }
-
-        public IList<string> Conferences
-        {
-            get { return conferences; }
-        }
-
-        public IList<string> Meets
-        {
-            get { return meets; }
-        }
-
-        public IList<Performance> Performances
-        {
-            get { return performances; }
-        }
-
-        public IList<Race> Races
-        {
-            get { return races; }
-        }
-
-        public IList<Runner> Runners
-        {
-            get { return runners; }
-        }
-
-        public IList<School> Schools
-        {
-            get { return schools; }
-        }
-
-        public IList<string> Venues
-        {
-            get { return venues; }
-        }
+        public IList<Affiliation> Affiliations { get; protected internal set; }
+        public IList<string> Conferences { get; protected internal set; }
+        public IList<string> Meets { get; protected internal set; }
+        public IList<Performance> Performances { get; protected internal set; }
+        public IList<Race> Races { get; protected internal set; }
+        public IList<Runner> Runners { get; protected internal set; }
+        public IList<School> Schools { get; protected internal set; }
+        public IList<string> Venues { get; protected internal set; }
 
         public Data (IList<Affiliation> affiliations, IList<string> conferences, IList<string> meets, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<string> venues)
         {
-            this.affiliations = affiliations;
-            this.conferences = conferences;
-            this.meets = meets;
-            this.performances = performances;
-            this.races = races;
-            this.runners = runners;
-            this.schools = schools;
-            this.venues = venues;
+            Affiliations = affiliations;
+            Conferences = conferences;
+            Meets = meets;
+            Performances = performances;
+            Races = races;
+            Runners = runners;
+            Schools = schools;
             foreach (Affiliation affiliation in affiliations)
             {
                 Affiliate (affiliation);
@@ -76,14 +35,14 @@ namespace XCAnalyze.Model
         
         protected void Affiliate (Affiliation affiliation)
         {
-            affiliation.Runner.AddAffiliation (affiliation);
-            affiliation.School.AddAffiliation (affiliation);
+            affiliation.Runner.AddSchool (affiliation);
+            affiliation.School.AddRunner (affiliation);
         }
         
         public void Affiliate (Runner runner, School school, int year)
         {
             Affiliation affiliation = new Affiliation (runner, school, year);
-            affiliations.Add (affiliation);
+            Affiliations.Add (affiliation);
             Affiliate (affiliation);
         }
         
@@ -96,14 +55,14 @@ namespace XCAnalyze.Model
         public void RegisterPerformance (Race race, Runner runner, Time time)
         {
             Performance performance = new Performance (runner, race, time);
-            performances.Add (performance);
+            Performances.Add (performance);
             RegisterPerformance (performance);
         }
 
         public List<Runner> Team (School school, int year, Gender gender)
         {
             List<Runner> found = new List<Runner> ();
-            foreach (Affiliation affiliation in affiliations) {
+            foreach (Affiliation affiliation in Affiliations) {
                 if (affiliation.School == school && affiliation.Year == year && affiliation.Runner.Gender == gender) {
                     found.Add (affiliation.Runner);
                 }

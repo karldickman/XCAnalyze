@@ -8,69 +8,40 @@ namespace XCAnalyze.Model {
     /// </summary>
     public class Race : IComparable<Race>
     {
-        private string city;
-        private Date date;
-        private int distance;
-        private Gender gender;
-        private string meet;
-        private List<Performance> results;
-        private List<TeamScore> scores;
-        private string state;
-        private string venue;
-        
         /// <summary>
         /// The city in which the meet was held.
         /// </summary>
-        public string City
-        {
-            get { return city; }
-        }
-        
+        public string City { get; protected internal set; }
+
         /// <summary>
         /// The date on which the race was held.
         /// </summary>
-        public Date Date
-        {
-            get { return date; }
-        }
-        
-        /// <summary>
-        /// The day of the month on which this race occurred.
-        /// </summary>
+        public Date Date { get; protected internal set; }
+
         public int Day
         {
             get { return Date.Day; }
         }
-
         /// <summary>
         /// The length of the race.
         /// </summary>
-        public int Distance
-        {
-            get { return distance; }
-        }
+        public int Distance { get; protected internal set; }
 
         /// <summary>
         /// Was it a men's race or a women's race?
         /// </summary>
-        public Gender Gender
-        {
-            get { return gender; }
-        }
-        
+        public Gender Gender { get; protected internal set; }
+
         public string Location
         {
-            get { return venue + ", " + city + ", " + state; }
+            get { return Venue + ", " + City + ", " + State; }
         }
-        
+
         /// <summary>
         /// The name of the meet.
         /// </summary>
-        public string Meet
-        {
-            get { return meet; }
-        }
-        
+        public string Meet { get; protected internal set; }
+
         /// <summary>
         /// The month in which this race occurred.
         /// </summary>
@@ -78,46 +49,31 @@ namespace XCAnalyze.Model {
         {
             get { return Date.Month; }
         }
-        
+
         /// <summary>
         /// The results of the meet.
         /// </summary>
-        public List<Performance> Results
-        {
-            get { return results; }
-        }
-        
+        public List<Performance> Results { get; protected internal set; }
+
         /// <summary>
         /// The team scores of the meet.
         /// </summary>
-        public List<TeamScore> Scores
-        {
-            get { return scores; }
-        }
-        
+        public List<TeamScore> Scores { get; protected internal set; }
+
         /// <summary>
         /// The state in which the meet was held.
         /// </summary>
-        public string State
-        {
-            get { return state; }
-        }
-        
+        public string State { get; protected internal set; }
+
         /// <summary>
-        /// The year in which this race occurred.
+        /// The name of the venue.
         /// </summary>
+        public string Venue { get; protected internal set; }
+
         public int Year
         {
             get { return Date.Year; }
         }
-        
-        /// <summary>
-        /// The name of the venue.
-        /// </summary>
-        public string Venue
-        {
-            get { return venue; }
-        }    
 
         public Race (string meet, Date date, Gender gender, int distance, string venue, string city, string state) : this(meet, date, gender, distance, venue, city, state, false, new List<Performance>())
         {
@@ -125,14 +81,14 @@ namespace XCAnalyze.Model {
 
         public Race (string meet, Date date, Gender gender, int distance, string venue, string city, string state, bool scoreMeet, List<Performance> results)
         {
-            this.date = date;
-            this.gender = gender;
-            this.distance = distance;
-            this.meet = meet;
-            this.venue = venue;
-            this.city = city;
-            this.state = state;
-            this.results = results;
+            Date = date;
+            Gender = gender;
+            Distance = distance;
+            Meet = meet;
+            Venue = venue;
+            City = city;
+            State = state;
+            Results = results;
             results.Sort ();
             if (scoreMeet)
             {
@@ -142,8 +98,8 @@ namespace XCAnalyze.Model {
         
         public void AddResult (Performance result)
         {
-            results.Add (result);
-            results.Sort ();
+            Results.Add (result);
+            Results.Sort ();
         }
 
         /// <summary>
@@ -152,9 +108,9 @@ namespace XCAnalyze.Model {
         public int CompareTo (Race other)
         {
             int comparison;
-            IComparable[] fields = { Year, Month, Day, meet, venue, city, state, (IComparable)gender };
-            IComparable[] otherFields = { other.Year, other.Month, other.Day, other.meet,
-                other.venue, other.city, other.state, (IComparable)other.gender };
+            IComparable[] fields = { Year, Month, Day, Meet, Venue, City, State, (IComparable)Gender };
+            IComparable[] otherFields = { other.Year, other.Month, other.Day, other.Meet,
+                other.Venue, other.City, other.State, (IComparable)other.Gender };
             if (this == other)
             {
                 return 0;
@@ -170,7 +126,7 @@ namespace XCAnalyze.Model {
             return 0;
         }
 
-        public override bool Equals (object other)
+        override public bool Equals (object other)
         {
             if (this == other) {
                 return true;
@@ -181,7 +137,7 @@ namespace XCAnalyze.Model {
             return false;
         }
 
-        public override int GetHashCode ()
+        override public int GetHashCode ()
         {
             return ToString ().GetHashCode ();
         }
@@ -256,19 +212,18 @@ namespace XCAnalyze.Model {
                 scoreList.Add (score);
             }
             scoreList.Sort ();
-            this.scores = scoreList;
+            Scores = scoreList;
         }
 
-        public override string ToString ()
+        override public string ToString ()
         {
             string result;
-            if (gender.IsMale ()) {
+            if (Gender.IsMale ()) {
                 result = "Men";
             } else {
                 result = "Women";
             }
-            return result + "'s " + distance + " m run, " + meet + " (" + date + "), " + venue + ", " + city + ", " + state;
+            return result + "'s " + Distance + " m run, " + Meet + " (" + Date + "), " + Location;
         }
-        
     }
 }

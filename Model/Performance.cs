@@ -8,42 +8,32 @@ namespace XCAnalyze.Model
     /// </summary>
     public class Performance : IComparable<Performance>
     {
-        private int? points;
-        private Race race;
-        private Runner runner;
-        private Time time;
+        /// <summary>
+        /// The number of points the runner earned in the race for this performance.
+        /// </summary>
+        public int? Points { get; protected internal set; }
+
+        /// <summary>
+        /// The race whereat the time was run.
+        /// </summary>
+        public Race Race { get; protected internal set; }
+
+        /// <summary>
+        /// The runner who ran the time.
+        /// </summary>
+        public Runner Runner { get; protected internal set; }
+
+        /// <summary>
+        /// The time that was run.
+        /// </summary>
+        public Time Time { get; protected internal set; }
         
         /// <summary>
         /// The length of the race whereat the time was run.
         /// </summary>
         public int Distance
         {
-            get { return race.Distance; }
-        }
-        
-        /// <summary>
-        /// The number of points the runner earned in the race for this performance.
-        /// </summary>
-        public int? Points
-        {
-            get { return points; }
-            set { points = value; }
-        }
-
-        /// <summary>
-        /// The race whereat the time was run.
-        /// </summary>
-        public Race Race
-        {
-            get { return race; }
-        }
-
-        /// <summary>
-        /// The runner who ran the time.
-        /// </summary>
-        public Runner Runner
-        {
-            get { return runner; }
+            get { return Race.Distance; }
         }
         
         /// <summary>
@@ -54,19 +44,11 @@ namespace XCAnalyze.Model
             get { return Runner.School(Race.Date.Year); }
         }
 
-        /// <summary>
-        /// The time that was run.
-        /// </summary>
-        public Time Time
-        {
-            get { return time; }
-        }     
-
         public Performance (Runner runner, Race race, Time time)
         {
-            this.runner = runner;
-            this.race = race;
-            this.time = time;
+            Runner = runner;
+            Race = race;
+            Time = time;
         }
 
         /// <summary>
@@ -111,7 +93,7 @@ namespace XCAnalyze.Model
         /// </summary>
         public double Pace ()
         {
-            return time.Seconds / Distance * 60;
+            return Time.Seconds / Distance * 60;
         }
     }
 }

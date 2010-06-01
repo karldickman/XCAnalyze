@@ -13,40 +13,43 @@ namespace XCAnalyze.Hytek
     
     public class HytekFormatter
     {
-        private string[] header;
-        private string label;
-        private LabeledTableFormatter tableFormatter;
+        /// <summary>
+        /// The Header of the hytek table.
+        /// </summary>
+        protected internal string[] Header { get; set; }
+
+        /// <summary>
+        /// The title of the table.
+        /// </summary>
+        protected internal string Title { get; set; }
+
+        /// <summary>
+        /// The formatter used internally.
+        /// </summary>
+        protected internal LabeledTableFormatter TableFormatter { get; set; }
         
-        protected internal string[] Header
+        public HytekFormatter (string[] Header) : this(null, Header) {}
+        
+        public HytekFormatter (string Title, string[] Header)
         {
-            get { return header; }
-        }
-        
-        protected internal string Label
-        {
-            get { return label; }
-            set { label = value; }
-        }
-        
-        public HytekFormatter (string[] header) : this(null, header) {}
-        
-        public HytekFormatter (string label, string[] header)
-        {
-            this.label = label;
-            this.header = header;
-            tableFormatter = new LabeledTableFormatter ('\0', ' ', '\0', '=', '\0', '=', '\0', '=');
+            this.Title = Title;
+            this.Header = Header;
+            TableFormatter = new LabeledTableFormatter ('\0', ' ', '\0', '=', '\0', '=', '\0', '=');
         }
         
         protected internal IList<string> Format (IList<object[]> values, Alignment[] alignments)
         {
-            IList<string> tableLines = tableFormatter.Format (header, values, alignments);
-            List<string> lines = new List<string>();
-            if(label == null)
+            IList<string> tableLines = TableFormatter.Format (Header, values, alignments);
+            IList<string> lines = new List<string>();
+            if(Title == null)
             {
                 return tableLines;
             }
-            lines.Add(StringFormatting.Centered(label, tableLines[0].Length));
-            lines.AddRange(tableLines);
+            lines.Add(StringFormatting.Centered(Title, tableLines[0].Length));
+            foreach(string line in tableLines)
+            {
+                lines.Add(line);
+            }
             return lines;
         }
     }
@@ -63,7 +66,7 @@ namespace XCAnalyze.Hytek
         public IList<string> Format (IList<Performance> results)
         {
             Alignment[] alignments = new Alignment[] { StringFormatting.RightJustified, null, null, null, null, AlignPoints };
-            List<object[]> values = new List<object[]> ();
+            IList<object[]> values = new List<object[]> ();
             for (int i = 0; i < results.Count; i++)
             {
                 object[] valueRow = new object[Header.Length];
@@ -81,7 +84,7 @@ namespace XCAnalyze.Hytek
         
         public IList<string> Format (int distance, IList<Performance> results)
         {
-            Label = distance + " m run CC";
+            Title = distance + " m run CC";
             return Format (results);
         }
     }
@@ -148,18 +151,18 @@ namespace XCAnalyze.Hytek
     
     public class RaceFormatter : IFormatter<Race>
     {
-        private ResultsFormatter resultsFormatter;
-        private ScoreFormatter scoreFormatter;
+        protected internal ResultsFormatter ResultsFormatter { get; set; }
+        protected internal ScoreFormatter ScoreFormatter { get; set; }
         
         public RaceFormatter ()
         {
-            resultsFormatter = new ResultsFormatter ();
-            scoreFormatter = new ScoreFormatter ();
+            ResultsFormatter = new ResultsFormatter ();
+            ScoreFormatter = new ScoreFormatter ();
         }
         
         public IList<string> Format (Race race)
         {
-            IList<string> resultsLines = resultsFormatter.Format (race.Distance, race.Results);
+            IList<string> resultsLines = ResultsFormatter.Format (race.Distance, race.Results);
             List<string> lines = new List<string> ();
             int width = resultsLines[0].Length;
             lines.Add (StringFormatting.Centered (race.Meet, width));
@@ -168,8 +171,8 @@ namespace XCAnalyze.Hytek
             lines.Add ("");
             lines.AddRange(resultsLines);
             lines.Add ("");
-            lines.AddRange (scoreFormatter.Format (race.Scores));
-            return lines;
+            lines.AddRange (ScoreFormatter.Format (race.Scores));
+            return (IList<string>)lines;
         }
     }
 }
