@@ -60,8 +60,6 @@ namespace XCAnalyze.Io.Sql
         protected internal DatabaseWriter (IDbConnection connection)
         {
             Connection = connection;
-            Connection.Open ();
-            Command = Connection.CreateCommand();
         }
 
         /// <summary>
@@ -82,6 +80,9 @@ namespace XCAnalyze.Io.Sql
             Connection.Close ();
         }
         
+        /// <summary>
+        /// Get the script to create the database.
+        /// </summary>
         public string CreationScript ()
         {
             return File.ReadAllText (CREATION_SCRIPT);
@@ -109,7 +110,6 @@ namespace XCAnalyze.Io.Sql
                 foundTables.Add ((string)Reader["name"]);
             }
             Reader.Dispose ();
-            Console.WriteLine (foundTables.Count + ", " + TABLES.Length);
             if (foundTables.Count != TABLES.Length)
             {
                 return false;
@@ -130,9 +130,45 @@ namespace XCAnalyze.Io.Sql
         /// <param name="data">
         /// The <see cref="Data"/> to be written.
         /// </param>
-        public void Write (Data data)
+        virtual public void Write (Data data)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException ();
+        }
+        
+        /// <summary>
+        /// Update the database to reflect the changes to the conference.
+        /// </summary>
+        virtual public void WriteConference(SqlConference conference)
+        {
+            Command.CommandText = "UPDATE conferences SET name = \"" + conference.Name + "\", abbreviation = \"" + conference.Abbreviation + "\" WHERE id = " + conference.Id;
+            Command.ExecuteNonQuery();
+        }
+        
+        /// <summary>
+        /// Write a new conference to the database.
+        /// </summary>
+        virtual public void WriteConference(Conference conference)
+        {
+            Command.CommandText = "INSERT INTO conferences (name, abbreviation) VALUES (\"" + conference.Name + "\", \"" + conference.Abbreviation + "\")";
+            Command.ExecuteNonQuery();
+        }
+        
+        /// <summary>
+        /// Write the list of conferences to the database.
+        /// </summary>
+        virtual public void WriteConferences (IList<Conference> conferences)
+        {
+            foreach (Conference conference in conferences)
+            {
+                if(conference is SqlConference)
+                {
+                    WriteConference((SqlConference)conference);
+                }
+                else
+                {
+                    WriteConference(conference);
+                }
+            }
         }
     }
 
@@ -140,7 +176,8 @@ namespace XCAnalyze.Io.Sql
     {
         override public string CREATION_SCRIPT_EXTENSION
         {
-            get {
+            get
+            {
                 return "sqlite";
             }
         }
@@ -153,26 +190,55 @@ namespace XCAnalyze.Io.Sql
         protected internal SqliteDatabaseWriter(IDbConnection connection)
             : base(connection) {}
 
+        /// <summary>
+        /// Create a new SqliteDatabaseWriter using an in-memory database.
+        /// </summary>
         public static SqliteDatabaseWriter NewInstance ()
         {
             return NewInstance (":memory:");
         }
 
+        /// <summary>
+        /// Create a new SqliteDatabaseWriter using a specific database file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The name of the file to connect to.
+        /// </param>
         public static SqliteDatabaseWriter NewInstance (string fileName)
         {
             return NewInstance (
                 new SqliteConnection ("Data Source=" + fileName));
         }
 
+        /// <summary>
+        /// Create a new SqliteDatabaseWriter using the given connection.
+        /// </summary>
         public static SqliteDatabaseWriter NewInstance (IDbConnection connection)
         {
-            return new SqliteDatabaseWriter (connection);
+            SqliteDatabaseWriter writer = new SqliteDatabaseWriter (connection);
+            writer.Connection.Open ();
+            writer.Command = writer.Connection.CreateCommand ();
+            if (!writer.IsDatabaseInitialized ())
+            {
+                writer.InitializeDatabase ();
+            }
+            return writer;
         }
     }
 
     [TestFixture]
     public class TestSqliteDatabaseWriter
     {
+        /// <summary>
+        /// The name of the database file.
+        /// </summary>
+        public const string FILE_NAME = "nunit.db";
+        
+        /// <summary>
+        /// The database reader used to help in testing.
+        /// </summary>
+        protected internal DatabaseReader Reader { get; set; }
+        
         /// <summary>
         /// The database writer that will be tested.
         /// </summary>
@@ -181,24 +247,35 @@ namespace XCAnalyze.Io.Sql
         [SetUp]
         public void SetUp ()
         {
-            Writer = SqliteDatabaseWriter.NewInstance ();
+            Writer = SqliteDatabaseWriter.NewInstance (FILE_NAME);
+            Reader = DatabaseReader.NewInstance (new SqliteConnection(Writer.Connection.ConnectionString));
         }
 
         [TearDown]
         public void TearDown ()
         {
             Writer.Close ();
+            Reader.Close ();
+            File.Delete (FILE_NAME);
         }
 
         [Test]
         public void TestCreateDatabase ()
         {
+            TearDown ();
+            Writer = new SqliteDatabaseWriter (new SqliteConnection ("Data Source=" + FILE_NAME));
+            Writer.Connection.Open ();
+            Writer.Command = Writer.Connection.CreateCommand ();
             Writer.InitializeDatabase ();
         }
 
         [Test]
         public void TestIsDatabaseInitialized ()
         {
+            TearDown ();
+            Writer = new SqliteDatabaseWriter (new SqliteConnection ("Data Source=" + FILE_NAME));
+            Writer.Connection.Open ();
+            Writer.Command = Writer.Connection.CreateCommand ();
             Assert.That (!Writer.IsDatabaseInitialized ());
             Writer.InitializeDatabase ();
             Assert.That (Writer.IsDatabaseInitialized ());
@@ -208,6 +285,42 @@ namespace XCAnalyze.Io.Sql
         public void TestWrite ()
         {
             Assert.Fail ("Not yet implemented.");
+        }
+        
+        [Test]
+        public void TestWriteConferences ()
+        {
+            IList<Conference> actual;
+            IList<Conference> expected = new List<Conference> ();
+            expected.Add (new Conference ("Northwest Conference",
+                "NWC"));
+            expected.Add (new Conference (
+                "Southern California Intercollegiate Athletic Conference",
+                "SCIAC"));
+            expected.Add (new Conference (
+                "Southern Collegiate Athletic Conference", "SCAC"));
+            Writer.WriteConferences (expected);
+            actual = new List<Conference> (Reader.ReadConferences ().Values);
+            foreach (Conference conference in actual)
+            {
+                Assert.That (conference is SqlConference);
+            }
+            foreach (Conference conference in expected) 
+            {
+                Assert.That (actual.Contains (conference));
+            }
+            expected = actual;
+            expected[0].Name = "XKCD";
+            expected[1].Name = "SUCKS";
+            expected[2].Name = "BALLS";
+            expected[2].Abbreviation = "BLZ";
+            Writer.WriteConferences (expected);
+            actual = new List<Conference> (Reader.ReadConferences ().Values);
+            Assert.AreEqual (expected.Count, actual.Count);
+            foreach (Conference conference in expected) 
+            {
+                Assert.That (actual.Contains (conference));
+            }
         }
     }
 }

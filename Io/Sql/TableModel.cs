@@ -6,33 +6,18 @@ namespace XCAnalyze.Io.Sql
 {
     public class SqlData : Data
     {
-        private IList<SqlConference> conferences;
-        private IList<SqlMeet> meets;
-        private IList<SqlVenue> venues;
+        new public IList<Conference> Conferences { get; protected internal set; }
+        new public IList<SqlMeet> Meets { get; protected internal set; }
+        new public IList<SqlVenue> Venues { get; protected internal set; }
 
-        new public IList<SqlConference> Conferences
+        protected internal SqlData(IList<Affiliation> affiliations, IList<Conference> conferences, IList<string> conferenceNames, IList<SqlMeet> meets, IList<string> meetNames, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<SqlVenue> venues, IList<string> venueNames) : base(affiliations, conferenceNames, meetNames, performances, races, runners, schools, venueNames)
         {
-            get { return conferences; }
+            Conferences = conferences;
+            Meets = meets;
+            Venues = venues;
         }
 
-        new public IList<SqlMeet> Meets
-        {
-            get { return meets; }
-        }
-
-        new public IList<SqlVenue> Venues
-        {
-            get { return venues; }
-        }
-
-        protected SqlData(IList<Affiliation> affiliations, IList<SqlConference> conferences, IList<string> conferenceNames, IList<SqlMeet> meets, IList<string> meetNames, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<SqlVenue> venues, IList<string> venueNames) : base(affiliations, conferenceNames, meetNames, performances, races, runners, schools, venueNames)
-        {
-            this.conferences = conferences;
-            this.meets = meets;
-            this.venues = venues;
-        }
-
-        public static SqlData NewInstance(IList<Affiliation> affiliations, IList<SqlConference> conferences, IList<SqlMeet> meets, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<SqlVenue> venues)
+        public static SqlData NewInstance(IList<Affiliation> affiliations, IList<Conference> conferences, IList<SqlMeet> meets, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<SqlVenue> venues)
         {
             IList<string> conferenceNames = new List<string>();
             IList<string> meetNames = new List<string>();
@@ -66,28 +51,61 @@ namespace XCAnalyze.Io.Sql
     {
         public int Id { get; protected internal set; }
 
-        public SqlAffiliation (int id, Runner runner, School school, int year) : base(runner, school, year)
+        public SqlAffiliation (int id, Runner runner, School school, int year)
+            : base(runner, school, year)
         {
             Id = id;
         }
     }
 
-    public class SqlConference
+    public class Conference : IComparable<Conference>
     {
-        public int Id { get; protected internal set; }
         public string Name { get; protected internal set; }
         public string Abbreviation { get; protected internal set; }
 
-        public SqlConference (int id, string name, string abbreviation)
+        public Conference (string name, string abbreviation)
         {
-            Id = id;
             Name = name;
             Abbreviation = abbreviation;
         }
+
+        public int CompareTo (Conference other)
+        {
+            return Name.CompareTo (other.Name);
+        }
+        
+        override public bool Equals (object other)
+        {
+            if(this == other)
+            {
+                return true;
+            }
+            else if(other is Conference)
+            {
+                return 0 == CompareTo((Conference)other);
+            }
+            return false;
+        }
+        
+        override public int GetHashCode ()
+        {
+            return Name.GetHashCode();
+        }  
         
         override public string ToString ()
         {
             return Name;
+        } 
+    }
+    
+    public class SqlConference : Conference
+    {
+        public int Id { get; protected internal set; }
+        
+        public SqlConference (int id, string name, string abbreviation)
+            : base(name, abbreviation)
+        {
+            Id = id;
         }
     }
 
@@ -167,18 +185,18 @@ namespace XCAnalyze.Io.Sql
 
     public class SqlSchool : School
     {
-        new public SqlConference Conference { get; protected internal set; }
+        new public Conference Conference { get; protected internal set; }
         public int Id { get; protected internal set; }
         public string[] Nicknames { get; protected internal set; }
         
-        protected SqlSchool (int id, string name, string[] nicknames, string type, bool nameFirst, SqlConference conference, string conferenceName) : base(name, type, nameFirst, conferenceName)
+        protected SqlSchool (int id, string name, string[] nicknames, string type, bool nameFirst, Conference conference, string conferenceName) : base(name, type, nameFirst, conferenceName)
         {
             Id = id;
             Nicknames = nicknames;
             Conference = conference;
         }
         
-        public static SqlSchool NewInstance (int id, string name, string[] nicknames, string type, bool nameFirst, SqlConference conference)
+        public static SqlSchool NewInstance (int id, string name, string[] nicknames, string type, bool nameFirst, Conference conference)
         {
             string conferenceName;
             if (conference == null)
