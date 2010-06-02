@@ -9,16 +9,29 @@ using XCAnalyze.Model;
 namespace XCAnalyze.Io.Sql
 {
     abstract public class DatabaseWriter : IWriter<Data>
-    {
+    {    
+        /// <summary>
+        /// The creation script for the database.
+        /// </summary>
+        public string CREATION_SCRIPT
+        {
+            get { return CREATION_SCRIPT_NAME + "." + CREATION_SCRIPT_EXTENSION; }
+        }
+        
         /// <summary>
         /// The script used to create the database.
         /// </summary>
-        abstract public string CREATION_SCRIPT { get; }
+        public static readonly string CREATION_SCRIPT_NAME = String.Join("" + Path.DirectorySeparatorChar, new string[] { Utilities.INSTALL_DIRECTORY, "..", "..", "xca_create" });
+        
+        /// <summary>
+        /// The file extension of the creation script.
+        /// </summary>
+        virtual public string CREATION_SCRIPT_EXTENSION { get { return ".sql"; } }
 
         /// <summary>
         /// The script used to get the list of tables in the database.
         /// </summary>
-        abstract public string GET_TABLES { get; }
+        abstract public string GET_TABLES_COMMAND { get; }
 
         /// <summary>
         /// The tables that should be in the database.
@@ -67,13 +80,18 @@ namespace XCAnalyze.Io.Sql
             }
             Connection.Close ();
         }
+        
+        public string CreationScript ()
+        {
+            return File.ReadAllText (CREATION_SCRIPT);
+        }
 
         /// <summary>
         /// Initialize all the tables in the database.
         /// </summary>
         public void InitializeDatabase ()
         {
-            Command.CommandText = CREATION_SCRIPT;
+            Command.CommandText = CreationScript();
             Command.ExecuteNonQuery ();
         }
 
@@ -83,7 +101,7 @@ namespace XCAnalyze.Io.Sql
         virtual public bool IsDatabaseInitialized ()
         {
             IList<string> foundTables = new List<string> ();
-            Command.CommandText = GET_TABLES;
+            Command.CommandText = GET_TABLES_COMMAND;
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
@@ -119,15 +137,14 @@ namespace XCAnalyze.Io.Sql
 
     public class SqliteDatabaseWriter : DatabaseWriter
     {
-        override public string CREATION_SCRIPT
+        override public string CREATION_SCRIPT_EXTENSION
         {
-            get
-            {
-                return File.ReadAllText("/home/karl/Programming/monodevelop/XCAnalyze/create.sqlite");
+            get {
+                return "sqlite";
             }
         }
 
-        override public string GET_TABLES
+        override public string GET_TABLES_COMMAND
         {
             get { return "SELECT name FROM sqlite_master WHERE type=\"table\""; }
         }

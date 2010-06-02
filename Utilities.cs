@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace XCAnalyze
 {
@@ -7,6 +8,11 @@ namespace XCAnalyze
 	/// </summary>
 	public class Utilities
 	{
+        /// <summary>
+        /// The directory where XCAnalyze is installed.
+        /// </summary>
+        public static readonly string INSTALL_DIRECTORY = Directory.GetCurrentDirectory();
+            
 		/// <summary>
 		/// Compare two nullable items of the same type.
 		/// </summary>
