@@ -15,18 +15,19 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         public string CREATION_SCRIPT
         {
-            get { return CREATION_SCRIPT_NAME + "." + CREATION_SCRIPT_EXTENSION; }
+            get
+            {
+                return SupportFiles.GetPath ("xca_create." + CREATION_SCRIPT_EXTENSION);
+            }
         }
-        
-        /// <summary>
-        /// The script used to create the database.
-        /// </summary>
-        public static readonly string CREATION_SCRIPT_NAME = String.Join("" + Path.DirectorySeparatorChar, new string[] { Utilities.INSTALL_DIRECTORY, "..", "..", "xca_create" });
         
         /// <summary>
         /// The file extension of the creation script.
         /// </summary>
-        virtual public string CREATION_SCRIPT_EXTENSION { get { return ".sql"; } }
+        virtual public string CREATION_SCRIPT_EXTENSION
+        {
+            get { return ".sql"; }
+        }
 
         /// <summary>
         /// The script used to get the list of tables in the database.
