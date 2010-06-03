@@ -1,4 +1,5 @@
 using Mono.Data.Sqlite;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,8 @@ namespace XCAnalyze.Io.Sql
         {
             get
             {
-                return SupportFiles.GetPath ("xca_create." + CREATION_SCRIPT_EXTENSION);
+                return SupportFiles.GetPath ("xca_create." +
+                    CREATION_SCRIPT_EXTENSION);
             }
         }
         
@@ -28,6 +30,11 @@ namespace XCAnalyze.Io.Sql
         {
             get { return ".sql"; }
         }
+        
+        /// <summary>
+        /// The title of the column that has the names of all the tables.
+        /// </summary>
+        abstract public string GET_TABLES_COLUMN { get; }
 
         /// <summary>
         /// The script used to get the list of tables in the database.
@@ -39,7 +46,12 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         public static readonly string[] TABLES = {"affiliations", "conferences",
             "meets", "races", "results", "runners", "schools",
-            "venues"};
+            "venues"};        
+        
+        /// <summary>
+        /// The views that should be in the database.
+        /// </summary>
+        public static readonly string[] VIEWS = {"performances"};
 
         /// <summary>
         /// The <see cref="IDbCommand"/> used to query the database.
@@ -85,15 +97,15 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         public string CreationScript ()
         {
-            return File.ReadAllText (CREATION_SCRIPT);
+            return String.Join(" ", File.ReadAllLines(CREATION_SCRIPT));
         }
 
         /// <summary>
         /// Initialize all the tables in the database.
         /// </summary>
-        public void InitializeDatabase ()
+        virtual public void InitializeDatabase ()
         {
-            Command.CommandText = CreationScript();
+            Command.CommandText = CreationScript ();
             Command.ExecuteNonQuery ();
         }
 
@@ -107,14 +119,29 @@ namespace XCAnalyze.Io.Sql
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
-                foundTables.Add ((string)Reader["name"]);
+                foundTables.Add ((string)Reader[GET_TABLES_COLUMN]);
             }
             Reader.Dispose ();
-            if (foundTables.Count != TABLES.Length)
+            if (foundTables.Count < TABLES.Length)
             {
                 return false;
             }
             foreach(string table in TABLES)
+            {
+                if(!foundTables.Contains(table))
+                {
+                    return false;
+                }
+            }
+            if(foundTables.Count == TABLES.Length)
+            {
+                return true;
+            }
+            if(foundTables.Count != TABLES.Length + VIEWS.Length)
+            {
+                return false;
+            }
+            foreach(string table in VIEWS)
             {
                 if(!foundTables.Contains(table))
                 {
@@ -171,7 +198,94 @@ namespace XCAnalyze.Io.Sql
             }
         }
     }
-
+    
+    public class MySqlDatabaseWriter : DatabaseWriter
+    {        
+        override public string CREATION_SCRIPT_EXTENSION
+        {
+            get { return "mysql"; }
+        }
+        
+        override public string GET_TABLES_COLUMN
+        {
+            get { return "Tables_in_" + Database; }
+        }
+        
+        override public string GET_TABLES_COMMAND
+        {
+            get { return "SHOW TABLES"; }
+        }
+        
+        protected internal string Database { get; set; }
+        
+        protected internal MySqlDatabaseWriter(IDbConnection connection,
+            string database) : base(connection)
+        {
+            Database = database;
+        }
+        
+        public static MySqlDatabaseWriter NewInstance (string host,
+            string database, string user)
+        {
+            return NewInstance (host, database, user, user);
+        }
+        
+        public static MySqlDatabaseWriter NewInstance (string host,
+            string database, string user, string password)
+        {
+            return NewInstance (host, database, user, password, 3306);
+        }
+        
+        public static MySqlDatabaseWriter NewInstance (string host,
+            string database, string user, string password, int port)
+        {
+            return NewInstance (host, database, user, password, port, false);
+        }
+        
+        public static MySqlDatabaseWriter NewInstance (string host,
+            string database, string user, string password, int port,
+            bool pooling)
+        {
+            string connectionString = "Server=" + host + "; User ID=" + user + "; Password=" + password + "; Pooling=" + pooling + ";";
+            return NewInstance (new MySqlConnection(connectionString), database);
+        }
+        
+        public static MySqlDatabaseWriter NewInstance (IDbConnection connection,
+            string database)
+        {
+            string fullConnectionString = connection.ConnectionString + "Database=" + database;
+            MySqlDatabaseWriter writer = new MySqlDatabaseWriter (connection, database);
+            connection.Open ();
+            writer.Command = connection.CreateCommand ();
+            writer.Command.CommandText = "USE " + database;
+            try
+            {
+                writer.Command.ExecuteNonQuery ();
+            }
+            catch (MySqlException exception)
+            {
+                Console.WriteLine (exception.Message);
+                Console.WriteLine ("Creating database " + database);
+                writer.Command.CommandText = "CREATE DATABASE " + database;
+                writer.Command.ExecuteNonQuery ();
+            }
+            writer.Close ();
+            writer = new MySqlDatabaseWriter (new MySqlConnection (fullConnectionString), database);
+            writer.Connection.Open ();
+            writer.Command = writer.Connection.CreateCommand ();
+            if (!writer.IsDatabaseInitialized ()) 
+            {
+                writer.InitializeDatabase ();
+            }
+            return writer;
+        }
+        
+        override public void InitializeDatabase()
+        {
+            throw new NotImplementedException();
+        }
+    }  
+   
     public class SqliteDatabaseWriter : DatabaseWriter
     {
         override public string CREATION_SCRIPT_EXTENSION
@@ -180,6 +294,11 @@ namespace XCAnalyze.Io.Sql
             {
                 return "sqlite";
             }
+        }
+        
+        override public string GET_TABLES_COLUMN
+        {
+             get { return "name"; }
         }
 
         override public string GET_TABLES_COMMAND
@@ -225,70 +344,53 @@ namespace XCAnalyze.Io.Sql
             return writer;
         }
     }
-
-    [TestFixture]
-    public class TestSqliteDatabaseWriter
-    {
+    
+    abstract public class TestDatabaseWriter
+    {        
         /// <summary>
-        /// The name of the database file.
+        /// The name of the test database.
         /// </summary>
-        public const string FILE_NAME = "nunit.db";
-        
+        virtual public string TEST_DATABASE { get { return "xca_test"; } }
+
         /// <summary>
-        /// The database reader used to help in testing.
+        /// The reader for the database
         /// </summary>
         protected internal DatabaseReader Reader { get; set; }
         
         /// <summary>
-        /// The database writer that will be tested.
+        /// The writer for the database.
         /// </summary>
-        protected internal SqliteDatabaseWriter Writer { get; set; }
-
-        [SetUp]
-        public void SetUp ()
-        {
-            Writer = SqliteDatabaseWriter.NewInstance (FILE_NAME);
-            Reader = DatabaseReader.NewInstance (new SqliteConnection(Writer.Connection.ConnectionString));
-        }
-
+        protected internal DatabaseWriter Writer { get; set; }
+        
+        abstract public void SetUpWriters();
+        
         [TearDown]
-        public void TearDown ()
+        virtual public void TearDown ()
         {
             Writer.Close ();
             Reader.Close ();
-            File.Delete (FILE_NAME);
-        }
+        }  
 
-        [Test]
-        public void TestCreateDatabase ()
+        virtual public void TestInitializeDatabase ()
         {
-            TearDown ();
-            Writer = new SqliteDatabaseWriter (new SqliteConnection ("Data Source=" + FILE_NAME));
-            Writer.Connection.Open ();
-            Writer.Command = Writer.Connection.CreateCommand ();
+            SetUpWriters ();
             Writer.InitializeDatabase ();
         }
-
-        [Test]
-        public void TestIsDatabaseInitialized ()
+        
+        virtual public void TestIsDatabaseInitialized()
         {
-            TearDown ();
-            Writer = new SqliteDatabaseWriter (new SqliteConnection ("Data Source=" + FILE_NAME));
-            Writer.Connection.Open ();
-            Writer.Command = Writer.Connection.CreateCommand ();
+            SetUpWriters ();
             Assert.That (!Writer.IsDatabaseInitialized ());
             Writer.InitializeDatabase ();
             Assert.That (Writer.IsDatabaseInitialized ());
         }
-
-        [Test]
-        public void TestWrite ()
+        
+        virtual public void TestWrite()
         {
-            Assert.Fail ("Not yet implemented.");
+            Assert.Fail("Not yet implemented.");
         }
         
-        [Test]
-        public void TestWriteConferences ()
+        virtual public void TestWriteConferences()
         {
             IList<Conference> actual;
             IList<Conference> expected = new List<Conference> ();
@@ -301,6 +403,7 @@ namespace XCAnalyze.Io.Sql
                 "Southern Collegiate Athletic Conference", "SCAC"));
             Writer.WriteConferences (expected);
             actual = new List<Conference> (Reader.ReadConferences ().Values);
+            Assert.AreEqual(expected.Count, actual.Count);
             foreach (Conference conference in actual)
             {
                 Assert.That (conference is SqlConference);
@@ -321,6 +424,116 @@ namespace XCAnalyze.Io.Sql
             {
                 Assert.That (actual.Contains (conference));
             }
+        }
+    }
+    
+    [TestFixture]
+    public class TestMySqlDatabaseWriter : TestDatabaseWriter
+    {       
+        [SetUp]
+        public void SetUp ()
+        {
+            Writer = MySqlDatabaseWriter.NewInstance ("localhost",
+                TEST_DATABASE, "xcanalyze");
+            Reader = MySqlDatabaseReader.NewInstance ("localhost",
+                TEST_DATABASE, "xcanalyze");
+        }   
+        
+        override public void SetUpWriters()
+        {
+            throw new NotImplementedException();
+        }
+        
+        [TearDown]
+        override public void TearDown()
+        {
+            foreach(string table in DatabaseWriter.TABLES)
+            {
+                Writer.Command.CommandText = "DELETE FROM " + table;
+                Writer.Command.ExecuteNonQuery();
+            }
+            base.TearDown();
+        }
+        
+        [Test]
+        override public void TestIsDatabaseInitialized ()
+        {
+            Assert.That (Writer.IsDatabaseInitialized ());
+        }
+        
+        [Test]
+        override public void TestInitializeDatabase ()
+        {
+            Writer.InitializeDatabase ();
+        }
+        
+        [Test]
+        override public void TestWrite ()
+        {
+            base.TestWrite ();
+        }
+        
+        [Test]
+        override public void TestWriteConferences ()
+        {
+            base.TestWriteConferences ();
+        }
+    }
+
+    [TestFixture]
+    public class TestSqliteDatabaseWriter : TestDatabaseWriter
+    {      
+        /// <summary>
+        /// The name of the test database file.
+        /// </summary>
+        override public string TEST_DATABASE { get { return "xca_test.db"; } }
+
+        [SetUp]
+        public void SetUp ()
+        {
+            Writer = SqliteDatabaseWriter.NewInstance (TEST_DATABASE);
+            Reader = DatabaseReader.NewInstance (new SqliteConnection (
+                    Writer.Connection.ConnectionString));
+        }
+        
+        override public void SetUpWriters ()
+        {
+            TearDown ();
+            Writer = new SqliteDatabaseWriter (new SqliteConnection (
+                    "Data Source=" + TEST_DATABASE));
+            Writer.Connection.Open ();
+            Writer.Command = Writer.Connection.CreateCommand ();
+        }
+
+        [TearDown]
+        override public void TearDown ()
+        {
+            base.TearDown();
+            File.Delete (TEST_DATABASE);
+        }
+
+        [Test]
+        override public void TestInitializeDatabase ()
+        {
+            base.TestInitializeDatabase();
+        }
+
+        [Test]
+        override public void TestIsDatabaseInitialized ()
+        {
+            base.TestIsDatabaseInitialized();
+        }
+
+        [Test]
+        override public void TestWrite ()
+        {
+            base.TestWrite();
+        }
+        
+        [Test]
+        override public void TestWriteConferences ()
+        {
+            base.TestWriteConferences();
         }
     }
 }

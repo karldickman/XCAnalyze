@@ -12,7 +12,7 @@ namespace XCAnalyze.Io.Sql
         protected internal IDataReader Reader { get; set; }
         protected internal IDbCommand Command { get; set; }
         protected internal IDbConnection Connection { get; set; }
-
+        
         protected internal DatabaseReader (IDbConnection connection)
         {
             Connection = connection;
@@ -269,8 +269,48 @@ namespace XCAnalyze.Io.Sql
         }
     }
     
+    public class MySqlDatabaseReader : DatabaseReader
+    { 
+        protected internal MySqlDatabaseReader(IDbConnection connection)
+            : base(connection) {}
+        
+        public static MySqlDatabaseReader NewInstance (string host,
+            string database, string user)
+        {
+            return NewInstance (host, database, user, user);
+        }
+        
+        public static MySqlDatabaseReader NewInstance (string host,
+            string database, string user, string password)
+        {
+            return NewInstance (host, database, user, password, 3306);
+        }
+        
+        public static MySqlDatabaseReader NewInstance (string host,
+            string database, string user, string password, int port)
+        {
+            return NewInstance (host, database, user, password, port, false);
+        }
+        
+        public static MySqlDatabaseReader NewInstance (string host,
+            string database, string user, string password, int port,
+            bool pooling)
+        {
+            string connectionString = "Server=" + host + "; Database=" + database + "; User ID=" + user + "; Password=" + password + "; Pooling=" + pooling + ";";
+            return NewInstance (new MySqlConnection (connectionString));
+        }
+        
+        new public static MySqlDatabaseReader NewInstance (IDbConnection connection)
+        {
+            MySqlDatabaseReader reader = new MySqlDatabaseReader (connection);
+            reader.Connection.Open ();
+            reader.Command = reader.Connection.CreateCommand ();
+            return reader;
+        }
+    }
+    
     [TestFixture]
-    public class TestDatabaseReader
+    public class TestMySqlDatabaseReader
     {
         protected internal IDbConnection Connection { get; set; }
         protected internal DatabaseReader Reader { get; set; }
@@ -278,7 +318,7 @@ namespace XCAnalyze.Io.Sql
         [SetUp]
         public void SetUp ()
         {
-            string connectionString = "Server=localhost; Database=xcanalyze; User ID=xcanalyze; Pooling=false;";
+            string connectionString = "Server=localhost; Database=xcanalyze; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
             Connection = new MySqlConnection (connectionString);
             Reader = DatabaseReader.NewInstance (Connection);
         }
