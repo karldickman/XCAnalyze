@@ -163,24 +163,6 @@ namespace XCAnalyze.Io.Sql
         }
         
         /// <summary>
-        /// Update the database to reflect the changes to the conference.
-        /// </summary>
-        virtual public void WriteConference(SqlConference conference)
-        {
-            Command.CommandText = "UPDATE conferences SET name = \"" + conference.Name + "\", abbreviation = \"" + conference.Abbreviation + "\" WHERE id = " + conference.Id;
-            Command.ExecuteNonQuery();
-        }
-        
-        /// <summary>
-        /// Write a new conference to the database.
-        /// </summary>
-        virtual public void WriteConference(Conference conference)
-        {
-            Command.CommandText = "INSERT INTO conferences (name, abbreviation) VALUES (\"" + conference.Name + "\", \"" + conference.Abbreviation + "\")";
-            Command.ExecuteNonQuery();
-        }
-        
-        /// <summary>
         /// Write the list of conferences to the database.
         /// </summary>
         virtual public void WriteConferences (IList<Conference> conferences)
@@ -189,12 +171,47 @@ namespace XCAnalyze.Io.Sql
             {
                 if(conference is SqlConference)
                 {
-                    WriteConference((SqlConference)conference);
+                    Command.CommandText = "UPDATE conferences SET name = \"" + conference.Name + "\", abbreviation = \"" + conference.Abbreviation + "\" WHERE id = " + ((SqlConference)conference).Id;
                 }
                 else
                 {
-                    WriteConference(conference);
+                    Command.CommandText = "INSERT INTO conferences (name, abbreviation) VALUES (\"" + conference.Name + "\", \"" + conference.Abbreviation + "\")";
                 }
+                Command.ExecuteNonQuery();
+            }
+        }
+        
+        virtual public void WriteRunners(IList<Runner> runners)
+        {
+            string nicknames, year;
+            foreach(Runner runner in runners)
+            {
+                if(runner.Year == null)
+                {
+                    year = "NULL";
+                }
+                else
+                {
+                    year = runner.Year.ToString();
+                }
+                if(runner is SqlRunner)
+                {
+                    if(((SqlRunner)runner).Nicknames == null)
+                    {
+                        nicknames = "NULL";
+                    }
+                    else
+                    {
+                        nicknames = "\"" + String.Join(", ", ((SqlRunner)runner).Nicknames) + "\"";
+                    }
+                    Command.CommandText = "UPDATE runners SET surname = \"" + runner.Surname + "\", given_name = \"" + runner.GivenName + "\", nicknames = " + nicknames + ", gender = \"" + runner.Gender + "\", year = " + year + " WHERE id = " + ((SqlRunner)runner).Id;   
+                }
+                else
+                {
+                    Command.CommandText = "INSERT INTO runners (surname, given_name, gender, year) VALUES (\"" + runner.Surname + "\", \"" + runner.GivenName + "\", \"" + runner.Gender + "\", " + year + ")";
+                }
+                Console.WriteLine(Command.CommandText);
+                Command.ExecuteNonQuery();
             }
         }
     }
@@ -425,6 +442,37 @@ namespace XCAnalyze.Io.Sql
                 Assert.That (actual.Contains (conference));
             }
         }
+        
+        virtual public void TestWriteRunners()
+        {
+            IList<Runner> actual;
+            IList<Runner> expected = new List<Runner>();
+            expected.Add(new Runner("Dickman", "Karl", Gender.MALE, 2010));
+            expected.Add(new Runner("Palmer", "Hannah", Gender.FEMALE, 2010));
+            expected.Add(new Runner("LeDonne", "Richie", Gender.MALE, 2010));
+            expected.Add(new Runner("Woodard", "Keith", Gender.MALE, null));
+            Writer.WriteRunners(expected);
+            actual = new List<Runner>(Reader.ReadRunners().Values);
+            Assert.AreEqual(expected.Count, actual.Count);
+            foreach(Runner runner in actual)
+            {
+                Assert.That(runner is SqlRunner);
+            }
+            foreach(Runner runner in expected)
+            {
+                Assert.That(actual.Contains(runner));
+            }
+            expected = actual;
+            ((SqlRunner)expected[3]).Nicknames = new string[] {"Beast"};
+            Writer.WriteRunners(expected);
+            actual = new List<Runner>(Reader.ReadRunners().Values);
+            Assert.AreEqual("Beast", ((SqlRunner)actual[3]).Nicknames[0]);
+            Assert.AreEqual(expected.Count, actual.Count);
+            foreach(Runner runner in expected)
+            {
+                Assert.That(actual.Contains(runner));
+            }
+        }
     }
     
     [TestFixture]
@@ -477,6 +525,12 @@ namespace XCAnalyze.Io.Sql
         override public void TestWriteConferences ()
         {
             base.TestWriteConferences ();
+        }
+        
+        [Test]
+        override public void TestWriteRunners()
+        {
+            base.TestWriteRunners();
         }
     }
 
@@ -534,6 +588,12 @@ namespace XCAnalyze.Io.Sql
         override public void TestWriteConferences ()
         {
             base.TestWriteConferences();
+        }
+        
+        [Test]
+        override public void TestWriteRunners()
+        {
+            base.TestWriteRunners();
         }
     }
 }

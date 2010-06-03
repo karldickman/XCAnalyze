@@ -163,7 +163,7 @@ namespace XCAnalyze.Io.Sql
             Command.CommandText = "SELECT * FROM runners";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ()) {
-                id = (int)(uint)Reader["id"];
+                id = int.Parse (Reader["id"].ToString ());
                 if (Reader["nicknames"] is DBNull)
                 {
                     nicknames = null;
@@ -179,9 +179,10 @@ namespace XCAnalyze.Io.Sql
                 if (Reader["year"] is DBNull)
                 {
                     year = null;
-                } else
+                }
+                else
                 {
-                    year = (int?)Reader["year"];
+                    year = new Nullable<int>(int.Parse(Reader["year"].ToString()));
                 }
                 runners.Add (id, new SqlRunner ((int)id, (string)Reader["surname"], (string)Reader["given_name"], nicknames, Gender.FromString ((string)Reader["gender"]), year));
             }
