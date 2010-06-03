@@ -94,7 +94,7 @@ namespace XCAnalyze.Model
             {
                 return comparison;
             }
-            comparison = Utilities.CompareNullable (Year, other.Year, 1);
+            comparison = NullableComparer.Compare (Year, other.Year, 1);
             if (comparison != 0) 
             {
                 return comparison;

@@ -65,7 +65,7 @@ namespace XCAnalyze.Model
             }
             score = Score ();
             otherScore = other.Score ();
-            comparison = Utilities.CompareNullable (score, otherScore, 1);
+            comparison = NullableComparer.Compare (score, otherScore, 1);
             if (comparison != 0) 
             {
                 return comparison;

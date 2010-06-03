@@ -32,10 +32,21 @@ namespace XCAnalyze.Model {
         /// The type of the school (University, College, etc.)
         /// </summary>
         public string Type { get; protected internal set; }
+        
+        public School(string name, string type) : this(name, type, true) {}
 
-        public School (string name, string type, bool nameFirst, string conference) : this(name, type, nameFirst, conference, new List<Affiliation> ()) {}
+        public School(string name, string type, bool nameFirst)
+            : this(name, type, nameFirst, null) {}
+        
+        public School(string name, string type, string conference)
+        : this(name, type, true, conference) {}
+        
+        public School (string name, string type, bool nameFirst,
+                string conference)
+                : this(name, type, nameFirst, conference, new List<Affiliation> ()) {}
 
-        public School (string name, string type, bool nameFirst, string conference, List<Affiliation> runners)
+        public School (string name, string type, bool nameFirst,
+            string conference, List<Affiliation> runners)
         {
             Name = name;
             Type = type;
@@ -65,7 +76,7 @@ namespace XCAnalyze.Model {
             {
                 return comparison;
             }
-            comparison = Type.CompareTo (other.Type);
+            comparison = ObjectComparer<string>.Compare (Type, other.Type, 1);
             if (comparison != 0)
             {
                 return comparison;
@@ -78,7 +89,7 @@ namespace XCAnalyze.Model {
                     return comparison;
                 }
             }
-            return Conference.CompareTo (other.Conference);
+            return ObjectComparer<string>.Compare (Conference, other.Conference, 1);
         }
 
         public override bool Equals (object other)

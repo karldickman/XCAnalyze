@@ -42,11 +42,12 @@ namespace XCAnalyze.Io.Sql
         abstract public string GET_TABLES_COMMAND { get; }
 
         /// <summary>
-        /// The tables that should be in the database.
+        /// The tables that should be in the database.  These are in dependency
+        /// order: tables later in the list have foreign keys referencing tables
+        /// earlier in the list.
         /// </summary>
-        public static readonly string[] TABLES = {"affiliations", "conferences",
-            "meets", "races", "results", "runners", "schools",
-            "venues"};        
+        public static readonly string[] TABLES = {"conferences", "runners",
+        "schools", "affiliations", "meets", "venues", "races", "results"};        
         
         /// <summary>
         /// The views that should be in the database.
@@ -150,6 +151,48 @@ namespace XCAnalyze.Io.Sql
             }
             return true;
         }
+        
+        /// <summary>
+        /// Format the given boolean for insertion in an SQL query.
+        /// </summary>
+        virtual public string Format (bool value_)
+        {
+            if (value_)
+            {
+                return "1";
+            }
+            return "0";
+        }
+        
+        virtual public string Format(SqlConference conference)
+        {
+            if(conference == null)
+            {
+                return "NULL";
+            }
+            return conference.Id.ToString();
+        }
+        
+        /// <summary>
+        /// Format the given value for insertion in an SQL query.
+        /// </summary>
+        virtual public string Format (string value_)
+        {
+            if (value_ == null)
+            {
+                return "NULL";
+            }
+            return "\"" + value_ + "\"";
+        }
+        
+        virtual public string Format(string[] value_)
+        {
+            if(value_ == null)
+            {
+                return "NULL";
+            }
+            return Format(String.Join(", ", value_));
+        }
 
         /// <summary>
         /// Write data to the database.
@@ -171,11 +214,11 @@ namespace XCAnalyze.Io.Sql
             {
                 if(conference is SqlConference)
                 {
-                    Command.CommandText = "UPDATE conferences SET name = \"" + conference.Name + "\", abbreviation = \"" + conference.Abbreviation + "\" WHERE id = " + ((SqlConference)conference).Id;
+                    Command.CommandText = "UPDATE conferences SET name = " + Format(conference.Name) + ", abbreviation = " + Format(conference.Abbreviation) + " WHERE id = " + ((SqlConference)conference).Id;
                 }
                 else
                 {
-                    Command.CommandText = "INSERT INTO conferences (name, abbreviation) VALUES (\"" + conference.Name + "\", \"" + conference.Abbreviation + "\")";
+                    Command.CommandText = "INSERT INTO conferences (name, abbreviation) VALUES (" + Format(conference.Name) + ", " + Format(conference.Abbreviation) + ")";
                 }
                 Command.ExecuteNonQuery();
             }
@@ -210,7 +253,37 @@ namespace XCAnalyze.Io.Sql
                 {
                     Command.CommandText = "INSERT INTO runners (surname, given_name, gender, year) VALUES (\"" + runner.Surname + "\", \"" + runner.GivenName + "\", \"" + runner.Gender + "\", " + year + ")";
                 }
-                Console.WriteLine(Command.CommandText);
+                Command.ExecuteNonQuery();
+            }
+        }
+        
+        virtual public void WriteSchools(IList<School> schools, IDictionary<int, Conference> conferences)
+        {
+            string conferenceId;
+            SqlSchool sqlSchool;
+            foreach(School school in schools)
+            {
+                if(school is SqlSchool)
+                {
+                    sqlSchool = (SqlSchool) school;
+                    Command.CommandText = "UPDATE schools SET name = " + Format(sqlSchool.Name) + ", type = " + Format(sqlSchool.Type) + ", name_first = " + Format(sqlSchool.NameFirst) + ", nicknames = " + Format(sqlSchool.Nicknames) + ", conference_id = " + Format((SqlConference)sqlSchool.Conference) + " WHERE id = " + sqlSchool.Id;
+                }
+                else
+                {
+                    conferenceId = "NULL";
+                    if(school.Conference != null)
+                    {
+                        foreach(KeyValuePair<int, Conference> entry in conferences)
+                        {
+                            if(entry.Value.Name == school.Conference)
+                            {
+                                conferenceId = entry.Key.ToString();
+                                break;
+                            }
+                        }
+                    }
+                    Command.CommandText = "INSERT INTO schools (name, type, name_first, conference_id) VALUES (" + Format(school.Name) + ", " + Format(school.Type) + ", " + Format(school.NameFirst) + ", " + conferenceId + ")";
+                }
                 Command.ExecuteNonQuery();
             }
         }
@@ -370,14 +443,57 @@ namespace XCAnalyze.Io.Sql
         virtual public string TEST_DATABASE { get { return "xca_test"; } }
 
         /// <summary>
+        /// A sample list of conferences.
+        /// </summary>
+        protected internal IList<Conference> Conferences { get; set; }
+        
+        /// <summary>
         /// The reader for the database
         /// </summary>
         protected internal DatabaseReader Reader { get; set; }
         
         /// <summary>
+        /// A sample list of runners
+        /// </summary>
+        protected internal IList<Runner> Runners { get; set; }
+        
+        /// <summary>
+        /// A sample list of schools
+        /// </summary>
+        protected internal IList<School> Schools { get; set; }
+        
+        /// <summary>
         /// The writer for the database.
         /// </summary>
         protected internal DatabaseWriter Writer { get; set; }
+        
+        [SetUp]
+        virtual public void SetUp()
+        {
+            Conference nwc, sciac;
+            nwc = new Conference ("Northwest Conference", "NWC");
+            sciac = new Conference (
+                "Southern California Intercollegiate Athletic Conference",
+                "SCIAC");
+            Conferences = new List<Conference> ();
+            Conferences.Add (nwc);
+            Conferences.Add (sciac);
+            Conferences.Add (new Conference (
+                "Southern Collegiate Athletic Conference", "SCAC"));
+            Runners = new List<Runner>();
+            Runners.Add(new Runner("Dickman", "Karl", Gender.MALE, 2010));
+            Runners.Add(new Runner("Palmer", "Hannah", Gender.FEMALE, 2010));
+            Runners.Add(new Runner("LeDonne", "Richie", Gender.MALE, 2010));
+            Runners.Add(new Runner("Woodard", "Keith", Gender.MALE, null));
+            Schools = new List<School>();
+            Schools.Add(new School("Lewis & Clark", "College", nwc.Name));
+            Schools.Add(new School("Willamette", "University", nwc.Name));
+            Schools.Add(new School("Puget Sound", "University", false, nwc.Name));
+            Schools.Add(new School("Claremont-Mudd-Scripps", null, sciac.Name));
+            Schools.Add(new School("Pomona-Pitzer", null, sciac.Name));
+            Schools.Add(new School("California", "Institute of Technology", sciac.Name));
+            Schools.Add(new School("California, Santa Cruz", "University", false));
+        }
         
         abstract public void SetUpWriters();
         
@@ -410,34 +526,26 @@ namespace XCAnalyze.Io.Sql
         virtual public void TestWriteConferences()
         {
             IList<Conference> actual;
-            IList<Conference> expected = new List<Conference> ();
-            expected.Add (new Conference ("Northwest Conference",
-                "NWC"));
-            expected.Add (new Conference (
-                "Southern California Intercollegiate Athletic Conference",
-                "SCIAC"));
-            expected.Add (new Conference (
-                "Southern Collegiate Athletic Conference", "SCAC"));
-            Writer.WriteConferences (expected);
+            Writer.WriteConferences (Conferences);
             actual = new List<Conference> (Reader.ReadConferences ().Values);
-            Assert.AreEqual(expected.Count, actual.Count);
+            Assert.AreEqual(Conferences.Count, actual.Count);
             foreach (Conference conference in actual)
             {
                 Assert.That (conference is SqlConference);
             }
-            foreach (Conference conference in expected) 
+            foreach (Conference conference in Conferences) 
             {
                 Assert.That (actual.Contains (conference));
             }
-            expected = actual;
-            expected[0].Name = "XKCD";
-            expected[1].Name = "SUCKS";
-            expected[2].Name = "BALLS";
-            expected[2].Abbreviation = "BLZ";
-            Writer.WriteConferences (expected);
+            Conferences = actual;
+            Conferences[0].Name = "XKCD";
+            Conferences[1].Name = "SUCKS";
+            Conferences[2].Name = "BALLS";
+            Conferences[2].Abbreviation = "BLZ";
+            Writer.WriteConferences (Conferences);
             actual = new List<Conference> (Reader.ReadConferences ().Values);
-            Assert.AreEqual (expected.Count, actual.Count);
-            foreach (Conference conference in expected) 
+            Assert.AreEqual (Conferences.Count, actual.Count);
+            foreach (Conference conference in Conferences) 
             {
                 Assert.That (actual.Contains (conference));
             }
@@ -446,31 +554,65 @@ namespace XCAnalyze.Io.Sql
         virtual public void TestWriteRunners()
         {
             IList<Runner> actual;
-            IList<Runner> expected = new List<Runner>();
-            expected.Add(new Runner("Dickman", "Karl", Gender.MALE, 2010));
-            expected.Add(new Runner("Palmer", "Hannah", Gender.FEMALE, 2010));
-            expected.Add(new Runner("LeDonne", "Richie", Gender.MALE, 2010));
-            expected.Add(new Runner("Woodard", "Keith", Gender.MALE, null));
-            Writer.WriteRunners(expected);
+            Writer.WriteRunners(Runners);
             actual = new List<Runner>(Reader.ReadRunners().Values);
-            Assert.AreEqual(expected.Count, actual.Count);
+            Assert.AreEqual(Runners.Count, actual.Count);
             foreach(Runner runner in actual)
             {
                 Assert.That(runner is SqlRunner);
             }
-            foreach(Runner runner in expected)
+            foreach(Runner runner in Runners)
             {
                 Assert.That(actual.Contains(runner));
             }
-            expected = actual;
-            ((SqlRunner)expected[3]).Nicknames = new string[] {"Beast"};
-            Writer.WriteRunners(expected);
+            Runners = actual;
+            ((SqlRunner)Runners[3]).Nicknames = new string[] {"Beast"};
+            Writer.WriteRunners(Runners);
             actual = new List<Runner>(Reader.ReadRunners().Values);
+            Assert.AreEqual(Runners.Count, actual.Count);
             Assert.AreEqual("Beast", ((SqlRunner)actual[3]).Nicknames[0]);
-            Assert.AreEqual(expected.Count, actual.Count);
-            foreach(Runner runner in expected)
+            Assert.AreEqual(Runners.Count, actual.Count);
+            foreach(Runner runner in Runners)
             {
                 Assert.That(actual.Contains(runner));
+            }
+        }
+        
+        virtual public void TestWriteSchools()
+        {
+            IList<School> actual;
+            Writer.WriteConferences(Conferences);
+            IDictionary<int, Conference> conferences = Reader.ReadConferences();
+            Writer.WriteSchools(Schools, conferences);
+            actual = new List<School>(Reader.ReadSchools(conferences).Values);
+            Assert.AreEqual(Schools.Count, actual.Count);
+            foreach(School school in actual)
+            {
+                Assert.That(school is SqlSchool);
+            }
+            foreach(School school in Schools)
+            {
+                Assert.That(actual.Contains(school));
+                foreach(Conference conference in Conferences)
+                {
+                    if(school.Conference == conference.Name)
+                    {
+                        Assert.AreEqual(conference, ((SqlSchool)actual[actual.IndexOf(school)]).Conference);
+                        break;
+                    }
+                }
+            }
+            Schools = actual;
+            ((SqlSchool)Schools[5]).Nicknames = new string[] {"Caltech"};
+            ((SqlSchool)Schools[6]).Nicknames = new string[] {"UCSC"};
+            Writer.WriteSchools(Schools, conferences);
+            actual = new List<School>(Reader.ReadSchools(conferences).Values);
+            Assert.AreEqual(Schools.Count, actual.Count);
+            Assert.AreEqual("Caltech", ((SqlSchool)actual[5]).Nicknames[0]);
+            Assert.AreEqual("UCSC", ((SqlSchool)actual[6]).Nicknames[0]);
+            foreach(School school in Schools)
+            {
+                Assert.That(actual.Contains(school));
             }
         }
     }
@@ -479,8 +621,9 @@ namespace XCAnalyze.Io.Sql
     public class TestMySqlDatabaseWriter : TestDatabaseWriter
     {       
         [SetUp]
-        public void SetUp ()
+        override public void SetUp ()
         {
+            base.SetUp();
             Writer = MySqlDatabaseWriter.NewInstance ("localhost",
                 TEST_DATABASE, "xcanalyze");
             Reader = MySqlDatabaseReader.NewInstance ("localhost",
@@ -495,9 +638,9 @@ namespace XCAnalyze.Io.Sql
         [TearDown]
         override public void TearDown()
         {
-            foreach(string table in DatabaseWriter.TABLES)
+            for(int i = DatabaseWriter.TABLES.Length - 1; i >= 0; i--)
             {
-                Writer.Command.CommandText = "DELETE FROM " + table;
+                Writer.Command.CommandText = "DELETE FROM " + DatabaseWriter.TABLES[i];
                 Writer.Command.ExecuteNonQuery();
             }
             base.TearDown();
@@ -532,6 +675,12 @@ namespace XCAnalyze.Io.Sql
         {
             base.TestWriteRunners();
         }
+        
+        [Test]
+        override public void TestWriteSchools()
+        {
+            base.TestWriteSchools();
+        }
     }
 
     [TestFixture]
@@ -543,8 +692,9 @@ namespace XCAnalyze.Io.Sql
         override public string TEST_DATABASE { get { return "xca_test.db"; } }
 
         [SetUp]
-        public void SetUp ()
+        override public void SetUp ()
         {
+            base.SetUp();
             Writer = SqliteDatabaseWriter.NewInstance (TEST_DATABASE);
             Reader = DatabaseReader.NewInstance (new SqliteConnection (
                     Writer.Connection.ConnectionString));
@@ -594,6 +744,12 @@ namespace XCAnalyze.Io.Sql
         override public void TestWriteRunners()
         {
             base.TestWriteRunners();
+        }
+        
+        [Test]
+        override public void TestWriteSchools()
+        {
+            base.TestWriteSchools();
         }
     }
 }

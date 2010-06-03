@@ -201,7 +201,7 @@ namespace XCAnalyze.Io.Sql
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
-                id = (int)(uint)Reader["id"];
+                id = int.Parse (Reader["id"].ToString ());
                 if (Reader["nicknames"] is DBNull)
                 {
                     nicknames = null;
@@ -228,7 +228,7 @@ namespace XCAnalyze.Io.Sql
                 }
                 else
                 {
-                    conference = conferences[(int)(uint)Reader["conference_id"]];
+                    conference = conferences[int.Parse (Reader["conference_id"].ToString())];
                 }
                 schools.Add (id, SqlSchool.NewInstance (id, (string)Reader["name"], nicknames, type, (bool)Reader["name_first"], conference));
             }
