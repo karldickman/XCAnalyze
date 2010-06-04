@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    public class SqlRunner : Model.Runner
+    public class Runner : Model.Runner
     {
         protected internal static IDictionary<int, Model.Runner> IdMap = new Dictionary<int, Model.Runner>();
         
@@ -15,7 +15,7 @@ namespace XCAnalyze.Io.Sql.Tables
         public int Id { get; protected internal set; }
         public string[] Nicknames { get; protected internal set; }
         
-        public SqlRunner (int id, string surname, string givenName,
+        public Runner (int id, string surname, string givenName,
             string[] nicknames, Model.Gender gender, int? year)
             : base(surname, givenName, gender, year)
         {

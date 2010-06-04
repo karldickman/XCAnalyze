@@ -5,13 +5,13 @@ using System.Collections.Generic;
 namespace XCAnalyze.Io.Sql.Tables
 {
     
-    public class SqlConference : IComparable<SqlConference>
+    public class Conference : IComparable<Conference>
     {
-        protected internal static IDictionary<int, SqlConference> IdMap = new Dictionary<int, SqlConference>();
+        protected internal static IDictionary<int, Conference> IdMap = new Dictionary<int, Conference>();
         
-        public static IList<SqlConference> List
+        public static IList<Conference> List
         {
-            get { return new List<SqlConference> (IdMap.Values); }
+            get { return new List<Conference> (IdMap.Values); }
         }
         
         /// <summary>
@@ -29,7 +29,7 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </summary>
         public string Abbreviation { get; protected internal set; }
 
-        public SqlConference (int id, string name, string abbreviation)
+        public Conference (int id, string name, string abbreviation)
         {
             Id = id;
             Name = name;
@@ -47,7 +47,7 @@ namespace XCAnalyze.Io.Sql.Tables
             return IdMap.ContainsKey (id);
         }
         
-        public static SqlConference Get (int id)
+        public static Conference Get (int id)
         {
             return IdMap[id];
         }
@@ -58,7 +58,7 @@ namespace XCAnalyze.Io.Sql.Tables
             {
                 return null;
             }
-            foreach (KeyValuePair<int, SqlConference> entry in IdMap)
+            foreach (KeyValuePair<int, Conference> entry in IdMap)
             {
                 if (conferenceName.Equals (entry.Value.Name))
                 {
@@ -68,13 +68,13 @@ namespace XCAnalyze.Io.Sql.Tables
             return null;
         }
         
-        public static int? GetId (SqlConference conference)
+        public static int? GetId (Conference conference)
         {
             if (conference == null)
             {
                 return null;
             }
-            foreach (KeyValuePair<int, SqlConference> entry in IdMap)
+            foreach (KeyValuePair<int, Conference> entry in IdMap)
             {
                 if (conference.Equals (entry.Value)) 
                 {
@@ -84,7 +84,7 @@ namespace XCAnalyze.Io.Sql.Tables
             return null;
         }
 
-        public int CompareTo (SqlConference other)
+        public int CompareTo (Conference other)
         {
             return Name.CompareTo (other.Name);
         }
@@ -95,9 +95,9 @@ namespace XCAnalyze.Io.Sql.Tables
             {
                 return true;
             }
-            else if(other is SqlConference)
+            else if(other is Conference)
             {
-                return 0 == CompareTo((SqlConference)other);
+                return 0 == CompareTo((Conference)other);
             }
             return false;
         }
@@ -119,40 +119,40 @@ namespace XCAnalyze.Io.Sql.Tables
         protected internal string NwcName { get; set; }
         protected internal string SciacName { get; set; }
         protected internal string ScacName { get; set; }
-        protected internal SqlConference Nwc { get; set; }
-        protected internal SqlConference Sciac { get; set; }
-        protected internal SqlConference Scac { get; set; }
+        protected internal Conference Nwc { get; set; }
+        protected internal Conference Sciac { get; set; }
+        protected internal Conference Scac { get; set; }
         
         [SetUp]
         public void SetUp ()
         {
-            SqlConference.Clear();
+            Conference.Clear();
             NwcName = "Northwest Conference";
-            Nwc = new SqlConference (1, NwcName, "NWC");
+            Nwc = new Conference (1, NwcName, "NWC");
             SciacName = "Southern California Intercollegiate Athletic Conference";
-            Sciac = new SqlConference (2, SciacName, "SCIAC");
+            Sciac = new Conference (2, SciacName, "SCIAC");
             ScacName = "Southern Collegiate Athletic Conference";
-            Scac = new SqlConference (3, ScacName, "SCAC");
+            Scac = new Conference (3, ScacName, "SCAC");
         }
         
         [TearDown]
         public void TearDown ()
         {
-            SqlConference.Clear ();
+            Conference.Clear ();
         }
         
         [Test]
         public void TestGetId ()
         {
-            Assert.IsNull (SqlConference.GetId ((string)null));
-            Assert.IsNull(SqlConference.GetId((SqlConference)null));
-            Assert.IsNull(SqlConference.GetId("xkcd"));
-            Assert.AreEqual(1, SqlConference.GetId(Nwc));
-            Assert.AreEqual(2, SqlConference.GetId(Sciac));
-            Assert.AreEqual(3, SqlConference.GetId(Scac));
-            Assert.AreEqual(1, SqlConference.GetId(NwcName));
-            Assert.AreEqual(2, SqlConference.GetId(SciacName));
-            Assert.AreEqual(3, SqlConference.GetId(ScacName));
+            Assert.IsNull (Conference.GetId ((string)null));
+            Assert.IsNull(Conference.GetId((Conference)null));
+            Assert.IsNull(Conference.GetId("xkcd"));
+            Assert.AreEqual(1, Conference.GetId(Nwc));
+            Assert.AreEqual(2, Conference.GetId(Sciac));
+            Assert.AreEqual(3, Conference.GetId(Scac));
+            Assert.AreEqual(1, Conference.GetId(NwcName));
+            Assert.AreEqual(2, Conference.GetId(SciacName));
+            Assert.AreEqual(3, Conference.GetId(ScacName));
         }
     }
 }

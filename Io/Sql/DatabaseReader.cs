@@ -51,9 +51,9 @@ namespace XCAnalyze.Io.Sql
             ReadMeets ();
             ReadVenues ();
             ReadPerformances ();
-            return SqlGlobalState.NewInstance (SqlAffiliation.List, SqlConference.List,
-                SqlMeet.List, SqlPerformance.List, SqlRace.List, SqlRunner.List,
-                SqlSchool.List, SqlVenue.List);
+            return GlobalState.NewInstance (Affiliation.List, Conference.List,
+                Meet.List, Performance.List, Race.List, Runner.List,
+                School.List, Venue.List);
         }
         
         public void ReadAffiliations ()
@@ -66,7 +66,7 @@ namespace XCAnalyze.Io.Sql
                 id = (int)(uint)Reader["id"];
                 runnerId = (int)(uint)Reader["runner_id"];
                 schoolId = (int)(uint)Reader["school_id"];
-                new SqlAffiliation ((int)id, runnerId,
+                new Affiliation ((int)id, runnerId,
                         schoolId, (int)Reader["year"]);
             }
             Reader.Close ();
@@ -74,14 +74,14 @@ namespace XCAnalyze.Io.Sql
         
         public void ReadConferences ()
         {
-            SqlConference.Clear ();
+            Conference.Clear ();
             int id;
             Command.CommandText = "SELECT * FROM conferences";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse (Reader["id"].ToString ());
-                new SqlConference (id, (string)Reader["name"],
+                new Conference (id, (string)Reader["name"],
                     (string)Reader["abbreviation"]);
             }
             Reader.Close ();
@@ -95,7 +95,7 @@ namespace XCAnalyze.Io.Sql
             while (Reader.Read ())
             {
                 id = (int)(uint)Reader["id"];
-                new SqlMeet (id, (string)Reader["name"]);
+                new Meet (id, (string)Reader["name"]);
             }
             Reader.Close ();
         }
@@ -110,7 +110,7 @@ namespace XCAnalyze.Io.Sql
                 id = (int)(uint)Reader["id"];
                 runnerId = (int)(uint)Reader["runner_id"];
                 raceId = (int)(uint)Reader["race_id"];
-                new SqlPerformance ((int)id, runnerId,
+                new Performance ((int)id, runnerId,
                         raceId, new Model.Time((double)Reader["time"]));
             }
             Reader.Close ();
@@ -140,7 +140,7 @@ namespace XCAnalyze.Io.Sql
                 {
                     venueId = new int?(int.Parse(Reader["venue_id"].ToString()));
                 }
-                new SqlRace (id, meetId, venueId,
+                new Race (id, meetId, venueId,
                     new Model.Date((DateTime)Reader["date"]),
                     Model.Gender.FromString ((string)Reader["gender"]),
                     (int)Reader["distance"]);
@@ -150,7 +150,7 @@ namespace XCAnalyze.Io.Sql
         
         public void ReadRunners ()
         {
-            SqlRunner.Clear ();
+            Runner.Clear ();
             int id;
             int? year;
             string[] nicknames;
@@ -178,7 +178,7 @@ namespace XCAnalyze.Io.Sql
                 {
                     year = new Nullable<int>(int.Parse(Reader["year"].ToString()));
                 }
-                new SqlRunner ((int)id, (string)Reader["surname"],
+                new Runner ((int)id, (string)Reader["surname"],
                     (string)Reader["given_name"], nicknames,
                     Model.Gender.FromString ((string)Reader["gender"]), year);
             }
@@ -187,7 +187,7 @@ namespace XCAnalyze.Io.Sql
 
         public void ReadSchools ()
         {
-            SqlSchool.Clear ();
+            School.Clear ();
             int id;
             int? conferenceId;
             string[] nicknames;
@@ -226,7 +226,7 @@ namespace XCAnalyze.Io.Sql
                     conferenceId = int.Parse (Reader["conference_id"].ToString ());
                 }
                 Console.WriteLine ("conferenceId: " + conferenceId);
-                new SqlSchool (id, (string)Reader["name"], nicknames, type,
+                new School (id, (string)Reader["name"], nicknames, type,
                     (bool)Reader["name_first"], conferenceId);
             }
             Reader.Close ();
@@ -258,7 +258,7 @@ namespace XCAnalyze.Io.Sql
                 {
                     elevation = (int)Reader["elevation"];
                 }
-                new SqlVenue (id, name, (string)Reader["city"],
+                new Venue (id, name, (string)Reader["city"],
                     (string)Reader["state"], elevation);
             }
             Reader.Close ();

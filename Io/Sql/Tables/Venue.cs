@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    public class SqlVenue
+    public class Venue
     {
-        protected internal static IDictionary<int, SqlVenue> IdMap = new Dictionary<int, SqlVenue>();
+        protected internal static IDictionary<int, Venue> IdMap = new Dictionary<int, Venue>();
         
-        public static IList<SqlVenue> List
+        public static IList<Venue> List
         {
-            get { return new List<SqlVenue> (IdMap.Values); }
+            get { return new List<Venue> (IdMap.Values); }
         }
             
         public int Id { get; protected internal set; }
@@ -18,7 +18,7 @@ namespace XCAnalyze.Io.Sql.Tables
         public string State { get; protected internal set; }
         public int? Elevation { get; protected internal set; }
 
-        public SqlVenue (int id, string name, string city, string state,
+        public Venue (int id, string name, string city, string state,
             int? elevation)
         {
             Id = id;
@@ -34,7 +34,7 @@ namespace XCAnalyze.Io.Sql.Tables
             return IdMap.ContainsKey (id);
         }
         
-        public static SqlVenue Get (int id)
+        public static Venue Get (int id)
         {
             return IdMap[id];
         }

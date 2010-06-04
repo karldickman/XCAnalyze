@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    public class SqlGlobalState : Model.GlobalState
+    public class GlobalState : Model.GlobalState
     {
         private IList<string> conferences;
         private IList<string> meets;
@@ -50,16 +50,16 @@ namespace XCAnalyze.Io.Sql.Tables
             }
         }
         
-        public IList<SqlConference> SqlConferences { get; protected internal set; }
-        public IList<SqlMeet> SqlMeets { get; protected internal set; }
-        public IList<SqlVenue> SqlVenues { get; protected internal set; }
+        public IList<Conference> SqlConferences { get; protected internal set; }
+        public IList<Meet> SqlMeets { get; protected internal set; }
+        public IList<Venue> SqlVenues { get; protected internal set; }
 
-        protected internal SqlGlobalState(IList<Model.Affiliation> affiliations,
-            IList<SqlConference> conferences, IList<string> conferenceNames,
-            IList<SqlMeet> meets, IList<string> meetNames,
+        protected internal GlobalState(IList<Model.Affiliation> affiliations,
+            IList<Conference> conferences, IList<string> conferenceNames,
+            IList<Meet> meets, IList<string> meetNames,
             IList<Model.Performance> performances, IList<Model.Race> races,
             IList<Model.Runner> runners, IList<Model.School> schools,
-            IList<SqlVenue> venues, IList<string[]> venueNames)
+            IList<Venue> venues, IList<string[]> venueNames)
             : base(affiliations, conferenceNames, meetNames, performances,
                 races, runners, schools, venueNames)
         {
@@ -68,32 +68,32 @@ namespace XCAnalyze.Io.Sql.Tables
             SqlVenues = venues;
         }
 
-        public static SqlGlobalState NewInstance (
+        public static GlobalState NewInstance (
             IList<Model.Affiliation> affiliations,
-            IList<SqlConference> conferences, IList<SqlMeet> meets,
+            IList<Conference> conferences, IList<Meet> meets,
             IList<Model.Performance> performances, IList<Model.Race> races,
             IList<Model.Runner> runners, IList<Model.School> schools,
-            IList<SqlVenue> venues)
+            IList<Venue> venues)
         {
             IList<string> conferenceNames = new List<string> ();
             IList<string> meetNames = new List<string> ();
             IList<string> venueNames = new List<string> ();
             IList<string[]> venueInfo = new List<string[]> ();
-            foreach (SqlConference conference in conferences)
+            foreach (Conference conference in conferences)
             {
                 if (!conferenceNames.Contains (conference.Name))
                 {
                     conferenceNames.Add (conference.Name);
                 }
             }
-            foreach (SqlMeet meet in meets)
+            foreach (Meet meet in meets)
             {
                 if (!meetNames.Contains (meet.Name))
                 {
                     meetNames.Add (meet.Name);
                 }
             }
-            foreach (SqlVenue venue in venues)
+            foreach (Venue venue in venues)
             {
                 if (!venueNames.Contains (venue.Name))
                 {
@@ -101,7 +101,7 @@ namespace XCAnalyze.Io.Sql.Tables
                     venueInfo.Add (new string[] { venue.Name, venue.City, venue.State });
                 }
             }
-            return new SqlGlobalState (affiliations, conferences, conferenceNames,
+            return new GlobalState (affiliations, conferences, conferenceNames,
                 meets, meetNames, performances, races, runners, schools, venues,
             venueInfo);
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    public class SqlPerformance : Model.Performance
+    public class Performance : Model.Performance
     {
         protected internal static IDictionary<int, Model.Performance> IdMap = new Dictionary<int, Model.Performance>();
         
@@ -21,18 +21,18 @@ namespace XCAnalyze.Io.Sql.Tables
         {
             get
             {
-                if (SqlRunner.Exists (RunnerId))
+                if (Tables.Runner.Exists (RunnerId))
                 {
-                    return SqlRunner.Get (RunnerId);
+                    return Tables.Runner.Get (RunnerId);
                 }
                 return base.Runner;
             }
             
             protected internal set
             {
-                if(value is SqlRunner)
+                if(value is Runner)
                 {
-                    RunnerId = ((SqlRunner)value).Id;
+                    RunnerId = ((Runner)value).Id;
                 }
                 else
                 {
@@ -50,18 +50,18 @@ namespace XCAnalyze.Io.Sql.Tables
         {
             get
             {
-                if(SqlRace.Exists(RaceId))
+                if(Tables.Race.Exists(RaceId))
                 {
-                    return SqlRace.Get(RaceId);
+                    return Tables.Race.Get(RaceId);
                 }
                 return base.Race;
             }
             
             protected internal set
             {
-                if(value is SqlRace)
+                if(value is Race)
                 {
-                    RaceId = ((SqlRace)value).Id;
+                    RaceId = ((Race)value).Id;
                 }
                 else
                 {
@@ -75,7 +75,7 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </summary>
         public int RaceId { get; protected internal set; }
         
-        public SqlPerformance (int id, int runnerId, int raceId, Model.Time time)
+        public Performance (int id, int runnerId, int raceId, Model.Time time)
             : base(time)
         {
             Id = id;

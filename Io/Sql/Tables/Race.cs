@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    public class SqlRace : Model.Race
+    public class Race : Model.Race
     {
         protected internal static IDictionary<int, Model.Race> IdMap = new Dictionary<int, Model.Race>();
         
@@ -37,9 +37,9 @@ namespace XCAnalyze.Io.Sql.Tables
                 {
                     return null;
                 }
-                if(SqlMeet.Exists(MeetId.Value))
+                if(Tables.Meet.Exists(MeetId.Value))
                 {
-                    return SqlMeet.Get(MeetId.Value).Name;
+                    return Tables.Meet.Get(MeetId.Value).Name;
                 }
                 return base.Meet;
             }
@@ -50,7 +50,7 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </summary>
         public int? MeetId { get; protected internal set; }
         
-        protected internal SqlVenue SqlVenue
+        protected internal Venue SqlVenue
         {
             get
             {
@@ -58,9 +58,9 @@ namespace XCAnalyze.Io.Sql.Tables
                 {
                     return null;
                 }
-                if (SqlVenue.Exists (VenueId.Value))
+                if (Tables.Venue.Exists (VenueId.Value))
                 {
-                    return SqlVenue.Get (VenueId.Value);
+                    return Tables.Venue.Get (VenueId.Value);
                 }
                 return null;
             }
@@ -95,7 +95,7 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </summary>
         public int? VenueId { get; protected internal set; }
 
-        public SqlRace (int id, int? meetId, int? venueId, Model.Date date,
+        public Race (int id, int? meetId, int? venueId, Model.Date date,
             Model.Gender gender, int distance)
             : base(date, gender, distance)
         {

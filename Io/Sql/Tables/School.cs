@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    public class SqlSchool : Model.School
+    public class School : Model.School
     {
         protected internal static IDictionary<int, Model.School> IdMap = new Dictionary<int, Model.School>();
         
@@ -20,9 +20,9 @@ namespace XCAnalyze.Io.Sql.Tables
                 {
                     return null;
                 }
-                if (SqlConference.Exists (ConferenceId.Value))
+                if (Tables.Conference.Exists (ConferenceId.Value))
                 {
-                    return SqlConference.Get (ConferenceId.Value).Name;
+                    return Tables.Conference.Get (ConferenceId.Value).Name;
                 }
                 return null;
             }
@@ -32,7 +32,7 @@ namespace XCAnalyze.Io.Sql.Tables
         public int Id { get; protected internal set; }
         public string[] Nicknames { get; protected internal set; }
         
-        public SqlSchool (int id, string name, string[] nicknames,
+        public School (int id, string name, string[] nicknames,
             string type, bool nameFirst, int? conferenceId)
             : base(name, type, nameFirst)
         {

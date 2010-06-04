@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    public class SqlMeet
+    public class Meet
     {
-        protected internal static IDictionary<int, SqlMeet> IdMap = new Dictionary<int, SqlMeet>();
+        protected internal static IDictionary<int, Meet> IdMap = new Dictionary<int, Meet>();
         
-        public static IList<SqlMeet> List
+        public static IList<Meet> List
         {
-            get { return new List<SqlMeet> (IdMap.Values); }
+            get { return new List<Meet> (IdMap.Values); }
         }
         
         /// <summary>
@@ -22,7 +22,7 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </summary>
         public string Name { get; protected internal set; }
 
-        public SqlMeet (int id, string name)
+        public Meet (int id, string name)
         {
             Id = id;
             Name = name;
@@ -34,7 +34,7 @@ namespace XCAnalyze.Io.Sql.Tables
             return IdMap.ContainsKey (id);
         }
         
-        public static SqlMeet Get (int id)
+        public static Meet Get (int id)
         {
             return IdMap[id];
         }

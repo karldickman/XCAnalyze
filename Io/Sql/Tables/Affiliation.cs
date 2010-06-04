@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    public class SqlAffiliation : Model.Affiliation
+    public class Affiliation : Model.Affiliation
     {
         protected internal static IDictionary<int, Model.Affiliation> IdMap = new Dictionary<int, Model.Affiliation>();
         
@@ -21,18 +21,18 @@ namespace XCAnalyze.Io.Sql.Tables
         {
             get
             {
-                if(SqlRunner.Exists(RunnerId))
+                if(Tables.Runner.Exists(RunnerId))
                 {
-                    return SqlRunner.Get(RunnerId);
+                    return Tables.Runner.Get(RunnerId);
                 }
                 return base.Runner;
             }
             
             protected internal set
             {
-                if(value is SqlRunner)
+                if(value is Runner)
                 {
-                    RunnerId = ((SqlRunner)value).Id;
+                    RunnerId = ((Runner)value).Id;
                 }
                 else
                 {
@@ -48,7 +48,7 @@ namespace XCAnalyze.Io.Sql.Tables
         
         override public Model.School School
         {
-            get { return SqlSchool.Get(SchoolId); }
+            get { return Tables.School.Get(SchoolId); }
         }
         
         /// <summary>
@@ -56,7 +56,7 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </summary>
         public int SchoolId { get; protected internal set; }
 
-        public SqlAffiliation (int id, int runnerId, int schoolId, int year)
+        public Affiliation (int id, int runnerId, int schoolId, int year)
             : base(year)
         {
             Id = id;
