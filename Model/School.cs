@@ -11,17 +11,17 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The athletic conference with which the school is affiliated.
         /// </summary>
-        public string Conference { get; protected internal set; }
+        virtual public string Conference { get; protected internal set; }
 
         /// <summary>
         /// The name of the school (Linfield, Willamette, etc.)
         /// </summary>
-        public string Name { get; protected internal set; }
+        virtual public string Name { get; protected internal set; }
 
         /// <summary>
         /// Should the name of the school go before its type (true Linfield College, false for University of Puget Sound).
         /// </summary>
-        public bool NameFirst { get; protected internal set; }
+        virtual public bool NameFirst { get; protected internal set; }
 
         /// <summary>
         /// The runners who have competed for this school.
@@ -31,7 +31,7 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The type of the school (University, College, etc.)
         /// </summary>
-        public string Type { get; protected internal set; }
+        virtual public string Type { get; protected internal set; }
         
         public School(string name, string type) : this(name, type, true) {}
 
@@ -66,6 +66,7 @@ namespace XCAnalyze.Model {
         /// </summary>
         public int CompareTo (School other)
         {
+            Console.WriteLine ("Comparing " + this + " to " + other);
             int comparison;
             if (this == other)
             {
@@ -76,11 +77,13 @@ namespace XCAnalyze.Model {
             {
                 return comparison;
             }
+            Console.WriteLine ("Same name.");
             comparison = ObjectComparer<string>.Compare (Type, other.Type, 1);
             if (comparison != 0)
             {
                 return comparison;
             }
+            Console.WriteLine ("Same type.");
             if (NameFirst != other.NameFirst)
             {
                 comparison = FullName ().CompareTo (other.FullName ());
@@ -89,6 +92,9 @@ namespace XCAnalyze.Model {
                     return comparison;
                 }
             }
+            Console.WriteLine ("Same full name.");
+            Console.WriteLine ("This conference " + Conference);
+            Console.WriteLine ("Other conference " + other.Conference);
             return ObjectComparer<string>.Compare (Conference, other.Conference, 1);
         }
 

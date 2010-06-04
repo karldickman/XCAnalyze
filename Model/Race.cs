@@ -11,26 +11,27 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The city in which the meet was held.
         /// </summary>
-        public string City { get; protected internal set; }
+        virtual public string City { get; protected internal set; }
 
         /// <summary>
         /// The date on which the race was held.
         /// </summary>
-        public Date Date { get; protected internal set; }
+        virtual public Date Date { get; protected internal set; }
 
         public int Day
         {
             get { return Date.Day; }
         }
+        
         /// <summary>
         /// The length of the race.
         /// </summary>
-        public int Distance { get; protected internal set; }
+        virtual public int Distance { get; protected internal set; }
 
         /// <summary>
         /// Was it a men's race or a women's race?
         /// </summary>
-        public Gender Gender { get; protected internal set; }
+        virtual public Gender Gender { get; protected internal set; }
 
         public string Location
         {
@@ -40,7 +41,7 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The name of the meet.
         /// </summary>
-        public string Meet { get; protected internal set; }
+        virtual public string Meet { get; protected internal set; }
 
         /// <summary>
         /// The month in which this race occurred.
@@ -63,23 +64,29 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The state in which the meet was held.
         /// </summary>
-        public string State { get; protected internal set; }
+        virtual public string State { get; protected internal set; }
 
         /// <summary>
         /// The name of the venue.
         /// </summary>
-        public string Venue { get; protected internal set; }
+        virtual public string Venue { get; protected internal set; }
 
         public int Year
         {
             get { return Date.Year; }
         }
+        
+        protected internal Race(Date date, Gender gender, int distance)
+            : this(null, date, gender, distance, null, null, null) {}
 
-        public Race (string meet, Date date, Gender gender, int distance, string venue, string city, string state) : this(meet, date, gender, distance, venue, city, state, false, new List<Performance>())
-        {
-        }
+        public Race (string meet, Date date, Gender gender, int distance,
+            string venue, string city, string state)
+            : this(meet, date, gender, distance, venue, city, state, false,
+                new List<Performance>()) {}
 
-        public Race (string meet, Date date, Gender gender, int distance, string venue, string city, string state, bool scoreMeet, List<Performance> results)
+        public Race (string meet, Date date, Gender gender, int distance,
+            string venue, string city, string state, bool scoreMeet,
+            List<Performance> results)
         {
             Date = date;
             Gender = gender;
@@ -108,9 +115,11 @@ namespace XCAnalyze.Model {
         public int CompareTo (Race other)
         {
             int comparison;
-            IComparable[] fields = { Year, Month, Day, Meet, Venue, City, State, (IComparable)Gender };
-            IComparable[] otherFields = { other.Year, other.Month, other.Day, other.Meet,
-                other.Venue, other.City, other.State, (IComparable)other.Gender };
+            IComparable[] fields = { Year, Month, Day, Meet, Venue, City, State,
+                (IComparable)Gender };
+            IComparable[] otherFields = { other.Year, other.Month, other.Day,
+                other.Meet, other.Venue, other.City, other.State,
+                (IComparable)other.Gender };
             if (this == other)
             {
                 return 0;

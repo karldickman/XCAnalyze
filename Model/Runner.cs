@@ -12,12 +12,12 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The runner's gender.
         /// </summary>
-        public Gender Gender { get; protected internal set; }
+        virtual public Gender Gender { get; protected internal set; }
 
         /// <summary>
         /// The runner's given name.
         /// </summary>
-        public string GivenName { get; protected internal set; }
+        virtual public string GivenName { get; protected internal set; }
 
         /// <summary>
         /// The runner's full name.
@@ -40,18 +40,21 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The runner's surname.
         /// </summary>
-        public string Surname { get; protected internal set; }
+        virtual public string Surname { get; protected internal set; }
 
         /// <summary>
         /// The runner's original graduation year.
         /// </summary>
-        public int? Year { get; protected internal set; }
+        virtual public int? Year { get; protected internal set; }
         
-        public Runner (string surname, string givenName, Gender gender, int? year) : this(surname, givenName, gender, year, new Dictionary<int, Affiliation> (), new List<Performance>())
-        {
-        }
+        public Runner (string surname, string givenName, Gender gender,
+            int? year)
+            : this(surname, givenName, gender, year,
+                new Dictionary<int, Affiliation> (), new List<Performance>()) {}
             
-        public Runner (string surname, string givenName, Gender gender, int? year, Dictionary<int, Affiliation> schools, List<Performance> performances)
+        public Runner (string surname, string givenName, Gender gender,
+            int? year, Dictionary<int, Affiliation> schools,
+            List<Performance> performances)
         {
             Surname = surname;
             GivenName = givenName;

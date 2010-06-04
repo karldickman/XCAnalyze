@@ -11,22 +11,22 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The number of points the runner earned in the race for this performance.
         /// </summary>
-        public int? Points { get; protected internal set; }
+        virtual public int? Points { get; protected internal set; }
 
         /// <summary>
         /// The race whereat the time was run.
         /// </summary>
-        public Race Race { get; protected internal set; }
+        virtual public Race Race { get; protected internal set; }
 
         /// <summary>
         /// The runner who ran the time.
         /// </summary>
-        public Runner Runner { get; protected internal set; }
+        virtual public Runner Runner { get; protected internal set; }
 
         /// <summary>
         /// The time that was run.
         /// </summary>
-        public Time Time { get; protected internal set; }
+        virtual public Time Time { get; protected internal set; }
         
         /// <summary>
         /// The length of the race whereat the time was run.
@@ -44,6 +44,8 @@ namespace XCAnalyze.Model
             get { return Runner.School(Race.Date.Year); }
         }
 
+        protected internal Performance(Time time) : this(null, null, time) {}
+        
         public Performance (Runner runner, Race race, Time time)
         {
             Runner = runner;

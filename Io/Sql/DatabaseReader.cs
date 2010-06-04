@@ -47,20 +47,21 @@ namespace XCAnalyze.Io.Sql
 
         public Data Read ()
         {
-            IDictionary<int, Conference> conferences = ReadConferences ();
-            IDictionary<int, Runner> runners = ReadRunners ();
-            IDictionary<int, School> schools = ReadSchools (conferences);
-            IDictionary<int, Affiliation> affiliations = ReadAffiliations (runners, schools);
-            IDictionary<int, SqlMeet> meets = ReadMeets ();
-            IDictionary<int, SqlVenue> venues = ReadVenues ();
-            IDictionary<int, Race> races = ReadRaces (meets, venues);
-            IDictionary<int, Performance> performances = ReadPerformances (runners, races);
-            return SqlData.NewInstance(new List<Affiliation>(affiliations.Values), new List<Conference>(conferences.Values), new List<SqlMeet>(meets.Values), new List<Performance>(performances.Values), new List<Race>(races.Values), new List<Runner>(runners.Values), new List<School>(schools.Values), new List<SqlVenue>(venues.Values));
+            ReadConferences ();
+            ReadRunners ();
+            ReadSchools ();
+            ReadAffiliations ();
+            ReadMeets ();
+            ReadVenues ();
+            ReadRaces ();
+            ReadPerformances ();
+            return SqlData.NewInstance (SqlAffiliation.List, SqlConference.List,
+                SqlMeet.List, SqlPerformance.List, SqlRace.List, SqlRunner.List,
+                SqlSchool.List, SqlVenue.List);
         }
         
-        public IDictionary<int, Affiliation> ReadAffiliations (IDictionary<int, Runner> runners, IDictionary<int, School> schools)
+        public void ReadAffiliations ()
         {
-            IDictionary<int, Affiliation> affiliations = new Dictionary<int, Affiliation> ();
             int id, runnerId, schoolId;
             Command.CommandText = "SELECT * FROM affiliations";
             Reader = Command.ExecuteReader ();
@@ -69,45 +70,42 @@ namespace XCAnalyze.Io.Sql
                 id = (int)(uint)Reader["id"];
                 runnerId = (int)(uint)Reader["runner_id"];
                 schoolId = (int)(uint)Reader["school_id"];
-                affiliations.Add (id, new SqlAffiliation ((int)id, runners[runnerId], schools[schoolId], (int)Reader["year"]));
+                new SqlAffiliation ((int)id, runnerId,
+                        schoolId, (int)Reader["year"]);
             }
             Reader.Close ();
-            return affiliations;
         }
         
-        public IDictionary<int, Conference> ReadConferences ()
+        public void ReadConferences ()
         {
-            IDictionary<int, Conference> conferences = new Dictionary<int, Conference> ();
+            SqlConference.Clear ();
             int id;
             Command.CommandText = "SELECT * FROM conferences";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
-                id = int.Parse(Reader["id"].ToString());
-                conferences.Add (id, new SqlConference (id, (string)Reader["name"], (string)Reader["abbreviation"]));
+                id = int.Parse (Reader["id"].ToString ());
+                new SqlConference (id, (string)Reader["name"],
+                    (string)Reader["abbreviation"]);
             }
             Reader.Close ();
-            return conferences;
         }
         
-        public IDictionary<int, SqlMeet> ReadMeets ()
+        public void ReadMeets ()
         {
-            IDictionary<int, SqlMeet> meets = new Dictionary<int, SqlMeet> ();
             int id;
             Command.CommandText = "SELECT * FROM meets";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = (int)(uint)Reader["id"];
-                meets.Add (id, new SqlMeet (id, (string)Reader["name"]));
+                new SqlMeet (id, (string)Reader["name"]);
             }
             Reader.Close ();
-            return meets;
         }
         
-        public IDictionary<int, Performance> ReadPerformances (IDictionary<int, Runner> runners, IDictionary<int, Race> races)
+        public void ReadPerformances ()
         {
-            IDictionary<int, Performance> performances = new Dictionary<int, Performance> ();
             int id, runnerId, raceId;
             Command.CommandText = "SELECT * FROM results";
             Reader = Command.ExecuteReader ();
@@ -116,50 +114,50 @@ namespace XCAnalyze.Io.Sql
                 id = (int)(uint)Reader["id"];
                 runnerId = (int)(uint)Reader["runner_id"];
                 raceId = (int)(uint)Reader["race_id"];
-                performances.Add (id, new SqlPerformance ((int)id, runners[runnerId], races[raceId], new Time((double)Reader["time"])));
+                new SqlPerformance ((int)id, runnerId,
+                        raceId, new Time((double)Reader["time"]));
             }
             Reader.Close ();
-            return performances;
         }
         
-        public IDictionary<int, Race> ReadRaces (IDictionary<int, SqlMeet> meets, IDictionary<int, SqlVenue> venues)
+        public void ReadRaces ()
         {
-            IDictionary<int, Race> races = new Dictionary<int, Race> ();
             int id;
-            SqlMeet meet;
-            SqlVenue venue;
+            int? meetId, venueId;
             Command.CommandText = "SELECT * FROM races";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ()) {
                 id = (int)(uint)Reader["id"];
                 if (Reader["meet_id"] is DBNull)
                 {
-                    meet = null;
+                    meetId = null;
                 }
                 else
                 {
-                    meet = meets[(int)(uint)Reader["meet_id"]];
+                    meetId = new int?(int.Parse(Reader["meet_id"].ToString()));
                 }
                 if (Reader["venue_id"] is DBNull)
                 {
-                    venue = null;
+                    venueId = null;
                 }
                 else
                 {
-                    venue = venues[(int)(uint)Reader["venue_id"]];
+                    venueId = new int?(int.Parse(Reader["venue_id"].ToString()));
                 }
-                races.Add (id, SqlRace.NewInstance (id, meet, venue, new Date((DateTime)Reader["date"]), Gender.FromString ((string)Reader["gender"]), (int)Reader["distance"]));
+                new SqlRace (id, meetId, venueId,
+                    new Date((DateTime)Reader["date"]),
+                    Gender.FromString ((string)Reader["gender"]),
+                    (int)Reader["distance"]);
             }
             Reader.Close ();
-            return races;
         }
         
-        public IDictionary<int, Runner> ReadRunners ()
+        public void ReadRunners ()
         {
-            IDictionary<int, Runner> runners = new Dictionary<int, Runner> ();
+            SqlRunner.Clear ();
             int id;
-            string[] nicknames;
             int? year;
+            string[] nicknames;
             Command.CommandText = "SELECT * FROM runners";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ()) {
@@ -184,17 +182,18 @@ namespace XCAnalyze.Io.Sql
                 {
                     year = new Nullable<int>(int.Parse(Reader["year"].ToString()));
                 }
-                runners.Add (id, new SqlRunner ((int)id, (string)Reader["surname"], (string)Reader["given_name"], nicknames, Gender.FromString ((string)Reader["gender"]), year));
+                new SqlRunner ((int)id, (string)Reader["surname"],
+                    (string)Reader["given_name"], nicknames,
+                    Gender.FromString ((string)Reader["gender"]), year);
             }
             Reader.Close ();
-            return runners;
         }
 
-        public IDictionary<int, School> ReadSchools (IDictionary<int, Conference> conferences)
+        public void ReadSchools ()
         {
-            IDictionary<int, School> schools = new Dictionary<int, School> ();
+            SqlSchool.Clear ();
             int id;
-            Conference conference;
+            int? conferenceId;
             string[] nicknames;
             string type;
             Command.CommandText = "SELECT * FROM schools";
@@ -224,21 +223,21 @@ namespace XCAnalyze.Io.Sql
                 }
                 if (Reader["conference_id"] is DBNull)
                 {
-                    conference = null;
+                    conferenceId = null;
                 }
                 else
                 {
-                    conference = conferences[int.Parse (Reader["conference_id"].ToString())];
+                    conferenceId = int.Parse (Reader["conference_id"].ToString ());
                 }
-                schools.Add (id, SqlSchool.NewInstance (id, (string)Reader["name"], nicknames, type, (bool)Reader["name_first"], conference));
+                Console.WriteLine ("conferenceId: " + conferenceId);
+                new SqlSchool (id, (string)Reader["name"], nicknames, type,
+                    (bool)Reader["name_first"], conferenceId);
             }
             Reader.Close ();
-            return schools;
         }
         
-        public IDictionary<int, SqlVenue> ReadVenues ()
+        public void ReadVenues ()
         {
-            IDictionary<int, SqlVenue> venues = new Dictionary<int, SqlVenue> ();
             int id;
             int? elevation;
             string name;
@@ -263,10 +262,10 @@ namespace XCAnalyze.Io.Sql
                 {
                     elevation = (int)Reader["elevation"];
                 }
-                venues.Add (id, new SqlVenue (id, name, (string)Reader["city"], (string)Reader["state"], elevation));
+                new SqlVenue (id, name, (string)Reader["city"],
+                    (string)Reader["state"], elevation);
             }
             Reader.Close ();
-            return venues;
         }
     }
     

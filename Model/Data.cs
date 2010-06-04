@@ -5,16 +5,19 @@ namespace XCAnalyze.Model
 {
     public class Data
     {
-        public IList<Affiliation> Affiliations { get; protected internal set; }
-        public IList<string> Conferences { get; protected internal set; }
-        public IList<string> Meets { get; protected internal set; }
-        public IList<Performance> Performances { get; protected internal set; }
-        public IList<Race> Races { get; protected internal set; }
-        public IList<Runner> Runners { get; protected internal set; }
-        public IList<School> Schools { get; protected internal set; }
-        public IList<string> Venues { get; protected internal set; }
+        virtual public IList<Affiliation> Affiliations { get; protected internal set; }
+        virtual public IList<string> Conferences { get; protected internal set; }
+        virtual public IList<string> Meets { get; protected internal set; }
+        virtual public IList<Performance> Performances { get; protected internal set; }
+        virtual public IList<Race> Races { get; protected internal set; }
+        virtual public IList<Runner> Runners { get; protected internal set; }
+        virtual public IList<School> Schools { get; protected internal set; }
+        virtual public IList<string[]> Venues { get; protected internal set; }
 
-        public Data (IList<Affiliation> affiliations, IList<string> conferences, IList<string> meets, IList<Performance> performances, IList<Race> races, IList<Runner> runners, IList<School> schools, IList<string> venues)
+        public Data (IList<Affiliation> affiliations, IList<string> conferences,
+            IList<string> meets, IList<Performance> performances,
+            IList<Race> races, IList<Runner> runners, IList<School> schools,
+            IList<string[]> venues)
         {
             Affiliations = affiliations;
             Conferences = conferences;
