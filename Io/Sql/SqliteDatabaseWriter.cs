@@ -126,6 +126,12 @@ namespace XCAnalyze.Io.Sql
         }
         
         [Test]
+        override public void TestWriteAffiliations()
+        {
+            base.TestWriteAffiliations();
+        }
+        
+        [Test]
         override public void TestWriteConferences ()
         {
             base.TestWriteConferences();

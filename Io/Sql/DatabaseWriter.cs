@@ -227,6 +227,30 @@ namespace XCAnalyze.Io.Sql
         }
         
         /// <summary>
+        /// Write the list of affiliations to the database.
+        /// </summary>
+        /// <param name="affiliations">
+        /// The <see cref="IList<Model.Affiliation>"/> to write.
+        /// </param>
+        virtual public void WriteAffiliations(IList<Model.Affiliation> affiliations)
+        {
+            Affiliation sqlAffiliation;
+            foreach(Model.Affiliation affiliation in affiliations)
+            {
+                if(affiliation is Affiliation)
+                {
+                    sqlAffiliation = (Affiliation)affiliation;
+                    Command.CommandText = "UPDATE affiliations SET runner_id = " + sqlAffiliation.RunnerId + ", school_id = " + sqlAffiliation.SchoolId + ", year = " + sqlAffiliation.Year + " WHERE id = " + sqlAffiliation.Id;
+                }
+                else
+                {
+                    Command.CommandText = "INSERT INTO affiliations (runner_id, school_id, year) VALUES (" + Runner.GetId(affiliation.Runner) + ", " + School.GetId(affiliation.School) + ", " + affiliation.Year + ")";
+                }
+                Command.ExecuteNonQuery();
+            }
+        }
+        
+        /// <summary>
         /// Write the list of conferences to the database.
         /// <param name="conferences">
         /// The <see cref="IList<Table.Conferences>"/> to write.
@@ -278,7 +302,6 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         virtual public void WriteSchools(IList<Model.School> schools)
         {
-            int? conferenceId;
             School sqlSchool;
             foreach(Model.School school in schools)
             {
@@ -289,8 +312,7 @@ namespace XCAnalyze.Io.Sql
                 }
                 else
                 {
-                    conferenceId = Conference.GetId(school.Conference);
-                    Command.CommandText = "INSERT INTO schools (name, type, name_first, conference_id) VALUES (" + Format(school.Name) + ", " + Format(school.Type) + ", " + Format(school.NameFirst) + ", " + Format(conferenceId) + ")";
+                    Command.CommandText = "INSERT INTO schools (name, type, name_first, conference_id) VALUES (" + Format(school.Name) + ", " + Format(school.Type) + ", " + Format(school.NameFirst) + ", " + Format(Conference.GetId(school.Conference)) + ")";
                 }
                 Command.ExecuteNonQuery();
             }
@@ -304,6 +326,11 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         virtual public string TEST_DATABASE { get { return "xca_test"; } }
 
+        /// <summary>
+        /// A sample list of affiliations.
+        /// </summary>
+        protected internal IList<Model.Affiliation> Affiliations { get; set; }
+        
         /// <summary>
         /// A sample list of conferences.
         /// </summary>
@@ -333,6 +360,8 @@ namespace XCAnalyze.Io.Sql
         virtual public void SetUp()
         {
             Conference nwc, sciac;
+            int y;
+            Model.Runner karl, hannah, richie, keith, leo, francis, florian;
             nwc = new Conference ("Northwest Conference", "NWC");
             sciac = new Conference (
                 "Southern California Intercollegiate Athletic Conference",
@@ -343,10 +372,20 @@ namespace XCAnalyze.Io.Sql
             Conferences.Add (new Conference (
                 "Southern Collegiate Athletic Conference", "SCAC"));
             Runners = new List<Model.Runner>();
-            Runners.Add(new Model.Runner("Dickman", "Karl", Model.Gender.MALE, 2010));
-            Runners.Add(new Model.Runner("Palmer", "Hannah", Model.Gender.FEMALE, 2010));
-            Runners.Add(new Model.Runner("LeDonne", "Richie", Model.Gender.MALE, 2010));
-            Runners.Add(new Model.Runner("Woodard", "Keith", Model.Gender.MALE, null));
+            karl = new Model.Runner("Dickman", "Karl", Model.Gender.MALE, 2010);
+            hannah = new Model.Runner("Palmer", "Hannah", Model.Gender.FEMALE, 2010);
+            richie = new Model.Runner("LeDonne", "Richie", Model.Gender.MALE, 2011);
+            keith = new Model.Runner("Woodard", "Keith", Model.Gender.MALE, null);
+            leo = new Model.Runner("Castillo", "Leo", Model.Gender.MALE, 2012);
+            francis = new Model.Runner("Reynolds", "Francis", Model.Gender.MALE, 2010);
+            florian = new Model.Runner("Scheulen", "Florian", Model.Gender.MALE, 2010);
+            Runners.Add(karl);
+            Runners.Add(hannah);
+            Runners.Add(richie);
+            Runners.Add(keith);
+            Runners.Add(leo);
+            Runners.Add(francis);
+            Runners.Add(florian);
             Schools = new List<Model.School>();
             Schools.Add(new Model.School("Lewis & Clark", "College", nwc.Name));
             Schools.Add(new Model.School("Willamette", "University", nwc.Name));
@@ -355,6 +394,33 @@ namespace XCAnalyze.Io.Sql
             Schools.Add(new Model.School("Pomona-Pitzer", null, sciac.Name));
             Schools.Add(new Model.School("California", "Institute of Technology", sciac.Name));
             Schools.Add(new Model.School("California, Santa Cruz", "University", false));
+            Affiliations = new List<Model.Affiliation>();
+            for(y = 2006; y < 2010; y++)
+            {
+                Affiliations.Add(new Model.Affiliation(karl, Schools[0], y));
+            }
+            for(y = 2007; y < 2009; y++)
+            {
+                Affiliations.Add(new Model.Affiliation(richie, Schools[0], y));
+            }
+            Affiliations.Add(new Model.Affiliation(hannah, Schools[0], 2006));
+            Affiliations.Add(new Model.Affiliation(hannah, Schools[0], 2008));
+            Affiliations.Add(new Model.Affiliation(hannah, Schools[0], 2009));
+            Affiliations.Add(new Model.Affiliation(keith, Schools[0], 1969));
+            Affiliations.Add(new Model.Affiliation(keith, Schools[0], 1970));
+            Affiliations.Add(new Model.Affiliation(keith, Schools[0], 1971));
+            Affiliations.Add(new Model.Affiliation(keith, Schools[0], 1989));
+            for(y = 2008; y < 2010; y++) {
+                Affiliations.Add(new Model.Affiliation(leo, Schools[1], y));
+            }
+            for(y = 2006; y < 2010; y++)
+            {
+                Affiliations.Add(new Model.Affiliation(francis, Schools[2], y));
+            }
+            for(y = 2006; y < 2010; y++)
+            {
+                Affiliations.Add(new Model.Affiliation(florian, Schools[3], y));
+            }
         }
         
         abstract public void SetUpWriters();
@@ -383,6 +449,38 @@ namespace XCAnalyze.Io.Sql
         virtual public void TestWrite()
         {
             Assert.Fail("Not yet implemented.");
+        }
+        
+        virtual public void TestWriteAffiliations()
+        {
+            IList<Model.Affiliation> actual;
+            Writer.WriteConferences(Conferences);
+            Reader.ReadConferences();
+            Writer.WriteRunners(Runners);
+            Reader.ReadRunners();
+            Writer.WriteSchools(Schools);
+            Reader.ReadSchools();
+            Writer.WriteAffiliations(Affiliations);
+            Reader.ReadAffiliations();
+            actual = Affiliation.List;
+            Assert.AreEqual(Affiliations.Count, actual.Count);
+            foreach(Model.Affiliation affiliation in actual)
+            {
+                Assert.That(affiliation is Affiliation);
+            }
+            foreach(Model.Affiliation affiliation in Affiliations)
+            {
+                Assert.That(actual.Contains(affiliation));
+            }
+            Affiliations = actual;
+            Writer.WriteAffiliations(Affiliations);
+            Reader.ReadAffiliations();
+            actual = Affiliation.List;
+            Assert.AreEqual(Affiliations.Count, actual.Count);
+            foreach(Affiliation affiliation in Affiliations)
+            {
+                Assert.That(actual.Contains(affiliation));
+            }
         }
         
         virtual public void TestWriteConferences()
@@ -459,8 +557,6 @@ namespace XCAnalyze.Io.Sql
             }
             foreach(Model.School school in Schools)
             {
-                Console.WriteLine(actual[0].Conference);
-                Console.WriteLine((bool)(actual[0] is School));
                 Assert.That(actual.Contains(school));
                 foreach(Conference conference in Conferences)
                 {

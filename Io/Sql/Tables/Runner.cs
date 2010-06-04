@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -93,9 +94,77 @@ namespace XCAnalyze.Io.Sql.Tables
         /// <returns>
         /// The <see cref="Model.Runner"/> with the given id number.
         /// </returns>
-        public static Model.Runner Get(int id)
+        public static Model.Runner Get (int id)
         {
             return IdMap[id];
+        }
+        
+        /// <summary>
+        /// Get the id number of the given runner instance.
+        /// </summary>
+        /// <param name="runner">
+        /// The <see cref="Model.Runner"/> runner to search for.
+        /// </param>
+        /// <returns>
+        /// The id number of the runner.
+        /// </returns>
+        public static int? GetId (Model.Runner runner)
+        {
+            if (runner is Runner) 
+            {
+                return ((Runner)runner).Id;
+            }
+            foreach (KeyValuePair<int, Model.Runner> entry in IdMap)
+            {
+                if (entry.Value.Equals(runner)) 
+                {
+                    return entry.Key;
+                }
+            }
+            return null;
+        }
+    }
+    
+    [TestFixture]
+    public class TestRunner
+    {
+        protected internal Runner Karl { get; set; }
+        protected internal Runner Richie { get; set; }
+        protected internal Runner Kirsten { get; set; }
+        protected internal Runner Keith { get; set; }
+        
+        [SetUp]
+        public void SetUp ()
+        {
+            Runner.Clear ();
+            Karl = new Runner (1, "Dickman", "Karl", null, Model.Gender.MALE, 2010);
+            Richie = new Runner (2, "LeDonne", "Richie", null, Model.Gender.MALE, 2011);
+            Kirsten = new Runner (3, "Fix", "Kirsten", null, Model.Gender.FEMALE, 2010);
+            Keith = new Runner (4, "Woodard", "Keith", null, Model.Gender.MALE, null);
+        }
+        
+        [TearDown]
+        public void TearDown ()
+        {
+            Runner.Clear ();
+        }
+        
+        [Test]
+        public void TestGetId ()
+        {
+            Model.Runner[] clones = new Model.Runner[4];
+            clones[0] = new Model.Runner (Karl.Surname, Karl.GivenName, Karl.Gender, Karl.Year);
+            clones[1] = new Model.Runner (Richie.Surname, Richie.GivenName, Richie.Gender, Richie.Year);
+            clones[2] = new Model.Runner (Kirsten.Surname, Kirsten.GivenName, Kirsten.Gender, Kirsten.Year);
+            clones[3] = new Model.Runner (Keith.Surname, Keith.GivenName, Keith.Gender, 1973);
+            Model.Runner nonExistent = new Model.Runner ("Steier", "Lars", Model.Gender.MALE, 2010);
+            Model.Runner bad = new Model.Runner (Keith.Surname, Keith.GivenName, Model.Gender.FEMALE, Keith.Year);
+            Assert.IsNull (Runner.GetId (nonExistent));
+            Assert.IsNull (Runner.GetId (bad));
+            for (int i = 0; i < clones.Length; i++)
+            {
+                Assert.AreEqual (i + 1, Runner.GetId (clones[i]));
+            }
         }
     }
 }

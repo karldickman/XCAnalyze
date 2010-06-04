@@ -150,7 +150,8 @@ namespace XCAnalyze.Io.Sql
             string database, string user, string password, int port,
             bool pooling)
         {
-            string connectionString = "Server=" + host + "; User ID=" + user + "; Password=" + password + "; Pooling=" + pooling + ";";
+            string connectionString = "Server=" + host + "; User ID=" + user +
+                "; Password=" + password + "; Pooling=" + pooling + ";";
             return NewInstance (new MySqlConnection(connectionString), database);
         }
         
@@ -166,7 +167,8 @@ namespace XCAnalyze.Io.Sql
         public static MySqlDatabaseWriter NewInstance (IDbConnection connection,
             string database)
         {
-            string fullConnectionString = connection.ConnectionString + "Database=" + database;
+            string fullConnectionString = connection.ConnectionString +
+                "Database=" + database;
             MySqlDatabaseWriter writer = new MySqlDatabaseWriter (connection, database);
             connection.Open ();
             writer.Command = connection.CreateCommand ();
@@ -183,7 +185,8 @@ namespace XCAnalyze.Io.Sql
                 writer.Command.ExecuteNonQuery ();
             }
             writer.Close ();
-            writer = new MySqlDatabaseWriter (new MySqlConnection (fullConnectionString), database);
+            writer = new MySqlDatabaseWriter (
+                new MySqlConnection (fullConnectionString), database);
             writer.Connection.Open ();
             writer.Command = writer.Connection.CreateCommand ();
             if (!writer.IsDatabaseInitialized ()) 
@@ -245,6 +248,12 @@ namespace XCAnalyze.Io.Sql
         override public void TestWrite ()
         {
             base.TestWrite ();
+        }
+        
+        [Test]
+        override public void TestWriteAffiliations()
+        {
+            base.TestWriteAffiliations();
         }
         
         [Test]

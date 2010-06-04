@@ -147,7 +147,6 @@ namespace XCAnalyze.Model {
         /// </summary>
         public int CompareTo (School other)
         {
-            Console.WriteLine ("Comparing " + this + " to " + other);
             int comparison;
             if (this == other)
             {
@@ -158,13 +157,11 @@ namespace XCAnalyze.Model {
             {
                 return comparison;
             }
-            Console.WriteLine ("Same name.");
             comparison = ObjectComparer<string>.Compare (Type, other.Type, 1);
             if (comparison != 0)
             {
                 return comparison;
             }
-            Console.WriteLine ("Same type.");
             if (NameFirst != other.NameFirst)
             {
                 comparison = FullName ().CompareTo (other.FullName ());
@@ -173,9 +170,6 @@ namespace XCAnalyze.Model {
                     return comparison;
                 }
             }
-            Console.WriteLine ("Same full name.");
-            Console.WriteLine ("This conference " + Conference);
-            Console.WriteLine ("Other conference " + other.Conference);
             return ObjectComparer<string>.Compare (Conference, other.Conference, 1);
         }
 

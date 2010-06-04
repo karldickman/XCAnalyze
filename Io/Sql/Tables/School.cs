@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -117,9 +118,78 @@ namespace XCAnalyze.Io.Sql.Tables
         /// <returns>
         /// The <see cref="Model.School"/> with the requested id number.
         /// </returns>
-        public static Model.School Get(int id)
+        public static Model.School Get (int id)
         {
             return IdMap[id];
+        }
+        
+        /// <summary>
+        /// Get the id number of a particular school.
+        /// </summary>
+        /// <param name="school">
+        /// The <see cref="Model.School"/> to search for.
+        /// </param>
+        /// <returns>
+        /// The id number of the school.
+        /// </returns>
+        public static int? GetId (Model.School school)
+        {
+            if (school is School)
+            {
+                return ((School)school).Id;
+            }
+            foreach (KeyValuePair<int, Model.School> entry in IdMap)
+            {
+                if (entry.Value.Equals (school)) 
+                {
+                    return entry.Key;
+                }
+            }
+            return null;
+        }
+    }
+    
+    [TestFixture]
+    public class TestSchool
+    {
+        protected internal Conference Nwc { get; set; }
+        protected internal School Linfield { get; set; }
+        protected internal School Willamette { get; set; }
+        protected internal School Chapman { get; set; }
+        
+        [SetUp]
+        public void SetUp ()
+        {
+            Conference.Clear ();
+            School.Clear ();
+            Nwc = new Conference (1, "Northwest Conference", "NWC");
+            Linfield = new School (1, "Linfield", null, "College", true, 1);
+            Willamette = new School (2, "Willamette", null, "University", true, 1);
+            Chapman = new School (3, "Chapman", null, "University", true, null);
+        }
+        
+        [TearDown]
+        public void TearDown ()
+        {
+            Conference.Clear ();
+            School.Clear ();
+        }
+        
+        [Test]
+        public void TestGetId ()
+        {
+            Model.School[] clones = new Model.School[3];
+            clones[0] = new Model.School (Linfield.Name, Linfield.Type, Linfield.NameFirst, Nwc.Name);
+            clones[1] = new Model.School (Willamette.Name, Willamette.Type, Willamette.NameFirst, Nwc.Name);
+            clones[2] = new Model.School (Chapman.Name, Chapman.Type, Chapman.NameFirst, null);
+            Model.School off = new Model.School (Willamette.Name, Willamette.Type, Willamette.NameFirst);
+            Model.School nxst = new Model.School ("Puget Sound", "University", false, Nwc.Name);
+            Assert.IsNull (School.GetId (nxst));
+            Assert.IsNull (School.GetId (off));
+            for (int i = 0; i < clones.Length; i++)
+            {
+                Assert.AreEqual (i + 1, School.GetId (clones[i]));
+            }
         }
     }
 }

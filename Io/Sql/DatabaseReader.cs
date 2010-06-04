@@ -94,11 +94,11 @@ namespace XCAnalyze.Io.Sql
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
-                id = (int)(uint)Reader["id"];
-                runnerId = (int)(uint)Reader["runner_id"];
-                schoolId = (int)(uint)Reader["school_id"];
-                new Affiliation ((int)id, runnerId,
-                        schoolId, (int)Reader["year"]);
+                id = int.Parse(Reader["id"].ToString());
+                runnerId = int.Parse(Reader["runner_id"].ToString());
+                schoolId = int.Parse(Reader["school_id"].ToString());
+                new Affiliation (id, runnerId, schoolId,
+                    int.Parse(Reader["year"].ToString()));
             }
             Reader.Close ();
         }
@@ -274,7 +274,6 @@ namespace XCAnalyze.Io.Sql
                 {
                     conferenceId = int.Parse (Reader["conference_id"].ToString ());
                 }
-                Console.WriteLine ("conferenceId: " + conferenceId);
                 new School (id, (string)Reader["name"], nicknames, type,
                     (bool)Reader["name_first"], conferenceId);
             }

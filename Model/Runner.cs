@@ -142,10 +142,13 @@ namespace XCAnalyze.Model
             {
                 return comparison;
             }
-            comparison = NullableComparer.Compare (Year, other.Year, 1);
-            if (comparison != 0) 
+            if (Year != null && other.Year != null)
             {
-                return comparison;
+                comparison = Year.Value.CompareTo (other.Year.Value);
+                if (comparison != 0) 
+                {
+                    return comparison;
+                }
             }
             return Gender.CompareTo (other.Gender);
         }
