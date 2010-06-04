@@ -256,7 +256,7 @@ namespace XCAnalyze.Io.Sql
         /// The <see cref="IList<Table.Conferences>"/> to write.
         /// </param>
         /// </summary>
-        virtual public void WriteConferences (IList<Tables.Conference> conferences)
+        virtual public void WriteConferences (IList<Conference> conferences)
         {
             foreach (Conference conference in conferences)
             {
@@ -267,6 +267,28 @@ namespace XCAnalyze.Io.Sql
                 else
                 {
                     Command.CommandText = "INSERT INTO conferences (name, abbreviation) VALUES (" + Format(conference.Name) + ", " + Format(conference.Abbreviation) + ")";
+                }
+                Command.ExecuteNonQuery();
+            }
+        }
+        
+        /// <summary>
+        /// Write the list of meets to the database.
+        /// </summary>
+        /// <param name="meets">
+        /// The <see cref="IList<Meet>"/> to write.
+        /// </param>
+        virtual public void WriteMeets(IList<Meet> meets)
+        {
+            foreach(Meet meet in meets)
+            {
+                if(meet.Id >= 0)
+                {
+                    Command.CommandText = "UPDATE meets SET name = " + Format(meet.Name) + " WHERE id = " + meet.Id;
+                }
+                else
+                {
+                    Command.CommandText = "INSERT INTO meets (name) VALUES (" + Format(meet.Name) + ")";
                 }
                 Command.ExecuteNonQuery();
             }
@@ -334,20 +356,25 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// A sample list of conferences.
         /// </summary>
-        protected internal IList<Tables.Conference> Conferences { get; set; }
+        protected internal IList<Conference> Conferences { get; set; }
         
         /// <summary>
-        /// The reader for the database
+        /// A sample list of meets.
+        /// </summary>
+        protected internal IList<Meet> Meets { get; set; }
+        
+        /// <summary>
+        /// The reader for the database.
         /// </summary>
         protected internal DatabaseReader Reader { get; set; }
         
         /// <summary>
-        /// A sample list of runners
+        /// A sample list of runners.
         /// </summary>
         protected internal IList<Model.Runner> Runners { get; set; }
         
         /// <summary>
-        /// A sample list of schools
+        /// A sample list of schools.
         /// </summary>
         protected internal IList<Model.School> Schools { get; set; }
         
@@ -362,14 +389,14 @@ namespace XCAnalyze.Io.Sql
             Conference nwc, sciac;
             int y;
             Model.Runner karl, hannah, richie, keith, leo, francis, florian;
-            nwc = new Conference ("Northwest Conference", "NWC");
-            sciac = new Conference (
+            nwc = new Conference (-1, "Northwest Conference", "NWC");
+            sciac = new Conference (-1, 
                 "Southern California Intercollegiate Athletic Conference",
                 "SCIAC");
-            Conferences = new List<Tables.Conference> ();
+            Conferences = new List<Conference> ();
             Conferences.Add (nwc);
             Conferences.Add (sciac);
-            Conferences.Add (new Conference (
+            Conferences.Add (new Conference (-1, 
                 "Southern Collegiate Athletic Conference", "SCAC"));
             Runners = new List<Model.Runner>();
             karl = new Model.Runner("Dickman", "Karl", Model.Gender.MALE, 2010);
@@ -421,6 +448,11 @@ namespace XCAnalyze.Io.Sql
             {
                 Affiliations.Add(new Model.Affiliation(florian, Schools[3], y));
             }
+            Meets = new List<Meet>();
+            Meets.Add(new Meet(-1, "Lewis & Clark Invitational"));
+            Meets.Add(new Meet(-1, "Charles Bowles Invitational"));
+            Meets.Add(new Meet(-1, "Northwest Conference Championship"));
+            Meets.Add(new Meet(-1, "SCIAC Multi-Duals"));
         }
         
         abstract public void SetUpWriters();
@@ -485,15 +517,11 @@ namespace XCAnalyze.Io.Sql
         
         virtual public void TestWriteConferences()
         {
-            IList<Tables.Conference> actual;
+            IList<Conference> actual;
             Writer.WriteConferences (Conferences);
             Reader.ReadConferences();
             actual = Conference.List;
             Assert.AreEqual(Conferences.Count, actual.Count);
-            foreach (Tables.Conference conference in actual)
-            {
-                Assert.That (conference is Tables.Conference);
-            }
             foreach (Conference conference in Conferences) 
             {
                 Assert.That (actual.Contains (conference));
@@ -507,9 +535,32 @@ namespace XCAnalyze.Io.Sql
             Reader.ReadConferences();
             actual = Conference.List;
             Assert.AreEqual (Conferences.Count, actual.Count);
-            foreach (Tables.Conference conference in Conferences) 
+            foreach (Conference conference in Conferences) 
             {
                 Assert.That (actual.Contains (conference));
+            }
+        }
+        
+        [Test]
+        virtual public void TestWriteMeets()
+        {
+            IList<Meet> actual;
+            Writer.WriteMeets(Meets);
+            Reader.ReadMeets();
+            actual = Meet.List;
+            Assert.AreEqual(Meets.Count, actual.Count);
+            foreach(Meet meet in Meets)
+            {
+                Assert.That(actual.Contains(meet));
+            }
+            Meets = actual;
+            Writer.WriteMeets(Meets);
+            Reader.ReadMeets();
+            actual = Meet.List;
+            Assert.AreEqual(Meets.Count, actual.Count);
+            foreach(Meet meet in Meets)
+            {
+                Assert.That(actual.Contains(meet));
             }
         }
         
@@ -580,12 +631,6 @@ namespace XCAnalyze.Io.Sql
             {
                 Assert.That(actual.Contains(school));
             }
-        }
-        
-        protected internal class Conference : Tables.Conference
-        {
-            public Conference (string name, string abbreviation)
-            : base(-1, name, abbreviation) {}
         }
     }
 }

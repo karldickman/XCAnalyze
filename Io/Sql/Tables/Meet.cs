@@ -6,7 +6,7 @@ namespace XCAnalyze.Io.Sql.Tables
     /// <summary>
     /// A representation of a row of the meets table in the database.
     /// </summary>
-    public class Meet
+    public class Meet : IComparable<Meet>
     {
         /// <summary>
         /// A registry of all the instances (i.e. rows).
@@ -49,6 +49,14 @@ namespace XCAnalyze.Io.Sql.Tables
         }
         
         /// <summary>
+        /// Clear the registry of instances.
+        /// </summary>
+        public static void Clear ()
+        {
+            IdMap.Clear ();
+        }
+        
+        /// <summary>
         /// Check whether an instance with a particular id number exists.
         /// </summary>
         /// <param name="id">
@@ -74,6 +82,40 @@ namespace XCAnalyze.Io.Sql.Tables
         public static Meet Get (int id)
         {
             return IdMap[id];
+        }
+        
+        /// <summary>
+        /// Meets are compared by name.
+        /// </summary>
+        /// <param name="other">
+        /// The <see cref="Meet"/> being compared.
+        /// </param>
+        public int CompareTo (Meet other)
+        {
+            return Name.CompareTo (other.Name);
+        }
+        
+        override public bool Equals(object other)
+        {
+            if(this == other)
+            {
+                 return true;
+            }
+            if(other is Meet)
+            {
+                return 0 == CompareTo((Meet)other);
+            }
+            return false;
+        }
+        
+        override public int GetHashCode ()
+        {
+            return Name.GetHashCode();
+        }
+        
+        override public string ToString ()
+        {
+            return Name;
         }
     }
 }

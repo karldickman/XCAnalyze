@@ -89,6 +89,7 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         virtual public void ReadAffiliations ()
         {
+            Affiliation.Clear();
             int id, runnerId, schoolId;
             Command.CommandText = "SELECT * FROM affiliations";
             Reader = Command.ExecuteReader ();
@@ -126,12 +127,13 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         virtual public void ReadMeets ()
         {
+            Meet.Clear();
             int id;
             Command.CommandText = "SELECT * FROM meets";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
-                id = (int)(uint)Reader["id"];
+                id = int.Parse(Reader["id"].ToString());
                 new Meet (id, (string)Reader["name"]);
             }
             Reader.Close ();
