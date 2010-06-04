@@ -164,7 +164,7 @@ namespace XCAnalyze.Io.Sql
         [Test]
         public void TestRead ()
         {
-            Assert.Fail ("Not yet implemented.");
+            Reader.Read ();
         }
     }
 }

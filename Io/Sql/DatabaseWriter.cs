@@ -339,6 +339,22 @@ namespace XCAnalyze.Io.Sql
                 Command.ExecuteNonQuery();
             }
         }
+        
+        virtual public void WriteVenues(IList<Venue> venues)
+        {
+            foreach(Venue venue in venues)
+            {
+                if(venue.Id >= 0)
+                {
+                    Command.CommandText = "UPDATE venues SET name = " + Format(venue.Name) + ", city = " + Format(venue.City) + ", state = " + Format(venue.State) + ", elevation = " + Format(venue.Elevation) + " WHERE id = " + venue.Id;
+                }
+                else
+                {
+                    Command.CommandText = "INSERT INTO venues (name, city, state, elevation) VALUES (" + Format(venue.Name) + ", " + Format(venue.City) + ", " + Format(venue.State) + ", " + Format(venue.Elevation) + ")";
+                }
+                Command.ExecuteNonQuery();
+            }
+        }
     }
     
     abstract public class TestDatabaseWriter
@@ -377,6 +393,11 @@ namespace XCAnalyze.Io.Sql
         /// A sample list of schools.
         /// </summary>
         protected internal IList<Model.School> Schools { get; set; }
+        
+        /// <summary>
+        /// A sample list of venues.
+        /// </summary>
+        protected internal IList<Venue> Venues { get; set; }
         
         /// <summary>
         /// The writer for the database.
@@ -453,6 +474,11 @@ namespace XCAnalyze.Io.Sql
             Meets.Add(new Meet(-1, "Charles Bowles Invitational"));
             Meets.Add(new Meet(-1, "Northwest Conference Championship"));
             Meets.Add(new Meet(-1, "SCIAC Multi-Duals"));
+            Venues = new List<Venue>();
+            Venues.Add(new Venue(-1, "Milo McIver State Park", "Estacada", "OR", null));
+            Venues.Add(new Venue(-1, "Bush Pasture Park", "Salem", "OR", null));
+            Venues.Add(new Venue(-1, "Veteran's Memorial Golf Course", "Walla Walla", "WA", null));
+            Venues.Add(new Venue(-1, "Pomona College Campus", "Claremont", "CA", null));
         }
         
         abstract public void SetUpWriters();
@@ -464,12 +490,14 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         }  
 
+        [Test]
         virtual public void TestInitializeDatabase ()
         {
             SetUpWriters ();
             Writer.InitializeDatabase ();
         }
         
+        [Test]
         virtual public void TestIsDatabaseInitialized()
         {
             SetUpWriters ();
@@ -478,11 +506,13 @@ namespace XCAnalyze.Io.Sql
             Assert.That (Writer.IsDatabaseInitialized ());
         }
         
+        [Test]
         virtual public void TestWrite()
         {
             Assert.Fail("Not yet implemented.");
         }
         
+        [Test]
         virtual public void TestWriteAffiliations()
         {
             IList<Model.Affiliation> actual;
@@ -515,6 +545,7 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
+        [Test]
         virtual public void TestWriteConferences()
         {
             IList<Conference> actual;
@@ -564,6 +595,7 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
+        [Test]
         virtual public void TestWriteRunners()
         {
             IList<Model.Runner> actual;
@@ -593,6 +625,7 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
+        [Test]
         virtual public void TestWriteSchools()
         {
             IList<Model.School> actual;
@@ -630,6 +663,29 @@ namespace XCAnalyze.Io.Sql
             foreach(Model.School school in Schools)
             {
                 Assert.That(actual.Contains(school));
+            }
+        }
+        
+        [Test]
+        virtual public void TestWriteVenues()
+        {
+            IList<Venue> actual;
+            Writer.WriteVenues(Venues);
+            Reader.ReadVenues();
+            actual = Venue.List;
+            Assert.AreEqual(Venues.Count, actual.Count);
+            foreach(Venue venue in Venues)
+            {
+                Assert.That(actual.Contains(venue));
+            }
+            Venues = actual;
+            Writer.WriteVenues(Venues);
+            Reader.ReadVenues();
+            actual = Venue.List;
+            Assert.AreEqual(Venues.Count, actual.Count);
+            foreach(Venue venue in Venues)
+            {
+                Assert.That(actual.Contains(venue));
             }
         }
     }

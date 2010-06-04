@@ -78,6 +78,7 @@ namespace XCAnalyze.Io.Sql
             ReadAffiliations ();
             ReadMeets ();
             ReadVenues ();
+            ReadRaces();
             ReadPerformances ();
             return new GlobalState (Affiliation.List, Conference.List,
                 Meet.List, Performance.List, Race.List, Runner.List,
@@ -287,6 +288,7 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         virtual public void ReadVenues ()
         {
+            Venue.Clear();
             int id;
             int? elevation;
             string name;
@@ -294,7 +296,7 @@ namespace XCAnalyze.Io.Sql
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
-                id = (int)(uint)Reader["id"];
+                id = int.Parse(Reader["id"].ToString());
                 if (Reader["name"] is DBNull)
                 {
                     name = null;

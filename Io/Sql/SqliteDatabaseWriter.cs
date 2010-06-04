@@ -106,47 +106,5 @@ namespace XCAnalyze.Io.Sql
             base.TearDown();
             File.Delete (TEST_DATABASE);
         }
-
-        [Test]
-        override public void TestInitializeDatabase ()
-        {
-            base.TestInitializeDatabase();
-        }
-
-        [Test]
-        override public void TestIsDatabaseInitialized ()
-        {
-            base.TestIsDatabaseInitialized();
-        }
-
-        [Test]
-        override public void TestWrite ()
-        {
-            base.TestWrite();
-        }
-        
-        [Test]
-        override public void TestWriteAffiliations()
-        {
-            base.TestWriteAffiliations();
-        }
-        
-        [Test]
-        override public void TestWriteConferences ()
-        {
-            base.TestWriteConferences();
-        }
-        
-        [Test]
-        override public void TestWriteRunners()
-        {
-            base.TestWriteRunners();
-        }
-        
-        [Test]
-        override public void TestWriteSchools()
-        {
-            base.TestWriteSchools();
-        }
     }
 }
