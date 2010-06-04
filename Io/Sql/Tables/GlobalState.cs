@@ -5,22 +5,17 @@ using System.Linq;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
+    /// <summary>
+    /// All the information in the database.
+    /// </summary>
     public class GlobalState : Model.GlobalState
     {
-        private IList<string> conferences;
-        private IList<string> meets;
-        private IList<string[]> venues;
-        
         override public IList<string> Conferences
         {
             get
             {
-                if(conferences == null)
-                {
-                    conferences = new List<string>(from conference in SqlConferences
-                        select conference.Name);
-                }
-                return conferences;
+                return new List<string>(from conference in SqlConferences
+                    select conference.Name);
             }
         }
         
@@ -28,12 +23,8 @@ namespace XCAnalyze.Io.Sql.Tables
         {
             get
             {
-                if(meets == null)
-                {
-                    meets = new List<string>(from meet in SqlMeets
-                        select meet.Name);
-                }
-                return meets;
+                return new List<string>(from meet in SqlMeets
+                    select meet.Name);
             }
         }
         
@@ -41,69 +32,63 @@ namespace XCAnalyze.Io.Sql.Tables
         {
             get
             {
-                if(venues == null)
-                {
-                    venues = new List<string[]>(from venue in SqlVenues
-                        select new string[] {venue.Name, venue.City, venue.State});
-                }
-                return venues;
+                return new List<string[]>(from venue in SqlVenues
+                    select new string[] {venue.Name, venue.City, venue.State});
             }
         }
         
+        /// <summary>
+        /// The conferences stored in the database.
+        /// </summary>
         public IList<Conference> SqlConferences { get; protected internal set; }
+        
+        /// <summary>
+        /// The meets stored in the database.
+        /// </summary>
         public IList<Meet> SqlMeets { get; protected internal set; }
+        
+        /// <summary>
+        /// The venues stored in the database.
+        /// </summary>
         public IList<Venue> SqlVenues { get; protected internal set; }
 
-        protected internal GlobalState(IList<Model.Affiliation> affiliations,
-            IList<Conference> conferences, IList<string> conferenceNames,
-            IList<Meet> meets, IList<string> meetNames,
+        /// <summary>
+        /// Create a new description of the database.
+        /// </summary>
+        /// <param name="affiliations">
+        /// The contents of the affiliations table.
+        /// </param>
+        /// <param name="conferences">
+        /// The contents of the conferences table.
+        /// </param>
+        /// <param name="meets">
+        /// The contents of the meets table.
+        /// </param>
+        /// <param name="performances">
+        /// The contents of the performances table.
+        /// </param>
+        /// <param name="races">
+        /// The contents of the races table.
+        /// </param>
+        /// <param name="runners">
+        /// The contents of the runenrs table.
+        /// </param>
+        /// <param name="schools">
+        /// The contents of the schools table.
+        /// </param>
+        /// <param name="venues">
+        /// The contents of the venues table.
+        /// </param>
+        public GlobalState(IList<Model.Affiliation> affiliations,
+            IList<Conference> conferences, IList<Meet> meets, 
             IList<Model.Performance> performances, IList<Model.Race> races,
             IList<Model.Runner> runners, IList<Model.School> schools,
-            IList<Venue> venues, IList<string[]> venueNames)
-            : base(affiliations, conferenceNames, meetNames, performances,
-                races, runners, schools, venueNames)
+            IList<Venue> venues)
+            : base(affiliations, performances, races, runners, schools)
         {
             SqlConferences = conferences;
             SqlMeets = meets;
             SqlVenues = venues;
-        }
-
-        public static GlobalState NewInstance (
-            IList<Model.Affiliation> affiliations,
-            IList<Conference> conferences, IList<Meet> meets,
-            IList<Model.Performance> performances, IList<Model.Race> races,
-            IList<Model.Runner> runners, IList<Model.School> schools,
-            IList<Venue> venues)
-        {
-            IList<string> conferenceNames = new List<string> ();
-            IList<string> meetNames = new List<string> ();
-            IList<string> venueNames = new List<string> ();
-            IList<string[]> venueInfo = new List<string[]> ();
-            foreach (Conference conference in conferences)
-            {
-                if (!conferenceNames.Contains (conference.Name))
-                {
-                    conferenceNames.Add (conference.Name);
-                }
-            }
-            foreach (Meet meet in meets)
-            {
-                if (!meetNames.Contains (meet.Name))
-                {
-                    meetNames.Add (meet.Name);
-                }
-            }
-            foreach (Venue venue in venues)
-            {
-                if (!venueNames.Contains (venue.Name))
-                {
-                    venueNames.Add (venue.Name);
-                    venueInfo.Add (new string[] { venue.Name, venue.City, venue.State });
-                }
-            }
-            return new GlobalState (affiliations, conferences, conferenceNames,
-                meets, meetNames, performances, races, runners, schools, venues,
-            venueInfo);
         }
     }
 }

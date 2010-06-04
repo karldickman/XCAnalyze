@@ -6,6 +6,9 @@ using System.IO;
 
 namespace XCAnalyze.Io.Sql
 {
+    /// <summary>
+    /// A <see cref="IWriter"/> used to write the model to an SQLite database.
+    /// </summary>
     public class SqliteDatabaseWriter : DatabaseWriter
     {
         override public string CREATION_SCRIPT_EXTENSION
@@ -26,6 +29,12 @@ namespace XCAnalyze.Io.Sql
             get { return "SELECT name FROM sqlite_master WHERE type=\"table\""; }
         }
 
+        /// <summary>
+        /// Create a new writer using a particular connection.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> to use.
+        /// </param>
         protected internal SqliteDatabaseWriter(IDbConnection connection)
             : base(connection) {}
 

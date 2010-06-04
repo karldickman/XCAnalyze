@@ -1,8 +1,7 @@
 using System;
 
 namespace XCAnalyze.Model
-{
-    
+{ 
     /// <summary>
     /// Describes in which Year a Runner ran for a particular School.
     /// </summary>
@@ -25,6 +24,18 @@ namespace XCAnalyze.Model
         
         protected internal Affiliation(int year) : this(null, null, year) {}
         
+        /// <summary>
+        /// Create a new affiliation.
+        /// </summary>
+        /// <param name="runner">
+        /// The <see cref="Runner"/> who is affiliated with the school.
+        /// </param>
+        /// <param name="school">
+        /// The <see cref="School"/> the runner ran for.
+        /// </param>
+        /// <param name="year">
+        /// The season in which the affiliation occurred.
+        /// </param>
         public Affiliation (Runner runner, School school, int year)
         {
             Runner = runner;
@@ -33,7 +44,8 @@ namespace XCAnalyze.Model
         }
 
         /// <summary>
-        /// Affiliations are compared first by School, then by Runner, then by Year.
+        /// Affiliations are compared first by School, then by Runner, then by
+        /// Year.
         /// </summary>
         public int CompareTo (Affiliation other)
         {
@@ -55,7 +67,7 @@ namespace XCAnalyze.Model
             return Year.CompareTo(other.Year);
         }
         
-        public override bool Equals (object other)
+        override public bool Equals (object other)
         {
             if (this == other) 
             {
@@ -68,12 +80,12 @@ namespace XCAnalyze.Model
             return false;
         }
         
-        public override int GetHashCode ()
+        override public int GetHashCode ()
         {
             return base.GetHashCode ();
         }
         
-        public override string ToString ()
+        override public string ToString ()
         {
             return Runner.Name + ", " + School.Name + " " + Year;
         }

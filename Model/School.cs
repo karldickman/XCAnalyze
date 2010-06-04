@@ -32,19 +32,94 @@ namespace XCAnalyze.Model {
         /// The type of the school (University, College, etc.)
         /// </summary>
         virtual public string Type { get; protected internal set; }
-        
+                
+        /// <summary>
+        /// Create a new school.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the school (Linfield, Willamette, etc.).
+        /// </param>
+        /// <param name="type">
+        /// The type of the school (College, University, Institude of
+        /// Technology, etc.).
+        /// </param>
         public School(string name, string type) : this(name, type, true) {}
-
+                
+        /// <summary>
+        /// Create a new school.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the school (Linfield, Willamette, etc.).
+        /// </param>
+        /// <param name="type">
+        /// The type of the school (College, University, Institude of
+        /// Technology, etc.).
+        /// </param>
+        /// <param name="nameFirst">
+        /// Should the name go before the type (Willamette University) or not
+        /// (University of Puget Sound).
+        /// </param>
         public School(string name, string type, bool nameFirst)
             : this(name, type, nameFirst, null) {}
         
+        /// <summary>
+        /// Create a new school.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the school (Linfield, Willamette, etc.).
+        /// </param>
+        /// <param name="type">
+        /// The type of the school (College, University, Institude of
+        /// Technology, etc.).
+        /// </param>
+        /// <param name="conference">
+        /// The conference with which this school is affiliated.
+        /// </param>
         public School(string name, string type, string conference)
         : this(name, type, true, conference) {}
         
+        /// <summary>
+        /// Create a new school.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the school (Linfield, Willamette, etc.).
+        /// </param>
+        /// <param name="type">
+        /// The type of the school (College, University, Institude of
+        /// Technology, etc.).
+        /// </param>
+        /// <param name="nameFirst">
+        /// Should the name go before the type (Willamette University) or not
+        /// (University of Puget Sound).
+        /// </param>
+        /// <param name="conference">
+        /// The conference with which this school is affiliated.
+        /// </param>
         public School (string name, string type, bool nameFirst,
                 string conference)
                 : this(name, type, nameFirst, conference, new List<Affiliation> ()) {}
 
+        /// <summary>
+        /// Create a new school.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the school (Linfield, Willamette, etc.).
+        /// </param>
+        /// <param name="type">
+        /// The type of the school (College, University, Institude of
+        /// Technology, etc.).
+        /// </param>
+        /// <param name="nameFirst">
+        /// Should the name go before the type (Willamette University) or not
+        /// (University of Puget Sound).
+        /// </param>
+        /// <param name="conference">
+        /// The conference with which this school is affiliated.
+        /// </param>
+        /// <param name="runners">
+        /// A <see cref="List<Affiliation>"/> of runners who have compted for
+        /// this school.
+        /// </param>
         public School (string name, string type, bool nameFirst,
             string conference, List<Affiliation> runners)
         {
@@ -55,6 +130,12 @@ namespace XCAnalyze.Model {
             Runners = runners;
         }
 
+        /// <summary>
+        /// Register a runner as having competed for this school.
+        /// </summary>
+        /// <param name="runner">
+        /// The <see cref="Affiliation"/> to register.
+        /// </param>
         public void AddRunner (Affiliation runner)
         {
             Runners.Add (runner);
@@ -98,7 +179,7 @@ namespace XCAnalyze.Model {
             return ObjectComparer<string>.Compare (Conference, other.Conference, 1);
         }
 
-        public override bool Equals (object other)
+        override public bool Equals (object other)
         {
             if (this == other)
             {
@@ -112,8 +193,9 @@ namespace XCAnalyze.Model {
         }
 
         /// <summary>
-        /// The full name of the school.  For example, "Linfield College", "California Institute of Technology", or
-        /// "University of California, Santa Cruz".
+        /// The full name of the school.  For example, "Linfield College",
+        /// "California Institute of Technology", or "University of California,
+        /// Santa Cruz".
         /// </summary>
         public string FullName ()
         {
@@ -124,12 +206,12 @@ namespace XCAnalyze.Model {
             return Type + " of " + Name;
         }
         
-        public override int GetHashCode ()
+        override public int GetHashCode ()
         {
             return base.GetHashCode ();
         }
 
-        public override string ToString ()
+        override public string ToString ()
         {
             return FullName ();
         }

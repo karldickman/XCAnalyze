@@ -4,11 +4,20 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
-    
+    /// <summary>
+    /// A representation of a row in the database's conference table.
+    /// </summary>
     public class Conference : IComparable<Conference>
     {
-        protected internal static IDictionary<int, Conference> IdMap = new Dictionary<int, Conference>();
+        /// <summary>
+        /// A registry of all the instances (i.e. rows) by id number.
+        /// </summary>
+        protected internal static IDictionary<int, Conference> IdMap =
+            new Dictionary<int, Conference>();
         
+        /// <summary>
+        /// Get all the instances of this class.
+        /// </summary>
         public static IList<Conference> List
         {
             get { return new List<Conference> (IdMap.Values); }
@@ -29,6 +38,18 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </summary>
         public string Abbreviation { get; protected internal set; }
 
+        /// <summary>
+        /// Create a new conference.
+        /// </summary>
+        /// <param name="id">
+        /// The id number of the conference.
+        /// </param>
+        /// <param name="name">
+        /// The name of the conference.
+        /// </param>
+        /// <param name="abbreviation">
+        /// The abbreviation of the name, if any.
+        /// </param>
         public Conference (int id, string name, string abbreviation)
         {
             Id = id;
@@ -37,21 +58,53 @@ namespace XCAnalyze.Io.Sql.Tables
             IdMap[id] = this;
         }
         
+        /// <summary>
+        /// Clear the registry of instances.
+        /// </summary>
         public static void Clear ()
         {
             IdMap.Clear ();
         }
         
+        /// <summary>
+        /// Check whether there is an instance with a particular id number.
+        /// </summary>
+        /// <param name="id">
+        /// The id number to look for.
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.Boolean"/>.  True if an instance was found;
+        /// false if none was found.
+        /// </returns>
         public static bool Exists (int id)
         {
             return IdMap.ContainsKey (id);
         }
         
+        /// <summary>
+        /// Get the instance with a particular id number.
+        /// </summary>
+        /// <param name="id">
+        /// The id number to search for.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Conference"/> with the given id number.
+        /// </returns>
         public static Conference Get (int id)
         {
             return IdMap[id];
         }
         
+        /// <summary>
+        /// Get the id number of a particular conference.
+        /// </summary>
+        /// <param name="conferenceName">
+        /// The name of the conference.
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.Nullable<System.Int32>"/>.  The id number of the
+        /// conference, or null if none was found.
+        /// </returns>
         public static int? GetId (string conferenceName)
         {
             if (conferenceName == null)
@@ -68,6 +121,16 @@ namespace XCAnalyze.Io.Sql.Tables
             return null;
         }
         
+        /// <summary>
+        /// Get the id number of a particular conference.
+        /// </summary>
+        /// <param name="conference">
+        /// The <see cref="Conference"/> to search for.
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.Nullable<System.Int32>"/>.  The id number of the
+        /// conference, or null if none was found.
+        /// </returns>
         public static int? GetId (Conference conference)
         {
             if (conference == null)
@@ -84,6 +147,12 @@ namespace XCAnalyze.Io.Sql.Tables
             return null;
         }
 
+        /// <summary>
+        /// Compare conferences based on their names.
+        /// </summary>
+        /// <param name="other">
+        /// The <see cref="Conference"/> to compare with.
+        /// </param>
         public int CompareTo (Conference other)
         {
             return Name.CompareTo (other.Name);

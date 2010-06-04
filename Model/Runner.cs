@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 
 namespace XCAnalyze.Model
-{
-    
+{  
     /// <summary>
     /// All the information about a runner.
     /// </summary>
@@ -30,12 +29,12 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The performances this runner has achieved.
         /// </summary>
-        public List<Performance> Performances { get; protected internal set; }
+        public IList<Performance> Performances { get; protected internal set; }
 
         /// <summary>
         /// The affiliations of the runner over their career.
         /// </summary>
-        public Dictionary<int, Affiliation> Schools { get; protected internal set; }
+        public IDictionary<int, Affiliation> Schools { get; protected internal set; }
 
         /// <summary>
         /// The runner's surname.
@@ -47,14 +46,51 @@ namespace XCAnalyze.Model
         /// </summary>
         virtual public int? Year { get; protected internal set; }
         
+        /// <summary>
+        /// Create a new runner.
+        /// </summary>
+        /// <param name="surname">
+        /// The runner's surname.
+        /// </param>
+        /// <param name="givenName">
+        /// The runner's given name.
+        /// </param>
+        /// <param name="gender">
+        /// The runner's gender.
+        /// </param>
+        /// <param name="year">
+        /// The year in which the runner was initially scheduled to graduate.
+        /// </param>
         public Runner (string surname, string givenName, Gender gender,
             int? year)
             : this(surname, givenName, gender, year,
                 new Dictionary<int, Affiliation> (), new List<Performance>()) {}
             
+        /// <summary>
+        /// Create a new runner.
+        /// </summary>
+        /// <param name="surname">
+        /// The runner's surname.
+        /// </param>
+        /// <param name="givenName">
+        /// The runner's given name.
+        /// </param>
+        /// <param name="gender">
+        /// The runner's gender.
+        /// </param>
+        /// <param name="year">
+        /// The year in which the runner was initially scheduled to graduate.
+        /// </param>
+        /// <param name="schools">
+        /// A <see cref="IDictionary<System.Int32, Affiliation>"/> of
+        /// school affiliations.
+        /// </param>
+        /// <param name="performances">
+        /// The <see cref="IList<Performance>"/> the runner owns.
+        /// </param>
         public Runner (string surname, string givenName, Gender gender,
-            int? year, Dictionary<int, Affiliation> schools,
-            List<Performance> performances)
+            int? year, IDictionary<int, Affiliation> schools,
+            IList<Performance> performances)
         {
             Surname = surname;
             GivenName = givenName;
@@ -67,11 +103,20 @@ namespace XCAnalyze.Model
         /// <summary>
         /// Register a new affiliation for this runner.
         /// </summary>
+        /// <param>
+        /// The <see cref="Affiliation"/> to register.
+        /// </param>
         public void AddSchool (Affiliation affiliation)
         {
             Schools.Add (affiliation.Year, affiliation);
         }
         
+        /// <summary>
+        /// Register a new performance ran by this runner.
+        /// </summary>
+        /// <param name="performance">
+        /// The <see cref="Performance"/> to register.
+        /// </param>
         public void AddPerformance (Performance performance)
         {
             Performances.Add (performance);
@@ -105,7 +150,7 @@ namespace XCAnalyze.Model
             return Gender.CompareTo (other.Gender);
         }
 
-        public override bool Equals (object other)
+        override public bool Equals (object other)
         {
             if (this == other) {
                 return true;
@@ -116,7 +161,7 @@ namespace XCAnalyze.Model
             return false;
         }
         
-        public override int GetHashCode ()
+        override public int GetHashCode ()
         {
             return base.GetHashCode ();
         }
@@ -133,7 +178,7 @@ namespace XCAnalyze.Model
             return null;
         }
 
-        public override string ToString ()
+        override public string ToString ()
         {
             return Name + " (" + Year + ")";
         }    

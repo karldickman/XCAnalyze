@@ -46,6 +46,18 @@ namespace XCAnalyze.Model
 
         protected internal Performance(Time time) : this(null, null, time) {}
         
+        /// <summary>
+        /// Create a new performance.
+        /// </summary>
+        /// <param name="runner">
+        /// The <see cref="Runner"/> who owns the performance.
+        /// </param>
+        /// <param name="race">
+        /// The <see cref="Race"/> at which the performance was ran.
+        /// </param>
+        /// <param name="time">
+        /// The <see cref="Time"/> in which teh race was run.
+        /// </param>
         public Performance (Runner runner, Race race, Time time)
         {
             Runner = runner;
@@ -54,8 +66,9 @@ namespace XCAnalyze.Model
         }
 
         /// <summary>
-        /// A faster pace is a better performance, and comes before a slower pace.  If the paces are the same, the
-        /// longer race is considered the better performance.
+        /// A faster pace is a better performance, and comes before a slower
+        /// pace.  If the paces are the same, the longer race is considered the
+        /// better performance.
         /// </summary>
         public int CompareTo (Performance other)
         {
@@ -72,7 +85,7 @@ namespace XCAnalyze.Model
             return Distance.CompareTo (other.Distance);
         }
 
-        public override bool Equals (object other)
+        override public bool Equals (object other)
         {
             if (this == other)
             {
@@ -85,7 +98,7 @@ namespace XCAnalyze.Model
             return false;
         }
 
-        public override int GetHashCode ()
+        override public int GetHashCode ()
         {
             return (new double[] { Pace (), Distance }).GetHashCode ();
         }

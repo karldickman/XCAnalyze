@@ -15,6 +15,9 @@ namespace XCAnalyze.Model
         /// </summary>
         public School School { get; protected internal set; }
 
+        /// <summary>
+        /// The race to which this score belongs.
+        /// </summary>
         public Race Race { get; protected internal set; }
 
         /// <summary>
@@ -22,9 +25,32 @@ namespace XCAnalyze.Model
         /// </summary>
         public List<Performance> Runners { get; protected internal set; }
         
-        public TeamScore(Race race, School school) : this(race, school, new List<Performance>()) {}
+        /// <summary>
+        /// Create a new team score.
+        /// </summary>
+        /// <param name="race">
+        /// The <see cref="Race"/> from which the score comes.
+        /// </param>
+        /// <param name="school">
+        /// The <see cref="School"/> to whome the score belongs.
+        /// </param>
+        public TeamScore(Race race, School school)
+        : this(race, school, new List<Performance>()) {}
 
-        internal TeamScore (Race race, School school, List<Performance> runners)
+        /// <summary>
+        /// Create a new team score.
+        /// </summary>
+        /// <param name="race">
+        /// The <see cref="Race"/> from which the score comes.
+        /// </param>
+        /// <param name="school">
+        /// The <see cref="School"/> to whome the score belongs.
+        /// </param>
+        /// <param name="runners">
+        /// The <see cref="List<Performance>"/> of runners who were on the team.
+        /// </param>
+        protected internal TeamScore (Race race, School school,
+            List<Performance> runners)
         {
             Race = race;
             School = school;
@@ -32,9 +58,11 @@ namespace XCAnalyze.Model
         }
         
         /// <summary>
-        /// Compares the breakAt runner of this team with the the breakAt runner of the other team.
+        /// Compares the breakAt runner of this team with the the breakAt runner
+        /// of the other team.
         /// </summary>
-        protected internal static int BreakTie (TeamScore item1, TeamScore item2, int breakAt)
+        protected internal static int BreakTie (TeamScore item1, TeamScore item2,
+            int breakAt)
         {
             if (item1.Runners.Count < breakAt && item2.Runners.Count < breakAt)
             {

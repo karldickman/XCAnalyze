@@ -7,6 +7,9 @@ using XCAnalyze.Io.Sql.Tables;
 
 namespace XCAnalyze.Io.Sql
 {
+    /// <summary>
+    /// A writer to write all the data in the model to a database.
+    /// </summary>
     abstract public class DatabaseWriter : IWriter<Model.GlobalState>
     {    
         /// <summary>
@@ -68,6 +71,12 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         protected internal IDataReader Reader { get; set; }
 
+        /// <summary>
+        /// Create a new writer.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> to use.
+        /// </param>
         protected internal DatabaseWriter (IDbConnection connection)
         {
             Connection = connection;
@@ -162,6 +171,17 @@ namespace XCAnalyze.Io.Sql
             return "0";
         }
         
+        /// <summary>
+        /// Format the given gender for insertion in an SQL query.
+        /// </summary>
+        virtual public string Format(Model.Gender value_)
+        {
+            return Format(value_.ToString());
+        }
+        
+        /// <summary>
+        /// Format the given value for insertion in an SQL query.
+        /// </summary>
         virtual public string Format(int? value_)
         {
             if(value_ == null)
@@ -182,7 +202,10 @@ namespace XCAnalyze.Io.Sql
             }
             return "\"" + value_ + "\"";
         }
-        
+
+        /// <summary>
+        /// Format the given value for insertion in an SQL query.
+        /// </summary>
         virtual public string Format(string[] value_)
         {
             if(value_ == null)
@@ -205,6 +228,9 @@ namespace XCAnalyze.Io.Sql
         
         /// <summary>
         /// Write the list of conferences to the database.
+        /// <param name="conferences">
+        /// The <see cref="IList<Table.Conferences>"/> to write.
+        /// </param>
         /// </summary>
         virtual public void WriteConferences (IList<Tables.Conference> conferences)
         {
@@ -222,39 +248,34 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
+        /// <summary>
+        /// Write the list of runners to the database.
+        /// </summary>
+        /// <param name="runners">
+        /// The <see cref="IList<Model.Runner>"/> to write.
+        /// </param>
         virtual public void WriteRunners(IList<Model.Runner> runners)
         {
-            string nicknames, year;
             foreach(Model.Runner runner in runners)
             {
-                if(runner.Year == null)
-                {
-                    year = "NULL";
-                }
-                else
-                {
-                    year = runner.Year.ToString();
-                }
                 if(runner is Runner)
                 {
-                    if(((Runner)runner).Nicknames == null)
-                    {
-                        nicknames = "NULL";
-                    }
-                    else
-                    {
-                        nicknames = "\"" + String.Join(", ", ((Runner)runner).Nicknames) + "\"";
-                    }
-                    Command.CommandText = "UPDATE runners SET surname = \"" + runner.Surname + "\", given_name = \"" + runner.GivenName + "\", nicknames = " + nicknames + ", gender = \"" + runner.Gender + "\", year = " + year + " WHERE id = " + ((Runner)runner).Id;   
+                    Command.CommandText = "UPDATE runners SET surname = " + Format(runner.Surname) + ", given_name = " + Format(runner.GivenName) + ", nicknames = " + Format(((Runner)runner).Nicknames) + ", gender = " + Format(runner.Gender) + ", year = " + Format(runner.Year) + " WHERE id = " + ((Runner)runner).Id;   
                 }
                 else
                 {
-                    Command.CommandText = "INSERT INTO runners (surname, given_name, gender, year) VALUES (\"" + runner.Surname + "\", \"" + runner.GivenName + "\", \"" + runner.Gender + "\", " + year + ")";
+                    Command.CommandText = "INSERT INTO runners (surname, given_name, gender, year) VALUES (" + Format(runner.Surname) + ", " + Format(runner.GivenName) + ", " + Format(runner.Gender) + ", " + Format(runner.Year) + ")";
                 }
                 Command.ExecuteNonQuery();
             }
         }
         
+        /// <summary>
+        /// Write a list of schools to the database.
+        /// </summary>
+        /// <param name="schools">
+        /// The <see cref="IList<Model.School>"/> to write.
+        /// </param>
         virtual public void WriteSchools(IList<Model.School> schools)
         {
             int? conferenceId;

@@ -2,19 +2,31 @@ using System;
 
 namespace XCAnalyze.Model
 {
-	
 	/// <summary>
 	/// A handy enumeration for gender.
 	/// </summary>
 	internal enum gender { M, F }
 
 	/// <summary>
-	/// This class can have only two instances, the male instance and the female instance.
+	/// This class can have only two instances, the male instance and the female
+    /// instance.  This is an example of the doubleton pattern.
+    /// (http://thedailywtf.com/articles/the-doubleton-patten.aspx)
 	/// </summary>
 	public class Gender : IComparable<Gender>
 	{
+        /// <summary>
+        /// The gender of the instance.
+        /// </summary>
 		private gender gender;
+        
+        /// <summary>
+        /// The male instance
+        /// </summary>
 		public static readonly Gender MALE = new Gender (gender.M);
+        
+        /// <summary>
+        /// The female instance.
+        /// </summary>
 		public static readonly Gender FEMALE = new Gender (gender.F);
 
 		internal Gender (gender gender)
@@ -39,7 +51,7 @@ namespace XCAnalyze.Model
 		}
 
 		/// <summary>
-		/// Men always go before women.
+		/// Men always go before women.  Sorry ladies.
 		/// </summary>
 		public int CompareTo (Gender other)
 		{

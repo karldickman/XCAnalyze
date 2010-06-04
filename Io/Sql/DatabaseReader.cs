@@ -4,12 +4,33 @@ using XCAnalyze.Io.Sql.Tables;
 
 namespace XCAnalyze.Io.Sql
 {
+    /// <summary>
+    /// A <see cref="IReader"/> that reads all the required data for the model out of a
+    /// database.
+    /// </summary>
     public class DatabaseReader : IReader<Model.GlobalState>
     {
+        /// <summary>
+        /// The reader for the resultset.
+        /// </summary>
         protected internal IDataReader Reader { get; set; }
+        
+        /// <summary>
+        /// The command used to query the database.
+        /// </summary>
         protected internal IDbCommand Command { get; set; }
+        
+        /// <summary>
+        /// The connection to the database.
+        /// </summary>
         protected internal IDbConnection Connection { get; set; }
         
+        /// <summary>
+        /// Create a new reader.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> to connect to.
+        /// </param>
         protected internal DatabaseReader (IDbConnection connection)
         {
             Connection = connection;
@@ -42,7 +63,14 @@ namespace XCAnalyze.Io.Sql
             Connection.Close ();
         }
 
-        public Model.GlobalState Read ()
+        /// <summary>
+        /// Read the data out of the database.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Model.GlobalState"/> containing all the data in the
+        /// database.
+        /// </returns>
+        virtual public Model.GlobalState Read ()
         {
             ReadConferences ();
             ReadRunners ();
@@ -51,12 +79,15 @@ namespace XCAnalyze.Io.Sql
             ReadMeets ();
             ReadVenues ();
             ReadPerformances ();
-            return GlobalState.NewInstance (Affiliation.List, Conference.List,
+            return new GlobalState (Affiliation.List, Conference.List,
                 Meet.List, Performance.List, Race.List, Runner.List,
                 School.List, Venue.List);
         }
         
-        public void ReadAffiliations ()
+        /// <summary>
+        /// Read the affiliations table of the database.
+        /// </summary>
+        virtual public void ReadAffiliations ()
         {
             int id, runnerId, schoolId;
             Command.CommandText = "SELECT * FROM affiliations";
@@ -72,7 +103,10 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         }
         
-        public void ReadConferences ()
+        /// <summary>
+        /// Read the conferences table of the database.
+        /// </summary>
+        virtual public void ReadConferences ()
         {
             Conference.Clear ();
             int id;
@@ -87,7 +121,10 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         }
         
-        public void ReadMeets ()
+        /// <summary>
+        /// Read the meets table of the database.
+        /// </summary>
+        virtual public void ReadMeets ()
         {
             int id;
             Command.CommandText = "SELECT * FROM meets";
@@ -100,7 +137,10 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         }
         
-        public void ReadPerformances ()
+        /// <summary>
+        /// Read the performances table of the database.
+        /// </summary>
+        virtual public void ReadPerformances ()
         {
             int id, runnerId, raceId;
             Command.CommandText = "SELECT * FROM results";
@@ -116,7 +156,10 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         }
         
-        public void ReadRaces ()
+        /// <summary>
+        /// Read the races table of the database.
+        /// </summary>
+        virtual public void ReadRaces ()
         {
             int id;
             int? meetId, venueId;
@@ -148,7 +191,10 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         }
         
-        public void ReadRunners ()
+        /// <summary>
+        /// Read the runners table of the database.
+        /// </summary>
+        virtual public void ReadRunners ()
         {
             Runner.Clear ();
             int id;
@@ -185,7 +231,10 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         }
 
-        public void ReadSchools ()
+        /// <summary>
+        /// Read the schools table of the database.
+        /// </summary>
+        virtual public void ReadSchools ()
         {
             School.Clear ();
             int id;
@@ -232,7 +281,10 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         }
         
-        public void ReadVenues ()
+        /// <summary>
+        /// Read the venues table of the database.
+        /// </summary>
+        virtual public void ReadVenues ()
         {
             int id;
             int? elevation;
