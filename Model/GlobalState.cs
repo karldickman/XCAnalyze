@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Model
 {
-    public class Data
+    public class GlobalState
     {
         virtual public IList<Affiliation> Affiliations { get; protected internal set; }
         virtual public IList<string> Conferences { get; protected internal set; }
@@ -14,9 +14,10 @@ namespace XCAnalyze.Model
         virtual public IList<School> Schools { get; protected internal set; }
         virtual public IList<string[]> Venues { get; protected internal set; }
 
-        public Data (IList<Affiliation> affiliations, IList<string> conferences,
-            IList<string> meets, IList<Performance> performances,
-            IList<Race> races, IList<Runner> runners, IList<School> schools,
+        public GlobalState (IList<Affiliation> affiliations,
+            IList<string> conferences, IList<string> meets,
+            IList<Performance> performances, IList<Race> races,
+            IList<Runner> runners, IList<School> schools,
             IList<string[]> venues)
         {
             Affiliations = affiliations;
@@ -66,7 +67,8 @@ namespace XCAnalyze.Model
         {
             List<Runner> found = new List<Runner> ();
             foreach (Affiliation affiliation in Affiliations) {
-                if (affiliation.School == school && affiliation.Year == year && affiliation.Runner.Gender == gender) {
+                if (affiliation.School == school && affiliation.Year == year
+                    && affiliation.Runner.Gender == gender) {
                     found.Add (affiliation.Runner);
                 }
             }

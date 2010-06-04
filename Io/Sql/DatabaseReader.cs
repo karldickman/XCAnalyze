@@ -1,13 +1,10 @@
-using MySql.Data.MySqlClient;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using XCAnalyze.Model;
+using XCAnalyze.Io.Sql.Tables;
 
 namespace XCAnalyze.Io.Sql
 {
-    public class DatabaseReader : IReader<Data>
+    public class DatabaseReader : IReader<Model.GlobalState>
     {
         protected internal IDataReader Reader { get; set; }
         protected internal IDbCommand Command { get; set; }
@@ -45,7 +42,7 @@ namespace XCAnalyze.Io.Sql
             Connection.Close ();
         }
 
-        public Data Read ()
+        public Model.GlobalState Read ()
         {
             ReadConferences ();
             ReadRunners ();
@@ -53,9 +50,8 @@ namespace XCAnalyze.Io.Sql
             ReadAffiliations ();
             ReadMeets ();
             ReadVenues ();
-            ReadRaces ();
             ReadPerformances ();
-            return SqlData.NewInstance (SqlAffiliation.List, SqlConference.List,
+            return SqlGlobalState.NewInstance (SqlAffiliation.List, SqlConference.List,
                 SqlMeet.List, SqlPerformance.List, SqlRace.List, SqlRunner.List,
                 SqlSchool.List, SqlVenue.List);
         }
@@ -115,7 +111,7 @@ namespace XCAnalyze.Io.Sql
                 runnerId = (int)(uint)Reader["runner_id"];
                 raceId = (int)(uint)Reader["race_id"];
                 new SqlPerformance ((int)id, runnerId,
-                        raceId, new Time((double)Reader["time"]));
+                        raceId, new Model.Time((double)Reader["time"]));
             }
             Reader.Close ();
         }
@@ -145,8 +141,8 @@ namespace XCAnalyze.Io.Sql
                     venueId = new int?(int.Parse(Reader["venue_id"].ToString()));
                 }
                 new SqlRace (id, meetId, venueId,
-                    new Date((DateTime)Reader["date"]),
-                    Gender.FromString ((string)Reader["gender"]),
+                    new Model.Date((DateTime)Reader["date"]),
+                    Model.Gender.FromString ((string)Reader["gender"]),
                     (int)Reader["distance"]);
             }
             Reader.Close ();
@@ -184,7 +180,7 @@ namespace XCAnalyze.Io.Sql
                 }
                 new SqlRunner ((int)id, (string)Reader["surname"],
                     (string)Reader["given_name"], nicknames,
-                    Gender.FromString ((string)Reader["gender"]), year);
+                    Model.Gender.FromString ((string)Reader["gender"]), year);
             }
             Reader.Close ();
         }
@@ -266,73 +262,6 @@ namespace XCAnalyze.Io.Sql
                     (string)Reader["state"], elevation);
             }
             Reader.Close ();
-        }
-    }
-    
-    public class MySqlDatabaseReader : DatabaseReader
-    { 
-        protected internal MySqlDatabaseReader(IDbConnection connection)
-            : base(connection) {}
-        
-        public static MySqlDatabaseReader NewInstance (string host,
-            string database, string user)
-        {
-            return NewInstance (host, database, user, user);
-        }
-        
-        public static MySqlDatabaseReader NewInstance (string host,
-            string database, string user, string password)
-        {
-            return NewInstance (host, database, user, password, 3306);
-        }
-        
-        public static MySqlDatabaseReader NewInstance (string host,
-            string database, string user, string password, int port)
-        {
-            return NewInstance (host, database, user, password, port, false);
-        }
-        
-        public static MySqlDatabaseReader NewInstance (string host,
-            string database, string user, string password, int port,
-            bool pooling)
-        {
-            string connectionString = "Server=" + host + "; Database=" + database + "; User ID=" + user + "; Password=" + password + "; Pooling=" + pooling + ";";
-            return NewInstance (new MySqlConnection (connectionString));
-        }
-        
-        new public static MySqlDatabaseReader NewInstance (IDbConnection connection)
-        {
-            MySqlDatabaseReader reader = new MySqlDatabaseReader (connection);
-            reader.Connection.Open ();
-            reader.Command = reader.Connection.CreateCommand ();
-            return reader;
-        }
-    }
-    
-    [TestFixture]
-    public class TestMySqlDatabaseReader
-    {
-        protected internal IDbConnection Connection { get; set; }
-        protected internal DatabaseReader Reader { get; set; }
-
-        [SetUp]
-        public void SetUp ()
-        {
-            string connectionString = "Server=localhost; Database=xcanalyze; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
-            Connection = new MySqlConnection (connectionString);
-            Reader = DatabaseReader.NewInstance (Connection);
-        }
-        
-        [TearDown]
-        public void TearDown ()
-        {
-            Reader.Close ();
-        }
-
-        [Test]
-        public void TestRead ()
-        {
-            Reader.Read ();
         }
     }
 }

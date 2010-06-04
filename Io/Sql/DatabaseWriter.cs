@@ -1,15 +1,13 @@
-using Mono.Data.Sqlite;
-using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using XCAnalyze.Model;
+using XCAnalyze.Io.Sql.Tables;
 
 namespace XCAnalyze.Io.Sql
 {
-    abstract public class DatabaseWriter : IWriter<Data>
+    abstract public class DatabaseWriter : IWriter<Model.GlobalState>
     {    
         /// <summary>
         /// The creation script for the database.
@@ -200,7 +198,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="data">
         /// The <see cref="Data"/> to be written.
         /// </param>
-        virtual public void Write (Data data)
+        virtual public void Write (Model.GlobalState data)
         {
             throw new NotImplementedException ();
         }
@@ -208,7 +206,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// Write the list of conferences to the database.
         /// </summary>
-        virtual public void WriteConferences (IList<SqlConference> conferences)
+        virtual public void WriteConferences (IList<Tables.SqlConference> conferences)
         {
             foreach (SqlConference conference in conferences)
             {
@@ -224,10 +222,10 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
-        virtual public void WriteRunners(IList<Runner> runners)
+        virtual public void WriteRunners(IList<Model.Runner> runners)
         {
             string nicknames, year;
-            foreach(Runner runner in runners)
+            foreach(Model.Runner runner in runners)
             {
                 if(runner.Year == null)
                 {
@@ -257,11 +255,11 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
-        virtual public void WriteSchools(IList<School> schools)
+        virtual public void WriteSchools(IList<Model.School> schools)
         {
             int? conferenceId;
             SqlSchool sqlSchool;
-            foreach(School school in schools)
+            foreach(Model.School school in schools)
             {
                 if(school is SqlSchool)
                 {
@@ -278,152 +276,6 @@ namespace XCAnalyze.Io.Sql
         }
     }
     
-    public class MySqlDatabaseWriter : DatabaseWriter
-    {        
-        override public string CREATION_SCRIPT_EXTENSION
-        {
-            get { return "mysql"; }
-        }
-        
-        override public string GET_TABLES_COLUMN
-        {
-            get { return "Tables_in_" + Database; }
-        }
-        
-        override public string GET_TABLES_COMMAND
-        {
-            get { return "SHOW TABLES"; }
-        }
-        
-        protected internal string Database { get; set; }
-        
-        protected internal MySqlDatabaseWriter(IDbConnection connection,
-            string database) : base(connection)
-        {
-            Database = database;
-        }
-        
-        public static MySqlDatabaseWriter NewInstance (string host,
-            string database, string user)
-        {
-            return NewInstance (host, database, user, user);
-        }
-        
-        public static MySqlDatabaseWriter NewInstance (string host,
-            string database, string user, string password)
-        {
-            return NewInstance (host, database, user, password, 3306);
-        }
-        
-        public static MySqlDatabaseWriter NewInstance (string host,
-            string database, string user, string password, int port)
-        {
-            return NewInstance (host, database, user, password, port, false);
-        }
-        
-        public static MySqlDatabaseWriter NewInstance (string host,
-            string database, string user, string password, int port,
-            bool pooling)
-        {
-            string connectionString = "Server=" + host + "; User ID=" + user + "; Password=" + password + "; Pooling=" + pooling + ";";
-            return NewInstance (new MySqlConnection(connectionString), database);
-        }
-        
-        public static MySqlDatabaseWriter NewInstance (IDbConnection connection,
-            string database)
-        {
-            string fullConnectionString = connection.ConnectionString + "Database=" + database;
-            MySqlDatabaseWriter writer = new MySqlDatabaseWriter (connection, database);
-            connection.Open ();
-            writer.Command = connection.CreateCommand ();
-            writer.Command.CommandText = "USE " + database;
-            try
-            {
-                writer.Command.ExecuteNonQuery ();
-            }
-            catch (MySqlException exception)
-            {
-                Console.WriteLine (exception.Message);
-                Console.WriteLine ("Creating database " + database);
-                writer.Command.CommandText = "CREATE DATABASE " + database;
-                writer.Command.ExecuteNonQuery ();
-            }
-            writer.Close ();
-            writer = new MySqlDatabaseWriter (new MySqlConnection (fullConnectionString), database);
-            writer.Connection.Open ();
-            writer.Command = writer.Connection.CreateCommand ();
-            if (!writer.IsDatabaseInitialized ()) 
-            {
-                writer.InitializeDatabase ();
-            }
-            return writer;
-        }
-        
-        override public void InitializeDatabase()
-        {
-            throw new NotImplementedException();
-        }
-    }  
-   
-    public class SqliteDatabaseWriter : DatabaseWriter
-    {
-        override public string CREATION_SCRIPT_EXTENSION
-        {
-            get
-            {
-                return "sqlite";
-            }
-        }
-        
-        override public string GET_TABLES_COLUMN
-        {
-             get { return "name"; }
-        }
-
-        override public string GET_TABLES_COMMAND
-        {
-            get { return "SELECT name FROM sqlite_master WHERE type=\"table\""; }
-        }
-
-        protected internal SqliteDatabaseWriter(IDbConnection connection)
-            : base(connection) {}
-
-        /// <summary>
-        /// Create a new SqliteDatabaseWriter using an in-memory database.
-        /// </summary>
-        public static SqliteDatabaseWriter NewInstance ()
-        {
-            return NewInstance (":memory:");
-        }
-
-        /// <summary>
-        /// Create a new SqliteDatabaseWriter using a specific database file.
-        /// </summary>
-        /// <param name="fileName">
-        /// The name of the file to connect to.
-        /// </param>
-        public static SqliteDatabaseWriter NewInstance (string fileName)
-        {
-            return NewInstance (
-                new SqliteConnection ("Data Source=" + fileName));
-        }
-
-        /// <summary>
-        /// Create a new SqliteDatabaseWriter using the given connection.
-        /// </summary>
-        public static SqliteDatabaseWriter NewInstance (IDbConnection connection)
-        {
-            SqliteDatabaseWriter writer = new SqliteDatabaseWriter (connection);
-            writer.Connection.Open ();
-            writer.Command = writer.Connection.CreateCommand ();
-            if (!writer.IsDatabaseInitialized ())
-            {
-                writer.InitializeDatabase ();
-            }
-            return writer;
-        }
-    }
-    
     abstract public class TestDatabaseWriter
     {        
         /// <summary>
@@ -434,7 +286,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// A sample list of conferences.
         /// </summary>
-        protected internal IList<SqlConference> Conferences { get; set; }
+        protected internal IList<Tables.SqlConference> Conferences { get; set; }
         
         /// <summary>
         /// The reader for the database
@@ -444,12 +296,12 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// A sample list of runners
         /// </summary>
-        protected internal IList<Runner> Runners { get; set; }
+        protected internal IList<Model.Runner> Runners { get; set; }
         
         /// <summary>
         /// A sample list of schools
         /// </summary>
-        protected internal IList<School> Schools { get; set; }
+        protected internal IList<Model.School> Schools { get; set; }
         
         /// <summary>
         /// The writer for the database.
@@ -469,19 +321,19 @@ namespace XCAnalyze.Io.Sql
             Conferences.Add (sciac);
             Conferences.Add (new Conference (
                 "Southern Collegiate Athletic Conference", "SCAC"));
-            Runners = new List<Runner>();
-            Runners.Add(new Runner("Dickman", "Karl", Gender.MALE, 2010));
-            Runners.Add(new Runner("Palmer", "Hannah", Gender.FEMALE, 2010));
-            Runners.Add(new Runner("LeDonne", "Richie", Gender.MALE, 2010));
-            Runners.Add(new Runner("Woodard", "Keith", Gender.MALE, null));
-            Schools = new List<School>();
-            Schools.Add(new School("Lewis & Clark", "College", nwc.Name));
-            Schools.Add(new School("Willamette", "University", nwc.Name));
-            Schools.Add(new School("Puget Sound", "University", false, nwc.Name));
-            Schools.Add(new School("Claremont-Mudd-Scripps", null, sciac.Name));
-            Schools.Add(new School("Pomona-Pitzer", null, sciac.Name));
-            Schools.Add(new School("California", "Institute of Technology", sciac.Name));
-            Schools.Add(new School("California, Santa Cruz", "University", false));
+            Runners = new List<Model.Runner>();
+            Runners.Add(new Model.Runner("Dickman", "Karl", Model.Gender.MALE, 2010));
+            Runners.Add(new Model.Runner("Palmer", "Hannah", Model.Gender.FEMALE, 2010));
+            Runners.Add(new Model.Runner("LeDonne", "Richie", Model.Gender.MALE, 2010));
+            Runners.Add(new Model.Runner("Woodard", "Keith", Model.Gender.MALE, null));
+            Schools = new List<Model.School>();
+            Schools.Add(new Model.School("Lewis & Clark", "College", nwc.Name));
+            Schools.Add(new Model.School("Willamette", "University", nwc.Name));
+            Schools.Add(new Model.School("Puget Sound", "University", false, nwc.Name));
+            Schools.Add(new Model.School("Claremont-Mudd-Scripps", null, sciac.Name));
+            Schools.Add(new Model.School("Pomona-Pitzer", null, sciac.Name));
+            Schools.Add(new Model.School("California", "Institute of Technology", sciac.Name));
+            Schools.Add(new Model.School("California, Santa Cruz", "University", false));
         }
         
         abstract public void SetUpWriters();
@@ -545,16 +397,16 @@ namespace XCAnalyze.Io.Sql
         
         virtual public void TestWriteRunners()
         {
-            IList<Runner> actual;
+            IList<Model.Runner> actual;
             Writer.WriteRunners(Runners);
             Reader.ReadRunners();
             actual = SqlRunner.List;
             Assert.AreEqual(Runners.Count, actual.Count);
-            foreach(Runner runner in actual)
+            foreach(Model.Runner runner in actual)
             {
                 Assert.That(runner is SqlRunner);
             }
-            foreach(Runner runner in Runners)
+            foreach(Model.Runner runner in Runners)
             {
                 Assert.That(actual.Contains(runner));
             }
@@ -566,7 +418,7 @@ namespace XCAnalyze.Io.Sql
             Assert.AreEqual(Runners.Count, actual.Count);
             Assert.AreEqual("Beast", ((SqlRunner)actual[3]).Nicknames[0]);
             Assert.AreEqual(Runners.Count, actual.Count);
-            foreach(Runner runner in Runners)
+            foreach(Model.Runner runner in Runners)
             {
                 Assert.That(actual.Contains(runner));
             }
@@ -574,18 +426,18 @@ namespace XCAnalyze.Io.Sql
         
         virtual public void TestWriteSchools()
         {
-            IList<School> actual;
+            IList<Model.School> actual;
             Writer.WriteConferences(Conferences);
             Reader.ReadConferences();
             Writer.WriteSchools(Schools);
             Reader.ReadSchools();
             actual = SqlSchool.List;
             Assert.AreEqual(Schools.Count, actual.Count);
-            foreach(School school in actual)
+            foreach(Model.School school in actual)
             {
                 Assert.That(school is SqlSchool);
             }
-            foreach(School school in Schools)
+            foreach(Model.School school in Schools)
             {
                 Console.WriteLine(actual[0].Conference);
                 Console.WriteLine((bool)(actual[0] is SqlSchool));
@@ -608,152 +460,16 @@ namespace XCAnalyze.Io.Sql
             Assert.AreEqual(Schools.Count, actual.Count);
             Assert.AreEqual("Caltech", ((SqlSchool)actual[5]).Nicknames[0]);
             Assert.AreEqual("UCSC", ((SqlSchool)actual[6]).Nicknames[0]);
-            foreach(School school in Schools)
+            foreach(Model.School school in Schools)
             {
                 Assert.That(actual.Contains(school));
             }
         }
         
-        protected internal class Conference : SqlConference
+        protected internal class Conference : Tables.SqlConference
         {
             public Conference (string name, string abbreviation)
             : base(-1, name, abbreviation) {}
-        }
-    }
-    
-    [TestFixture]
-    public class TestMySqlDatabaseWriter : TestDatabaseWriter
-    {       
-        [SetUp]
-        override public void SetUp ()
-        {
-            base.SetUp();
-            Writer = MySqlDatabaseWriter.NewInstance ("localhost",
-                TEST_DATABASE, "xcanalyze");
-            Reader = MySqlDatabaseReader.NewInstance ("localhost",
-                TEST_DATABASE, "xcanalyze");
-        }   
-        
-        override public void SetUpWriters()
-        {
-            throw new NotImplementedException();
-        }
-        
-        [TearDown]
-        override public void TearDown()
-        {
-            for(int i = DatabaseWriter.TABLES.Length - 1; i >= 0; i--)
-            {
-                Writer.Command.CommandText = "DELETE FROM " + DatabaseWriter.TABLES[i];
-                Writer.Command.ExecuteNonQuery();
-            }
-            base.TearDown();
-        }
-        
-        [Test]
-        override public void TestIsDatabaseInitialized ()
-        {
-            Assert.That (Writer.IsDatabaseInitialized ());
-        }
-        
-        [Test]
-        override public void TestInitializeDatabase ()
-        {
-            Writer.InitializeDatabase ();
-        }
-        
-        [Test]
-        override public void TestWrite ()
-        {
-            base.TestWrite ();
-        }
-        
-        [Test]
-        override public void TestWriteConferences ()
-        {
-            base.TestWriteConferences ();
-        }
-        
-        [Test]
-        override public void TestWriteRunners()
-        {
-            base.TestWriteRunners();
-        }
-        
-        [Test]
-        override public void TestWriteSchools()
-        {
-            base.TestWriteSchools();
-        }
-    }
-
-    [TestFixture]
-    public class TestSqliteDatabaseWriter : TestDatabaseWriter
-    {      
-        /// <summary>
-        /// The name of the test database file.
-        /// </summary>
-        override public string TEST_DATABASE { get { return "xca_test.db"; } }
-
-        [SetUp]
-        override public void SetUp ()
-        {
-            base.SetUp();
-            Writer = SqliteDatabaseWriter.NewInstance (TEST_DATABASE);
-            Reader = DatabaseReader.NewInstance (new SqliteConnection (
-                    Writer.Connection.ConnectionString));
-        }
-        
-        override public void SetUpWriters ()
-        {
-            TearDown ();
-            Writer = new SqliteDatabaseWriter (new SqliteConnection (
-                    "Data Source=" + TEST_DATABASE));
-            Writer.Connection.Open ();
-            Writer.Command = Writer.Connection.CreateCommand ();
-        }
-
-        [TearDown]
-        override public void TearDown ()
-        {
-            base.TearDown();
-            File.Delete (TEST_DATABASE);
-        }
-
-        [Test]
-        override public void TestInitializeDatabase ()
-        {
-            base.TestInitializeDatabase();
-        }
-
-        [Test]
-        override public void TestIsDatabaseInitialized ()
-        {
-            base.TestIsDatabaseInitialized();
-        }
-
-        [Test]
-        override public void TestWrite ()
-        {
-            base.TestWrite();
-        }
-        
-        [Test]
-        override public void TestWriteConferences ()
-        {
-            base.TestWriteConferences();
-        }
-        
-        [Test]
-        override public void TestWriteRunners()
-        {
-            base.TestWriteRunners();
-        }
-        
-        [Test]
-        override public void TestWriteSchools()
-        {
-            base.TestWriteSchools();
         }
     }
 }
