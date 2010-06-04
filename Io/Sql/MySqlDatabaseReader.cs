@@ -150,7 +150,7 @@ namespace XCAnalyze.Io.Sql
         [SetUp]
         public void SetUp ()
         {
-            string connectionString = "Server=localhost; Database=xca_test; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
+            string connectionString = "Server=localhost; Database=xca_example; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
             Connection = new MySqlConnection (connectionString);
             Reader = DatabaseReader.NewInstance (Connection);
         }

@@ -24,7 +24,7 @@ namespace XCAnalyze.Io.Sql
         /// The connection to the database.
         /// </summary>
         protected internal IDbConnection Connection { get; set; }
-        
+
         /// <summary>
         /// Create a new reader.
         /// </summary>

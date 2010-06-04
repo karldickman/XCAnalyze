@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using XCAnalyze.Io.Sql.Tables;
 
 namespace XCAnalyze.Io.Sql
@@ -11,7 +12,7 @@ namespace XCAnalyze.Io.Sql
     /// A writer to write all the data in the model to a database.
     /// </summary>
     abstract public class DatabaseWriter : IWriter<Model.GlobalState>
-    {    
+    {
         /// <summary>
         /// The creation script for the database.
         /// </summary>
@@ -70,7 +71,7 @@ namespace XCAnalyze.Io.Sql
         /// database.
         /// </summary>
         protected internal IDataReader Reader { get; set; }
-
+        
         /// <summary>
         /// Create a new writer.
         /// </summary>
@@ -375,9 +376,24 @@ namespace XCAnalyze.Io.Sql
         protected internal IList<Conference> Conferences { get; set; }
         
         /// <summary>
+        /// A sample global state.
+        /// </summary>
+        protected internal Model.GlobalState GlobalState { get; set; }
+        
+        /// <summary>
         /// A sample list of meets.
         /// </summary>
         protected internal IList<Meet> Meets { get; set; }
+        
+        /// <summary>
+        /// A sample list of performances.
+        /// </summary>
+        protected internal IList<Model.Performance> Performances { get; set; }
+        
+        /// <summary>
+        /// A sample list of races.
+        /// </summary>
+        protected internal IList<Model.Race> Races { get; set; }
         
         /// <summary>
         /// The reader for the database.
@@ -479,6 +495,12 @@ namespace XCAnalyze.Io.Sql
             Venues.Add(new Venue(-1, "Bush Pasture Park", "Salem", "OR", null));
             Venues.Add(new Venue(-1, "Veteran's Memorial Golf Course", "Walla Walla", "WA", null));
             Venues.Add(new Venue(-1, "Pomona College Campus", "Claremont", "CA", null));
+            Races = new List<Model.Race>();
+            Performances = new List<Model.Performance>();
+            IList<string> conferenceNames = new List<string>(from conference in Conferences select conference.Name);     
+            IList<string> meetNames = new List<string>(from meet in Meets select meet.Name);
+            IList<string[]> venueInfo = new List<string[]>(from venue in Venues select new string[] { venue.Name, venue.City, venue.State });
+            GlobalState = new Model.GlobalState(Affiliations, conferenceNames, meetNames, Performances, Races, Runners, Schools, venueInfo);
         }
         
         abstract public void SetUpWriters();
@@ -509,7 +531,15 @@ namespace XCAnalyze.Io.Sql
         [Test]
         virtual public void TestWrite()
         {
-            Assert.Fail("Not yet implemented.");
+            Model.GlobalState actual;
+            Writer.Write(GlobalState);
+            actual = Reader.Read();
+            Assert.That(actual is GlobalState);
+            Assert.AreEqual(GlobalState, actual);
+            GlobalState = actual;
+            Writer.Write(GlobalState);
+            actual = Reader.Read();           
+            Assert.AreEqual(GlobalState, actual);
         }
         
         [Test]

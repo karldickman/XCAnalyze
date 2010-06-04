@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using XCAnalyze.Model;
 using XCAnalyze.Io.Sql;
@@ -39,5 +40,118 @@ namespace XCAnalyze.Io {
 		void Write(T toWrite);
 	}
 
-//    public class XcaWriter : SqliteDatabaseWriter, IWriter<Data> {}
+    /// <summary>
+    /// The <see cref="IReader"/> for the default file format of XCAnalyze, .xca
+    /// files.
+    /// </summary>
+    public class XcaReader : IReader<GlobalState>
+    {
+        /// <summary>
+        /// The reader that actually does everything.
+        /// </summary>
+        protected internal SqliteDatabaseReader Reader { get; set; }
+        
+        /// <summary>
+        /// Create a new reader using a particular database reader.
+        /// </summary>
+        /// <param name="reader">
+        /// The <see cref="SqliteDatabaseReader"/> to use.
+        /// </param>
+        protected internal XcaReader(SqliteDatabaseReader reader)
+        {
+            Reader = reader;
+        }
+        
+        /// <summary>
+        /// Create a new reader that reads from a particular file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The name of the file from which to read.
+        /// </param>
+        public static XcaReader NewInstance (string fileName)
+        {
+            return new XcaReader(SqliteDatabaseReader.NewInstance(fileName));
+        }
+
+        public void Close ()
+        {
+            Reader.Close ();
+        }
+        
+        public GlobalState Read ()
+        {
+            return Reader.Read ();
+        }
+    }
+    
+    /// <summary>
+    /// The <see cref="IWriter"/> for the default file format of XCAnalyze, .xca
+    /// files.
+    /// </summary>
+    public class XcaWriter : IWriter<GlobalState>
+    {
+        /// <summary>
+        /// The writer that actually does everything.
+        /// </summary>
+        protected internal SqliteDatabaseWriter Writer { get; set; }
+               
+        /// <summary>
+        /// Create a new writer using a particular database writer.
+        /// </summary>
+        /// <param name="writer">
+        /// The <see cref="SqliteDatabaseWriter"/> to use.
+        /// </param>
+        protected internal XcaWriter (SqliteDatabaseWriter writer)
+        {
+            Writer = writer;
+        }
+        
+        /// <summary>
+        /// Create a new writer that writes to a particular file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The name of the file to which to write.
+        /// </param>
+        public static XcaWriter NewInstance (string fileName)
+        {
+            return new XcaWriter(SqliteDatabaseWriter.NewInstance(fileName));
+        }
+
+        public void Close ()
+        {
+            Writer.Close ();
+        }
+        
+        public void Write (GlobalState toWrite)
+        {
+            Writer.Write (toWrite);
+        }
+    }
+    
+    [TestFixture]
+    public class TestXcaIo
+    {
+        protected internal XcaReader Reader { get; set; }
+        protected internal XcaWriter Writer { get; set; }
+        
+        [SetUp]
+        public void SetUp ()
+        {
+            Reader = XcaReader.NewInstance (SupportFiles.GetPath ("example.xca"));
+            Writer = XcaWriter.NewInstance (SupportFiles.GetPath ("example.xca"));
+        }
+        
+        [TearDown]
+        public void TearDown ()
+        {
+            Reader.Close ();
+        }
+        
+        [Test]
+        public void TestIo ()
+        {
+            GlobalState data = Reader.Read ();
+            Writer.Write (data);
+        }
+    }
 }
