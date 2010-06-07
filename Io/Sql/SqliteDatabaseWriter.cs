@@ -36,7 +36,11 @@ namespace XCAnalyze.Io.Sql
         /// The <see cref="IDbConnection"/> to use.
         /// </param>
         protected internal SqliteDatabaseWriter(IDbConnection connection)
-            : base(connection) {}
+            : base(connection)
+        {
+            DatabaseReader = SqliteDatabaseReader.NewInstance(
+                new SqliteConnection(connection.ConnectionString));
+        }
 
         /// <summary>
         /// Create a new SqliteDatabaseWriter using an in-memory database.

@@ -112,13 +112,21 @@ namespace XCAnalyze.Io.Sql
         {
             Conference.Clear ();
             int id;
+            string abbreviation;
             Command.CommandText = "SELECT * FROM conferences";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse (Reader["id"].ToString ());
-                new Conference (id, (string)Reader["name"],
-                    (string)Reader["abbreviation"]);
+                if(Reader["abbreviation"] is DBNull)
+                {
+                    abbreviation = null;
+                }
+                else
+                {
+                    abbreviation = (string)Reader["abbreviation"];
+                }
+                new Conference (id, (string)Reader["name"], abbreviation);
             }
             Reader.Close ();
         }

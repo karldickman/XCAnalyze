@@ -92,6 +92,7 @@ namespace XCAnalyze.Model
             Races = races;
             Runners = runners;
             Schools = schools;
+            Venues = venues;
             foreach (Affiliation affiliation in affiliations)
             {
                 Affiliate (affiliation);
@@ -187,6 +188,6 @@ namespace XCAnalyze.Model
                     && affiliation.Year == year
                     && affiliation.Runner.Gender == gender)
                 select affiliation.Runner);
-        }
+        }     
     }
 }

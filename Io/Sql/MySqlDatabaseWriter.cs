@@ -42,6 +42,8 @@ namespace XCAnalyze.Io.Sql
         protected internal MySqlDatabaseWriter(IDbConnection connection,
             string database) : base(connection)
         {
+            DatabaseReader = MySqlDatabaseReader.NewInstance(
+                new MySqlConnection(connection.ConnectionString));
             Database = database;
         }
                 

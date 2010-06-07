@@ -7,7 +7,7 @@ using System.Linq;
 using XCAnalyze.Io.Sql.Tables;
 
 namespace XCAnalyze.Io.Sql
-{
+{    
     /// <summary>
     /// A writer to write all the data in the model to a database.
     /// </summary>
@@ -66,6 +66,12 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         protected internal IDbConnection Connection { get; set; }
 
+        /// <summary>
+        /// The <see cref="DatabaseReader" /> used to read things back out of
+        /// the database.
+        /// </summary>
+        protected internal DatabaseReader DatabaseReader { get; set; }
+        
         /// <summary>
         /// The <see cref="IDataReader"/> used to read responses from the
         /// database.
@@ -247,7 +253,7 @@ namespace XCAnalyze.Io.Sql
         {
             return time.Seconds.ToString();
         }
-
+        
         /// <summary>
         /// Write data to the database.
         /// </summary>
@@ -256,7 +262,40 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         virtual public void Write (Model.GlobalState data)
         {
-            throw new NotImplementedException ();
+            GlobalState sqlData = null;
+            if(data is GlobalState)
+            {
+                sqlData = (GlobalState)data;
+            }
+            if(sqlData != null)
+            {
+                WriteConferences(sqlData.SqlConferences);
+            }
+            else
+            {
+                WriteConferences(data.Conferences);
+            }
+            WriteRunners(data.Runners);
+            WriteSchools(data.Schools);
+            WriteAffiliations(data.Affiliations);
+            if(sqlData != null)
+            {
+                WriteMeets(sqlData.SqlMeets);
+            }
+            else
+            {
+                WriteMeets(data.Meets);
+            }
+            if(sqlData != null)
+            {
+                WriteVenues(sqlData.SqlVenues);
+            }
+            else
+            {
+                WriteVenues(data.Venues);
+            }
+            WriteRaces(data.Races);
+            WritePerformances(data.Performances);
         }
         
         /// <summary>
@@ -279,8 +318,26 @@ namespace XCAnalyze.Io.Sql
                 {
                     Command.CommandText = "INSERT INTO affiliations (runner_id, school_id, year) VALUES (" + Runner.GetId(affiliation.Runner) + ", " + School.GetId(affiliation.School) + ", " + affiliation.Year + ")";
                 }
+                Console.WriteLine(Command.CommandText);
                 Command.ExecuteNonQuery();
             }
+        }
+        
+        /// <summary>
+        /// Write the list of conferences to the database.
+        /// <param name="conferences">
+        /// The <see cref="IList<string>"/> to write.
+        /// </param>
+        /// </summary>
+        virtual public void WriteConferences(IList<string> conferences)
+        {
+            foreach(string conference in conferences)
+            {
+                Command.CommandText = "INSERT INTO conferences (name) VALUES (" + Format(conference) + ")";
+                Console.WriteLine(Command.CommandText);
+                Command.ExecuteNonQuery();
+            }
+            DatabaseReader.ReadConferences();
         }
         
         /// <summary>
@@ -303,6 +360,23 @@ namespace XCAnalyze.Io.Sql
                 }
                 Command.ExecuteNonQuery();
             }
+        }
+        
+        /// <summary>
+        /// Write a list of meets to the database.
+        /// </summary>
+        /// <param name="meets">
+        /// The <see cref="IList<System.String>"/> to write.
+        /// </param>
+        virtual public void WriteMeets(IList<string> meets)
+        {
+            foreach(string meet in meets)
+            {
+                Command.CommandText = "INSERT INTO meets (name) VALUES (" + Format(meet) + ")";
+                Console.WriteLine(Command.CommandText);
+                Command.ExecuteNonQuery();
+            }
+            DatabaseReader.ReadMeets();
         }
         
         /// <summary>
@@ -373,6 +447,7 @@ namespace XCAnalyze.Io.Sql
                 }
                 Command.ExecuteNonQuery();
             }
+            DatabaseReader.ReadRaces();
         }
         
         /// <summary>
@@ -393,8 +468,10 @@ namespace XCAnalyze.Io.Sql
                 {
                     Command.CommandText = "INSERT INTO runners (surname, given_name, gender, year) VALUES (" + Format(runner.Surname) + ", " + Format(runner.GivenName) + ", " + Format(runner.Gender) + ", " + Format(runner.Year) + ")";
                 }
+                Console.WriteLine(Command.CommandText);
                 Command.ExecuteNonQuery();
             }
+            DatabaseReader.ReadRunners();
         }
         
         /// <summary>
@@ -417,10 +494,35 @@ namespace XCAnalyze.Io.Sql
                 {
                     Command.CommandText = "INSERT INTO schools (name, type, name_first, conference_id) VALUES (" + Format(school.Name) + ", " + Format(school.Type) + ", " + Format(school.NameFirst) + ", " + Format(Conference.GetId(school.Conference)) + ")";
                 }
+                Console.WriteLine(Command.CommandText);
                 Command.ExecuteNonQuery();
             }
+            DatabaseReader.ReadSchools();
         }
         
+        /// <summary>
+        /// Write a list of venues to the database.
+        /// </summary>
+        /// <param name="venues">
+        /// The <see cref="IList<System.String[]>"/> to write.
+        /// </param>
+        virtual public void WriteVenues(IList<string[]> venues)
+        {
+            foreach(string[] venue in venues)
+            {
+                Command.CommandText = "INSERT INTO venues (name, city, state) VALUES (" + Format(venue[0]) + ", " + Format(venue[1]) + ", " + Format(venue[2]) + ")";                
+                Console.WriteLine(Command.CommandText);
+                Command.ExecuteNonQuery();
+            }
+            DatabaseReader.ReadVenues();
+        }
+        
+        /// <summary>
+        /// Write a list of venues to the database.
+        /// </summary>
+        /// <param name="venues">
+        /// The <see cref="IList<Venue>"/> to write.
+        /// </param>
         virtual public void WriteVenues(IList<Venue> venues)
         {
             foreach(Venue venue in venues)
@@ -597,6 +699,113 @@ namespace XCAnalyze.Io.Sql
         
         abstract public void SetUpWriters();
         
+        protected internal static bool AreGlobalStatesEqual(Model.GlobalState item1, Model.GlobalState item2)
+        {
+            if(item1.Affiliations.Count != item2.Affiliations.Count)
+            {
+                return false;
+            }
+            foreach(Model.Affiliation affiliation in item1.Affiliations)
+            {
+                if(!item2.Affiliations.Contains(affiliation))
+                {
+                    return false;
+                }
+            }
+            if(item1.Conferences.Count != item2.Conferences.Count)
+            {
+                return false;
+            }
+            foreach(string conference in item1.Conferences)
+            {
+                if(!item2.Conferences.Contains(conference))
+                {
+                    return false;
+                }
+            }
+            if(item1.Meets.Count != item2.Meets.Count)
+            {
+                return false;
+            }
+            foreach(string meet in item1.Meets)
+            {
+                if(!item2.Meets.Contains(meet))
+                {
+                    return false;
+                }
+            }
+            if(item1.Performances.Count != item2.Performances.Count)
+            {
+                return false;
+            }
+            foreach(Model.Performance performance in item1.Performances)
+            {
+                if(!item2.Performances.Contains(performance))
+                {
+                    return false;
+                }
+            }
+            if(item1.Races.Count != item2.Races.Count)
+            {
+                return false;
+            }
+            foreach(Model.Race race in item1.Races)
+            {
+                if(!item2.Races.Contains(race))
+                {
+                    return false;
+                }
+            }
+            if(item1.Runners.Count != item2.Runners.Count)
+            {
+                return false;
+            }
+            foreach(Model.Runner runner in item1.Runners)
+            {
+                if(!item2.Runners.Contains(runner))
+                {
+                    return false;
+                }
+            }
+            if(item1.Schools.Count != item2.Schools.Count)
+            {
+                return false;
+            }
+            foreach(Model.School school in item1.Schools)
+            {
+                if(!item2.Schools.Contains(school))
+                {
+                    return false;
+                }
+            }
+            if(item1.Venues.Count != item2.Venues.Count)
+            {
+                return false;
+            }
+            foreach(string[] venue in item1.Venues)
+            {
+                if(!venuesListContainsItem(item2.Venues, venue))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        protected internal static bool venuesListContainsItem(IList<string[]> venues, string[] venue)
+        {
+            foreach(string[] candidate in venues)
+            {
+                if(candidate[0].Equals(venue[0])
+                    && candidate[1].Equals(venue[1])
+                    && candidate[2].Equals(venue[2]))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         [TearDown]
         virtual public void TearDown ()
         {
@@ -627,11 +836,14 @@ namespace XCAnalyze.Io.Sql
             Writer.Write(GlobalState);
             actual = Reader.Read();
             Assert.That(actual is GlobalState);
-            Assert.AreEqual(GlobalState, actual);
+            Assert.That(AreGlobalStatesEqual(GlobalState, actual));
             GlobalState = actual;
+            Console.WriteLine("*********************.");
+            Console.WriteLine("Begin the second test.");
+            Console.WriteLine("*********************.");
             Writer.Write(GlobalState);
-            actual = Reader.Read();           
-            Assert.AreEqual(GlobalState, actual);
+            actual = Reader.Read();      
+            Assert.That(AreGlobalStatesEqual(GlobalState, actual));
         }
         
         [Test]
