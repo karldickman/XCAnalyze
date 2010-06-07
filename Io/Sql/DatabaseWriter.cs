@@ -697,7 +697,14 @@ namespace XCAnalyze.Io.Sql
             GlobalState = new Model.GlobalState(Affiliations, conferenceNames, meetNames, Performances, Races, Runners, Schools, venueInfo);
         }
         
-        abstract public void SetUpWriters();
+        abstract public void SetUpPartial();        
+        
+        [TearDown]
+        virtual public void TearDown ()
+        {
+            Writer.Close ();
+            Reader.Close ();
+        } 
         
         protected internal static bool AreGlobalStatesEqual(Model.GlobalState item1, Model.GlobalState item2)
         {
@@ -804,26 +811,20 @@ namespace XCAnalyze.Io.Sql
                 }
             }
             return false;
-        }
-        
-        [TearDown]
-        virtual public void TearDown ()
-        {
-            Writer.Close ();
-            Reader.Close ();
-        }  
+        } 
 
         [Test]
         virtual public void TestInitializeDatabase ()
         {
-            SetUpWriters ();
+            Console.WriteLine("Calling partial set up.");
+            SetUpPartial ();
             Writer.InitializeDatabase ();
         }
         
         [Test]
         virtual public void TestIsDatabaseInitialized()
         {
-            SetUpWriters ();
+            SetUpPartial ();
             Assert.That (!Writer.IsDatabaseInitialized ());
             Writer.InitializeDatabase ();
             Assert.That (Writer.IsDatabaseInitialized ());

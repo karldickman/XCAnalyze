@@ -1,7 +1,9 @@
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.IO;
 
 namespace XCAnalyze.Io.Sql
 {
@@ -198,31 +200,55 @@ namespace XCAnalyze.Io.Sql
             return writer;
         }
         
-        /// <summary>
-        /// Create all the required tables in the databae.
-        /// </summary>
+        new public IList<string> CreationScript ()
+        {
+            IList<string> commands;
+            MySqlCreationScriptReader reader;
+            reader = MySqlCreationScriptReader.NewInstance(CREATION_SCRIPT);
+            commands = reader.Read();
+            reader.Close();
+            return commands;
+        }
+        
         override public void InitializeDatabase()
         {
-            throw new NotImplementedException();
+            IList<string> creationCommands = CreationScript();
+            foreach(string command in creationCommands)
+            {
+                Command.CommandText = command;
+                Console.WriteLine(command);
+                Command.ExecuteNonQuery();
+            }
         }
-    }  
+    }
   
     [TestFixture]
     public class TestMySqlDatabaseWriter : TestDatabaseWriter
-    {       
+    {
         [SetUp]
         override public void SetUp ()
         {
             base.SetUp();
             Writer = MySqlDatabaseWriter.NewInstance (TEST_DATABASE, "xcanalyze");
             Reader = MySqlDatabaseReader.NewInstance (TEST_DATABASE, "xcanalyze");
-        }   
+        }  
         
-        override public void SetUpWriters()
+        override public void SetUpPartial ()
         {
-            throw new NotImplementedException();
+            IDbCommand command;
+            string connectionString = "Server=localhost; Database=" + TEST_DATABASE + "; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
+            Writer = new MySqlDatabaseWriter (new MySqlConnection (
+                    connectionString), TEST_DATABASE);
+            Writer.Connection.Open ();
+            command = Writer.Command = Writer.Connection.CreateCommand ();
+            command.CommandText = "DROP DATABASE " + TEST_DATABASE;
+            command.ExecuteNonQuery();
+            command.CommandText = "CREATE DATABASE " + TEST_DATABASE;
+            command.ExecuteNonQuery();
+            command.CommandText = "USE " + TEST_DATABASE;
+            command.ExecuteNonQuery();
         }
-        
+
         [TearDown]
         override public void TearDown()
         {
@@ -232,12 +258,6 @@ namespace XCAnalyze.Io.Sql
                 Writer.Command.ExecuteNonQuery();
             }
             base.TearDown();
-        }
-        
-        [Test]
-        override public void TestIsDatabaseInitialized ()
-        {
-            Assert.That (Writer.IsDatabaseInitialized ());
         }
     }
 }

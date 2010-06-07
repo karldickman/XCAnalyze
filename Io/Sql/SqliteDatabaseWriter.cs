@@ -95,7 +95,7 @@ namespace XCAnalyze.Io.Sql
                     Writer.Connection.ConnectionString));
         }
         
-        override public void SetUpWriters ()
+        override public void SetUpPartial ()
         {
             TearDown ();
             Writer = new SqliteDatabaseWriter (new SqliteConnection (

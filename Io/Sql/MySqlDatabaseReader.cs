@@ -144,13 +144,15 @@ namespace XCAnalyze.Io.Sql
     [TestFixture]
     public class TestMySqlDatabaseReader
     {
+        public const string EXAMPLE_DATABASE = "xca_example";
+        
         protected internal IDbConnection Connection { get; set; }
         protected internal DatabaseReader Reader { get; set; }
 
         [SetUp]
         public void SetUp ()
         {
-            string connectionString = "Server=localhost; Database=xca_example; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
+            string connectionString = "Server=localhost; Database=" + EXAMPLE_DATABASE + "; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
             Connection = new MySqlConnection (connectionString);
             Reader = DatabaseReader.NewInstance (Connection);
         }
