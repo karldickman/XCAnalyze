@@ -44,7 +44,7 @@ namespace XCAnalyze.Hytek
                 race.Results);
             List<string> lines = new List<string> ();
             int width = resultsLines[0].Length;
-            lines.Add (StringFormatting.Centered (race.Meet, width));
+            lines.Add (StringFormatting.Centered (race.Name, width));
             lines.Add (StringFormatting.Centered (race.Date.ToString(), width));
             lines.Add (StringFormatting.Centered (race.Location, width));
             lines.Add ("");

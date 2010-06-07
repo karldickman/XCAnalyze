@@ -47,7 +47,7 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The name of the meet.
         /// </summary>
-        virtual public string Meet { get; protected internal set; }
+        virtual public string Name { get; protected internal set; }
 
         /// <summary>
         /// The month in which this race occurred.
@@ -115,9 +115,9 @@ namespace XCAnalyze.Model {
         /// <param name="scoreMeet">
         /// Should this meet be scored right away or not?
         /// </param>
-        public Race (string meet, Date date, Gender gender, int distance,
+        public Race (string name, Date date, Gender gender, int distance,
             string venue, string city, string state)
-            : this(meet, date, gender, distance, venue, city, state, false,
+            : this(name, date, gender, distance, venue, city, state, false,
                 new List<Performance>()) {}
         
         /// <summary>
@@ -146,9 +146,9 @@ namespace XCAnalyze.Model {
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
         /// </param>
-        public Race(string meet, Date date, Gender gender, int distance,
+        public Race(string name, Date date, Gender gender, int distance,
             string venue, string city, string state, List<Performance> results)
-            : this(meet, date, gender, distance, venue, city, state, false,
+            : this(name, date, gender, distance, venue, city, state, false,
                 results) {}
         
         /// <summary>
@@ -181,14 +181,14 @@ namespace XCAnalyze.Model {
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
         /// </param>
-        public Race (string meet, Date date, Gender gender, int distance,
+        public Race (string name, Date date, Gender gender, int distance,
             string venue, string city, string state, bool scoreMeet,
             List<Performance> results)
         {
             Date = date;
             Gender = gender;
             Distance = distance;
-            Meet = meet;
+            Name = name;
             Venue = venue;
             City = city;
             State = state;
@@ -227,7 +227,7 @@ namespace XCAnalyze.Model {
             {
                 return comparison;
             }
-            comparison = Meet.CompareTo (other.Meet);
+            comparison = Name.CompareTo (other.Name);
             if (comparison != 0)
             {
                 return comparison;
@@ -335,7 +335,7 @@ namespace XCAnalyze.Model {
             } else {
                 result = "Women";
             }
-            return result + "'s " + Distance + " m run, " + Meet + " (" + Date + "), " + Location;
+            return result + "'s " + Distance + " m run, " + Name + " (" + Date + "), " + Location;
         }
     }
 }

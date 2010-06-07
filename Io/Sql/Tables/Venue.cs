@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -205,5 +206,51 @@ namespace XCAnalyze.Io.Sql.Tables
         {
             return base.GetHashCode();
         }    
+    }
+    
+    [TestFixture]
+    public class TestVenue
+    {
+        protected internal IList<Venue> Venues { get; set; }
+        protected internal Venue LincolnOr { get; set; }
+        protected internal Venue LincolnWa { get; set; }
+        
+        [SetUp]
+        public void SetUp ()
+        {
+            Venue.Clear ();
+            Venues = new List<Venue> ();
+            LincolnOr = new Venue (1, "Lincoln Park", "Forest Grove", "OR", null);
+            LincolnWa = new Venue (3, "Lincoln Park", "Seattle", "WA", null);
+            Venues.Add (LincolnOr);
+            Venues.Add (LincolnWa);
+            Venues.Add (new Venue (4, "Milo McIver State Park", "Estacada", "OR", null));
+            Venues.Add (new Venue (5, "Bush Pasture Park", "Salem", "OR", null));
+            Venues.Add (new Venue (7, "Fort Steilacoom Park", "Tacompton", "WA", null));
+        }
+        
+        [TearDown]
+        public void TearDown ()
+        {
+            Venue.Clear ();
+        }
+        
+        [Test]
+        public void TestGetId ()
+        {
+            foreach (Venue venue in Venues)
+            {
+                Assert.AreEqual (venue.Id, Venue.GetId (venue.Name, venue.City, venue.State));
+            }
+        }
+        
+        [Test]
+        public void TestGetIds ()
+        {
+            Assert.AreEqual (0, Venue.GetIds ("Drake Park").Count);
+            Assert.AreEqual (2, Venue.GetIds ("Lincoln Park").Count);
+            Assert.That (Venue.GetIds ("Lincoln Park").Contains (LincolnOr.Id));
+            Assert.That (Venue.GetIds ("Lincoln Park").Contains (LincolnWa.Id));
+        }
     }
 }

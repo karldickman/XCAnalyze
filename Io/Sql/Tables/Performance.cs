@@ -107,6 +107,15 @@ namespace XCAnalyze.Io.Sql.Tables
             Id = id;
             RunnerId = runnerId;
             RaceId = raceId;
+            IdMap[id] = this;
+        }
+        
+        /// <summary>
+        /// Clear the registry of instances.
+        /// </summary>
+        public static void Clear ()
+        {
+            IdMap.Clear ();
         }
     }
 }

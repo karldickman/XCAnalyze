@@ -236,6 +236,17 @@ namespace XCAnalyze.Io.Sql
             }
             return Format(String.Join(", ", value_));
         }
+        
+        /// <summary>
+        /// Format a particular race time for insertion via an SQL query.
+        /// </summary>
+        /// <param name="time">
+        /// The <see cref="Model.Time"/> to format.
+        /// </param>
+        virtual public string Format(Model.Time time)
+        {
+            return time.Seconds.ToString();
+        }
 
         /// <summary>
         /// Write data to the database.
@@ -315,6 +326,30 @@ namespace XCAnalyze.Io.Sql
                 Command.ExecuteNonQuery();
             }
         }
+       
+        /// <summary>
+        /// Write a list of performances to the database.
+        /// </summary>
+        /// <param name="performances">
+        /// The <see cref="IList<Model.Performance>"/> to write.
+        /// </param>
+        virtual public void WritePerformances(IList<Model.Performance> performances)
+        {
+            Performance sqlPerformance;
+            foreach(Model.Performance performance in performances)
+            {
+                if(performance is Performance)
+                {
+                    sqlPerformance = (Performance)performance;
+                    Command.CommandText = "UPDATE results SET runner_id = " + Format(sqlPerformance.RunnerId) + ", race_id = " + Format(sqlPerformance.RaceId) + ", time = " + Format(sqlPerformance.Time) + " WHERE id = " + sqlPerformance.Id;
+                }
+                else
+                {                    
+                    Command.CommandText = "INSERT INTO results (runner_id, race_id, time) VALUES (" + Format(Runner.GetId(performance.Runner)) + ", " + Format(Race.GetId(performance.Race)) + ", " + Format(performance.Time) + ")";
+                }
+                Command.ExecuteNonQuery();
+            }
+        }
         
         /// <summary>
         /// Write a list of races to the database.
@@ -334,7 +369,7 @@ namespace XCAnalyze.Io.Sql
                 }
                 else
                 {
-                    Command.CommandText = "INSERT INTO races (meet_id, venue_id, date, gender, distance) VALUES (" + Format(Meet.GetId(race.Meet)) + ", " + Format(Venue.GetId(race.Venue, race.City, race.State)) + ", " + Format(race.Date) + ", " + Format(race.Gender) + ", " + race.Distance + ")";
+                    Command.CommandText = "INSERT INTO races (meet_id, venue_id, date, gender, distance) VALUES (" + Format(Meet.GetId(race.Name)) + ", " + Format(Venue.GetId(race.Venue, race.City, race.State)) + ", " + Format(race.Date) + ", " + Format(race.Gender) + ", " + race.Distance + ")";
                 }
                 Command.ExecuteNonQuery();
             }
@@ -535,17 +570,25 @@ namespace XCAnalyze.Io.Sql
             Meets.Add(new Meet(-1, "Charles Bowles Invitational"));
             Meets.Add(new Meet(-1, "Northwest Conference Championship"));
             Meets.Add(new Meet(-1, "SCIAC Multi-Duals"));
+            Meets.Add(new Meet(-1, "Sundodger Invitational"));
+            Meets.Add(new Meet(-1, "NCAA West Region Championship"));
             Venues = new List<Venue>();
             Venues.Add(new Venue(-1, "Milo McIver State Park", "Estacada", "OR", null));
             Venues.Add(new Venue(-1, "Bush Pasture Park", "Salem", "OR", null));
             Venues.Add(new Venue(-1, "Veteran's Memorial Golf Course", "Walla Walla", "WA", null));
             Venues.Add(new Venue(-1, "Pomona College Campus", "Claremont", "CA", null));
+            Venues.Add(new Venue(-1, "Lincoln Park", "Seattle", "WA", null));
             Races = new List<Model.Race>();
             Races.Add(new Model.Race(Meets[0].Name, new Model.Date(2009, 9, 5), Model.Gender.MALE, 8000, Venues[0].Name, Venues[0].City, Venues[0].State));
             Races.Add(new Model.Race(Meets[1].Name, new Model.Date(2009, 10, 1), Model.Gender.FEMALE, 5000, Venues[1].Name, Venues[1].City, Venues[1].State));
             Races.Add(new Model.Race(Meets[2].Name, new Model.Date(2008, 11, 1), Model.Gender.MALE, 8000, Venues[2].Name, Venues[2].City, Venues[2].State));
             Races.Add(new Model.Race(Meets[3].Name, new Model.Date(2009, 10, 15), Model.Gender.FEMALE, 6000, Venues[3].Name, Venues[3].City, Venues[3].State));
+            Races.Add(new Model.Race(Meets[4].Name, new Model.Date(2009, 9, 14), Model.Gender.MALE, 8000, Venues[4].Name, Venues[4].City, Venues[4].State));
+            Races.Add(new Model.Race(Meets[5].Name, new Model.Date(2008, 11, 15), Model.Gender.FEMALE, 6000, Venues[1].Name, Venues[1].City, Venues[1].State));
             Performances = new List<Model.Performance>();
+            Performances.Add(new Model.Performance(karl, Races[4], new Model.Time(24*60+55)));
+            Performances.Add(new Model.Performance(karl, Races[1], new Model.Time(24*60+44)));
+            Performances.Add(new Model.Performance(hannah, Races[5], new Model.Time(22*60+3)));
             IList<string> conferenceNames = new List<string>(from conference in Conferences select conference.Name);     
             IList<string> meetNames = new List<string>(from meet in Meets select meet.Name);
             IList<string[]> venueInfo = new List<string[]>(from venue in Venues select new string[] { venue.Name, venue.City, venue.State });
@@ -652,6 +695,45 @@ namespace XCAnalyze.Io.Sql
         }
         
         [Test]
+        virtual public void TestWritePerformances()
+        {
+            IList<Model.Performance> actual;
+            Writer.WriteMeets(Meets);
+            Reader.ReadMeets();
+            Writer.WriteVenues(Venues);
+            Reader.ReadVenues();
+            Writer.WriteRaces(Races);
+            Reader.ReadRaces();
+            Writer.WriteRunners(Runners);
+            Reader.ReadRunners();
+            Writer.WritePerformances(Performances);
+            Reader.ReadPerformances();
+            actual = Performance.List;
+            Assert.AreEqual(Performances.Count, actual.Count);
+            foreach(Model.Performance performance in actual)
+            {
+                Assert.That(performance is Performance);
+            }
+            foreach(Model.Performance performance in Performances)
+            {
+                Assert.That(actual.Contains(performance));
+            }
+            Performances = actual;
+            Writer.WritePerformances(Performances);
+            Reader.ReadPerformances();
+            actual = Performance.List;
+            Assert.AreEqual(Performances.Count, actual.Count);
+            foreach(Model.Performance performance in actual)
+            {
+                Assert.That(performance is Performance);
+            }
+            foreach(Model.Performance performance in Performances)
+            {
+                Assert.That(actual.Contains(performance));
+            }
+        }
+        
+        [Test]
         virtual public void TestWriteMeets()
         {
             IList<Meet> actual;
@@ -685,6 +767,7 @@ namespace XCAnalyze.Io.Sql
             Writer.WriteRaces(Races);
             Reader.ReadRaces();
             actual = Race.List;
+            Assert.AreEqual(Races.Count, actual.Count);
             foreach(Race race in actual)
             {
                 Assert.That(race is Race);
@@ -701,6 +784,7 @@ namespace XCAnalyze.Io.Sql
             Writer.WriteRaces(Races);
             Reader.ReadRaces();
             actual = Race.List;
+            Assert.AreEqual(Races.Count, actual.Count);
             foreach(Race race in actual)
             {
                 Assert.That(race is Race);

@@ -183,7 +183,7 @@ namespace XCAnalyze.Io.Sql.Tables
     }
     
     [TestFixture]
-    public class TestSqlConference
+    public class TestConference
     {
         protected internal string NwcName { get; set; }
         protected internal string SciacName { get; set; }

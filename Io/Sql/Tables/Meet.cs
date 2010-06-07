@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -141,6 +142,39 @@ namespace XCAnalyze.Io.Sql.Tables
         override public string ToString ()
         {
             return Name;
+        }
+    }
+    
+    [TestFixture]
+    public class TestMeet
+    {
+        protected internal IList<Meet> Meets { get; set; }
+        
+        [SetUp]
+        public void SetUp ()
+        {
+            Meet.Clear ();
+            Meets = new List<Meet> ();
+            Meets.Add(new Meet (1, "Lewis & Clark Inviational"));
+            Meets.Add(new Meet (2, "Northwest Conference Championship"));
+            Meets.Add(new Meet (5, "NCAA National Championship"));
+        }
+        
+        [TearDown]
+        public void TearDown ()
+        {
+            Meet.Clear ();
+        }
+        
+        [Test]
+        public void TestGetId ()
+        {
+            Assert.IsNull (Meet.GetId ("NCAA National Championships"));
+            Assert.IsNull (Meet.GetId ("Willamette Invitational"));
+            foreach (Meet meet in Meets)
+            {
+                Assert.AreEqual (meet.Id, Meet.GetId (meet.Name));
+            }
         }
     }
 }

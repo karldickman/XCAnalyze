@@ -145,14 +145,15 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         virtual public void ReadPerformances ()
         {
+            Performance.Clear();
             int id, runnerId, raceId;
             Command.CommandText = "SELECT * FROM results";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
-                id = (int)(uint)Reader["id"];
-                runnerId = (int)(uint)Reader["runner_id"];
-                raceId = (int)(uint)Reader["race_id"];
+                id = int.Parse(Reader["id"].ToString());
+                runnerId = int.Parse(Reader["runner_id"].ToString());
+                raceId = int.Parse(Reader["race_id"].ToString());
                 new Performance ((int)id, runnerId,
                         raceId, new Model.Time((double)Reader["time"]));
             }
