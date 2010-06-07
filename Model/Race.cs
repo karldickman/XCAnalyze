@@ -218,24 +218,21 @@ namespace XCAnalyze.Model {
         public int CompareTo (Race other)
         {
             int comparison;
-            IComparable[] fields = { Year, Month, Day, Meet, Venue, City, State,
-                (IComparable)Gender };
-            IComparable[] otherFields = { other.Year, other.Month, other.Day,
-                other.Meet, other.Venue, other.City, other.State,
-                (IComparable)other.Gender };
             if (this == other)
             {
                 return 0;
             }
-            for (int i = 0; i < fields.Length; i++)
+            comparison = Date.CompareTo (other.Date);
+            if (comparison != 0)
             {
-                comparison = fields[i].CompareTo (otherFields[i]);
-                if (comparison != 0) 
-                {
-                    return comparison;
-                }
+                return comparison;
             }
-            return 0;
+            comparison = Meet.CompareTo (other.Meet);
+            if (comparison != 0)
+            {
+                return comparison;
+            }
+            return Location.CompareTo (other.Location);
         }
 
         override public bool Equals (object other)

@@ -85,6 +85,31 @@ namespace XCAnalyze.Io.Sql.Tables
         }
         
         /// <summary>
+        /// Search for the id number of the instance with a particular name.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the meet to search for.
+        /// </param>
+        /// <returns>
+        /// The id of the instance.  If none is found, returns null.
+        /// </returns>
+        public static int? GetId (string name)
+        {
+            if (name == null)
+            {
+                return null;
+            }
+            foreach (KeyValuePair<int, Meet> entry in IdMap)
+            {
+                if (entry.Value.Name.Equals (name)) 
+                {
+                    return entry.Key;
+                }
+            }
+            return null;
+        }
+        
+        /// <summary>
         /// Meets are compared by name.
         /// </summary>
         /// <param name="other">

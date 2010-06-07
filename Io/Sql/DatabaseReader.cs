@@ -164,12 +164,13 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         virtual public void ReadRaces ()
         {
+            Race.Clear();
             int id;
             int? meetId, venueId;
             Command.CommandText = "SELECT * FROM races";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ()) {
-                id = (int)(uint)Reader["id"];
+                id = int.Parse(Reader["id"].ToString());
                 if (Reader["meet_id"] is DBNull)
                 {
                     meetId = null;

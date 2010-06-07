@@ -139,6 +139,14 @@ namespace XCAnalyze.Io.Sql.Tables
         }
         
         /// <summary>
+        /// Clear the registry of instances.
+        /// </summary>
+        public static void Clear ()
+        {
+            IdMap.Clear ();
+        }
+        
+        /// <summary>
         /// Check for an instance with a particular id number.
         /// </summary>
         /// <param name="id">

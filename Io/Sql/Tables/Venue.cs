@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace XCAnalyze.Io.Sql.Tables
 {
@@ -110,6 +111,55 @@ namespace XCAnalyze.Io.Sql.Tables
         public static Venue Get (int id)
         {
             return IdMap[id];
+        }
+        
+        /// <summary>
+        /// Get the id number of the venue instance that has a particular name
+        /// and location.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the venue.
+        /// </param>
+        /// <param name="city">
+        /// The city where the venue is.
+        /// </param>
+        /// <param name="state">
+        /// The state in which the venue is.
+        /// </param>
+        /// <returns>
+        /// The id number of the found instance.  If no instance is found,
+        /// returns null.
+        /// </returns>
+        public static int? GetId (string name, string city, string state)
+        {
+            Venue candidate;
+            foreach (KeyValuePair<int, Venue> entry in IdMap)
+            {
+                candidate = entry.Value;
+                if (candidate.Name.Equals (name)
+                    && candidate.City.Equals (city)
+                    && candidate.State.Equals (state)) 
+                {
+                    return entry.Key;
+                }
+            }
+            return null;
+        }
+        
+        /// <summary>
+        /// Get the ids of all the venue instances with a particular name.
+        /// </summary>
+        /// <param name="name">
+        /// The name to search for.
+        /// </param>
+        /// <returns>
+        /// A <see cref="IList<Venue>"/> of all the id numbers that were found.
+        /// </returns>
+        public static IList<int> GetIds (string name)
+        {
+            return new List<int>(from venue in IdMap.Values
+                where venue.Name.Equals (name)
+                select venue.Id);
         }
         
         /// <summary>
