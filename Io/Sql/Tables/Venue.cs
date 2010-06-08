@@ -137,7 +137,8 @@ namespace XCAnalyze.Io.Sql.Tables
             foreach (KeyValuePair<int, Venue> entry in IdMap)
             {
                 candidate = entry.Value;
-                if (candidate.Name.Equals (name)
+                if (candidate.Name != null
+                    && candidate.Name.Equals (name)
                     && candidate.City.Equals (city)
                     && candidate.State.Equals (state)) 
                 {

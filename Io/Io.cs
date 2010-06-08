@@ -129,16 +129,14 @@ namespace XCAnalyze.Io {
     }
     
     [TestFixture]
-    public class TestXcaIo
+    public class TestXcaReader
     {
         protected internal XcaReader Reader { get; set; }
-        protected internal XcaWriter Writer { get; set; }
         
         [SetUp]
         public void SetUp ()
         {
             Reader = XcaReader.NewInstance (SupportFiles.GetPath ("example.xca"));
-            Writer = XcaWriter.NewInstance (SupportFiles.GetPath ("example.xca"));
         }
         
         [TearDown]
@@ -148,10 +146,38 @@ namespace XCAnalyze.Io {
         }
         
         [Test]
-        public void TestIo ()
+        public void TestRead ()
         {
-            XcData data = Reader.Read ();
-            Writer.Write (data);
+            Reader.Read ();
+        }
+    }
+    
+    [TestFixture]
+    public class TextXcaWriter
+    {
+        protected internal XcData Data { get; set; }
+        protected internal XcaWriter Writer { get; set; }
+        
+        [SetUp]
+        public void SetUp ()
+        {
+            XcaReader reader;
+            reader = XcaReader.NewInstance (SupportFiles.GetPath ("example.xca"));
+            Data = reader.Read ();
+            reader.Close ();
+            Writer = XcaWriter.NewInstance (SupportFiles.GetPath ("example.xca"));
+        }
+        
+        [TearDown]
+        public void TearDown ()
+        {
+            Writer.Close ();
+        }
+        
+        [Test]
+        public void TestWrite ()
+        {
+            Writer.Write (Data);
         }
     }
 }

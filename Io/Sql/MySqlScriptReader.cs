@@ -5,7 +5,7 @@ using System.IO;
 
 namespace XCAnalyze.Io.Sql
 {    
-    public class MySqlCreationScriptReader : IReader<IList<string>>
+    public class MySqlScriptReader : IReader<IList<string>>
     {       
         /// <summary>
         /// The default sting used to delimit SQL commands.
@@ -41,7 +41,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="path">
         /// The path to the file that contains the creation script.
         /// </param>
-        protected internal MySqlCreationScriptReader(string path)
+        protected internal MySqlScriptReader(string path)
         {
             FilePath = path;
             Commands = new List<string>();
@@ -56,13 +56,13 @@ namespace XCAnalyze.Io.Sql
         /// <param name="path">
         /// The path to the file that contains the creation script.
         /// </param>
-        public static MySqlCreationScriptReader NewInstance (string path)
+        public static MySqlScriptReader NewInstance (string path)
         {
             if(!File.Exists(path))
             {
                 return null;
             }
-            return new MySqlCreationScriptReader (path);
+            return new MySqlScriptReader (path);
         }
         
         /// <summary>
@@ -149,15 +149,15 @@ namespace XCAnalyze.Io.Sql
     [TestFixture]
     public class TestMySqlCreationScriptReader
     {
-        public const MySqlCreationScriptReader.lineMode CREATE_NEW = MySqlCreationScriptReader.lineMode.CREATE_NEW;
-        public const MySqlCreationScriptReader.lineMode EXTEND_PREVIOUS = MySqlCreationScriptReader.lineMode.EXTEND_PREVIOUS;
+        public const MySqlScriptReader.lineMode CREATE_NEW = MySqlScriptReader.lineMode.CREATE_NEW;
+        public const MySqlScriptReader.lineMode EXTEND_PREVIOUS = MySqlScriptReader.lineMode.EXTEND_PREVIOUS;
         
-        protected internal MySqlCreationScriptReader Reader { get; set; }
+        protected internal MySqlScriptReader Reader { get; set; }
         
         [SetUp]
         public void SetUp ()
         {
-            Reader = MySqlCreationScriptReader.NewInstance (SupportFiles.GetPath ("xca_create.mysql"));
+            Reader = MySqlScriptReader.NewInstance (SupportFiles.GetPath ("xca_create.mysql"));
         }
         
         [Test]

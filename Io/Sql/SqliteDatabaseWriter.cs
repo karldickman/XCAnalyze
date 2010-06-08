@@ -70,7 +70,15 @@ namespace XCAnalyze.Io.Sql
             SqliteDatabaseWriter writer = new SqliteDatabaseWriter (connection);
             writer.Connection.Open ();
             writer.Command = writer.Connection.CreateCommand ();
-            if (!writer.IsDatabaseInitialized ())
+            if (writer.IsDatabaseInitialized ())
+            {
+                for (int i = TABLES.Length - 1; i >= 0; i--)
+                {
+                    writer.Command.CommandText = "DELETE FROM " + TABLES[i];
+                    writer.Command.ExecuteNonQuery ();
+                }
+            }
+            else
             {
                 writer.InitializeDatabase ();
             }

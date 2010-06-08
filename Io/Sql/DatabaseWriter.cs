@@ -306,19 +306,9 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         virtual public void WriteAffiliations(IList<Model.Affiliation> affiliations)
         {
-            Affiliation sqlAffiliation;
             foreach(Model.Affiliation affiliation in affiliations)
             {
-                if(affiliation is Affiliation)
-                {
-                    sqlAffiliation = (Affiliation)affiliation;
-                    Command.CommandText = "UPDATE affiliations SET runner_id = " + sqlAffiliation.RunnerId + ", school_id = " + sqlAffiliation.SchoolId + ", year = " + sqlAffiliation.Year + " WHERE id = " + sqlAffiliation.Id;
-                }
-                else
-                {
-                    Command.CommandText = "INSERT INTO affiliations (runner_id, school_id, year) VALUES (" + Runner.GetId(affiliation.Runner) + ", " + School.GetId(affiliation.School) + ", " + affiliation.Year + ")";
-                }
-                Console.WriteLine(Command.CommandText);
+                Command.CommandText = "INSERT INTO affiliations (runner_id, school_id, year) VALUES (" + Runner.GetId(affiliation.Runner) + ", " + School.GetId(affiliation.School) + ", " + affiliation.Year + ")";
                 Command.ExecuteNonQuery();
             }
         }
@@ -334,7 +324,6 @@ namespace XCAnalyze.Io.Sql
             foreach(string conference in conferences)
             {
                 Command.CommandText = "INSERT INTO conferences (name) VALUES (" + Format(conference) + ")";
-                Console.WriteLine(Command.CommandText);
                 Command.ExecuteNonQuery();
             }
             DatabaseReader.ReadConferences();
@@ -350,14 +339,7 @@ namespace XCAnalyze.Io.Sql
         {
             foreach (Conference conference in conferences)
             {
-                if(conference.Id >= 0)
-                {
-                    Command.CommandText = "UPDATE conferences SET name = " + Format(conference.Name) + ", abbreviation = " + Format(conference.Abbreviation) + " WHERE id = " + ((Conference)conference).Id;
-                }
-                else
-                {
-                    Command.CommandText = "INSERT INTO conferences (name, abbreviation) VALUES (" + Format(conference.Name) + ", " + Format(conference.Abbreviation) + ")";
-                }
+                Command.CommandText = "INSERT INTO conferences (name, abbreviation) VALUES (" + Format(conference.Name) + ", " + Format(conference.Abbreviation) + ")";               
                 Command.ExecuteNonQuery();
             }
         }
@@ -373,7 +355,6 @@ namespace XCAnalyze.Io.Sql
             foreach(string meet in meets)
             {
                 Command.CommandText = "INSERT INTO meets (name) VALUES (" + Format(meet) + ")";
-                Console.WriteLine(Command.CommandText);
                 Command.ExecuteNonQuery();
             }
             DatabaseReader.ReadMeets();
@@ -389,14 +370,7 @@ namespace XCAnalyze.Io.Sql
         {
             foreach(Meet meet in meets)
             {
-                if(meet.Id >= 0)
-                {
-                    Command.CommandText = "UPDATE meets SET name = " + Format(meet.Name) + " WHERE id = " + meet.Id;
-                }
-                else
-                {
-                    Command.CommandText = "INSERT INTO meets (name) VALUES (" + Format(meet.Name) + ")";
-                }
+                Command.CommandText = "INSERT INTO meets (name) VALUES (" + Format(meet.Name) + ")";
                 Command.ExecuteNonQuery();
             }
         }
@@ -433,18 +407,9 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         virtual public void WriteRaces(IList<Model.Race> races)
         {
-            Race sqlRace;
             foreach(Model.Race race in races)
             {
-                if(race is Race)
-                {
-                    sqlRace = (Race) race;
-                    Command.CommandText = "UPDATE races SET meet_id = " + Format(sqlRace.MeetId) + ", venue_id = " + Format(sqlRace.VenueId) + ", date = " + Format(sqlRace.Date) + ", gender = " + Format(sqlRace.Gender) + ", distance = " + sqlRace.Distance + " WHERE id = " + sqlRace.Id;
-                }
-                else
-                {
-                    Command.CommandText = "INSERT INTO races (meet_id, venue_id, date, gender, distance) VALUES (" + Format(Meet.GetId(race.Name)) + ", " + Format(Venue.GetId(race.Venue, race.City, race.State)) + ", " + Format(race.Date) + ", " + Format(race.Gender) + ", " + race.Distance + ")";
-                }
+                Command.CommandText = "INSERT INTO races (meet_id, venue_id, date, gender, distance) VALUES (" + Format(Meet.GetId(race.Name)) + ", " + Format(Venue.GetId(race.Venue, race.City, race.State)) + ", " + Format(race.Date) + ", " + Format(race.Gender) + ", " + race.Distance + ")";
                 Command.ExecuteNonQuery();
             }
             DatabaseReader.ReadRaces();
@@ -460,15 +425,7 @@ namespace XCAnalyze.Io.Sql
         {
             foreach(Model.Runner runner in runners)
             {
-                if(runner is Runner)
-                {
-                    Command.CommandText = "UPDATE runners SET surname = " + Format(runner.Surname) + ", given_name = " + Format(runner.GivenName) + ", nicknames = " + Format(((Runner)runner).Nicknames) + ", gender = " + Format(runner.Gender) + ", year = " + Format(runner.Year) + " WHERE id = " + ((Runner)runner).Id;   
-                }
-                else
-                {
-                    Command.CommandText = "INSERT INTO runners (surname, given_name, gender, year) VALUES (" + Format(runner.Surname) + ", " + Format(runner.GivenName) + ", " + Format(runner.Gender) + ", " + Format(runner.Year) + ")";
-                }
-                Console.WriteLine(Command.CommandText);
+                Command.CommandText = "INSERT INTO runners (surname, given_name, gender, year) VALUES (" + Format(runner.Surname) + ", " + Format(runner.GivenName) + ", " + Format(runner.Gender) + ", " + Format(runner.Year) + ")";
                 Command.ExecuteNonQuery();
             }
             DatabaseReader.ReadRunners();
@@ -482,19 +439,9 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         virtual public void WriteSchools(IList<Model.School> schools)
         {
-            School sqlSchool;
             foreach(Model.School school in schools)
             {
-                if(school is School)
-                {
-                    sqlSchool = (School) school;
-                    Command.CommandText = "UPDATE schools SET name = " + Format(sqlSchool.Name) + ", type = " + Format(sqlSchool.Type) + ", name_first = " + Format(sqlSchool.NameFirst) + ", nicknames = " + Format(sqlSchool.Nicknames) + ", conference_id = " + Format(sqlSchool.ConferenceId) + " WHERE id = " + sqlSchool.Id;
-                }
-                else
-                {
-                    Command.CommandText = "INSERT INTO schools (name, type, name_first, conference_id) VALUES (" + Format(school.Name) + ", " + Format(school.Type) + ", " + Format(school.NameFirst) + ", " + Format(Conference.GetId(school.Conference)) + ")";
-                }
-                Console.WriteLine(Command.CommandText);
+                Command.CommandText = "INSERT INTO schools (name, type, name_first, conference_id) VALUES (" + Format(school.Name) + ", " + Format(school.Type) + ", " + Format(school.NameFirst) + ", " + Format(Conference.GetId(school.Conference)) + ")";
                 Command.ExecuteNonQuery();
             }
             DatabaseReader.ReadSchools();
@@ -511,7 +458,6 @@ namespace XCAnalyze.Io.Sql
             foreach(string[] venue in venues)
             {
                 Command.CommandText = "INSERT INTO venues (name, city, state) VALUES (" + Format(venue[0]) + ", " + Format(venue[1]) + ", " + Format(venue[2]) + ")";                
-                Console.WriteLine(Command.CommandText);
                 Command.ExecuteNonQuery();
             }
             DatabaseReader.ReadVenues();
@@ -527,14 +473,7 @@ namespace XCAnalyze.Io.Sql
         {
             foreach(Venue venue in venues)
             {
-                if(venue.Id >= 0)
-                {
-                    Command.CommandText = "UPDATE venues SET name = " + Format(venue.Name) + ", city = " + Format(venue.City) + ", state = " + Format(venue.State) + ", elevation = " + Format(venue.Elevation) + " WHERE id = " + venue.Id;
-                }
-                else
-                {
-                    Command.CommandText = "INSERT INTO venues (name, city, state, elevation) VALUES (" + Format(venue.Name) + ", " + Format(venue.City) + ", " + Format(venue.State) + ", " + Format(venue.Elevation) + ")";
-                }
+                Command.CommandText = "INSERT INTO venues (name, city, state, elevation) VALUES (" + Format(venue.Name) + ", " + Format(venue.City) + ", " + Format(venue.State) + ", " + Format(venue.Elevation) + ")";
                 Command.ExecuteNonQuery();
             }
         }
@@ -838,13 +777,6 @@ namespace XCAnalyze.Io.Sql
             actual = Reader.Read();
             Assert.That(actual is XcData);
             Assert.That(AreGlobalStatesEqual(GlobalState, actual));
-            GlobalState = actual;
-            Console.WriteLine("*********************.");
-            Console.WriteLine("Begin the second test.");
-            Console.WriteLine("*********************.");
-            Writer.Write(GlobalState);
-            actual = Reader.Read();      
-            Assert.That(AreGlobalStatesEqual(GlobalState, actual));
         }
         
         [Test]
@@ -869,15 +801,6 @@ namespace XCAnalyze.Io.Sql
             {
                 Assert.That(actual.Contains(affiliation));
             }
-            Affiliations = actual;
-            Writer.WriteAffiliations(Affiliations);
-            Reader.ReadAffiliations();
-            actual = Affiliation.List;
-            Assert.AreEqual(Affiliations.Count, actual.Count);
-            foreach(Affiliation affiliation in Affiliations)
-            {
-                Assert.That(actual.Contains(affiliation));
-            }
         }
         
         [Test]
@@ -888,19 +811,6 @@ namespace XCAnalyze.Io.Sql
             Reader.ReadConferences();
             actual = Conference.List;
             Assert.AreEqual(Conferences.Count, actual.Count);
-            foreach (Conference conference in Conferences) 
-            {
-                Assert.That (actual.Contains (conference));
-            }
-            Conferences = actual;
-            Conferences[0].Name = "XKCD";
-            Conferences[1].Name = "SUCKS";
-            Conferences[2].Name = "BALLS";
-            Conferences[2].Abbreviation = "BLZ";
-            Writer.WriteConferences (Conferences);
-            Reader.ReadConferences();
-            actual = Conference.List;
-            Assert.AreEqual (Conferences.Count, actual.Count);
             foreach (Conference conference in Conferences) 
             {
                 Assert.That (actual.Contains (conference));
@@ -931,34 +841,12 @@ namespace XCAnalyze.Io.Sql
             {
                 Assert.That(actual.Contains(performance));
             }
-            Performances = actual;
-            Writer.WritePerformances(Performances);
-            Reader.ReadPerformances();
-            actual = Performance.List;
-            Assert.AreEqual(Performances.Count, actual.Count);
-            foreach(Model.Performance performance in actual)
-            {
-                Assert.That(performance is Performance);
-            }
-            foreach(Model.Performance performance in Performances)
-            {
-                Assert.That(actual.Contains(performance));
-            }
         }
         
         [Test]
         virtual public void TestWriteMeets()
         {
             IList<Meet> actual;
-            Writer.WriteMeets(Meets);
-            Reader.ReadMeets();
-            actual = Meet.List;
-            Assert.AreEqual(Meets.Count, actual.Count);
-            foreach(Meet meet in Meets)
-            {
-                Assert.That(actual.Contains(meet));
-            }
-            Meets = actual;
             Writer.WriteMeets(Meets);
             Reader.ReadMeets();
             actual = Meet.List;
@@ -989,23 +877,6 @@ namespace XCAnalyze.Io.Sql
             {
                 Assert.That(actual.Contains(race));
             }
-            Races = actual;
-            Writer.WriteMeets(Meets);
-            Reader.ReadMeets();
-            Writer.WriteVenues(Venues);
-            Reader.ReadVenues();
-            Writer.WriteRaces(Races);
-            Reader.ReadRaces();
-            actual = Race.List;
-            Assert.AreEqual(Races.Count, actual.Count);
-            foreach(Race race in actual)
-            {
-                Assert.That(race is Race);
-            }
-            foreach(Race race in Races)
-            {
-                Assert.That(actual.Contains(race));
-            }
         }
         
         [Test]
@@ -1020,18 +891,6 @@ namespace XCAnalyze.Io.Sql
             {
                 Assert.That(runner is Runner);
             }
-            foreach(Model.Runner runner in Runners)
-            {
-                Assert.That(actual.Contains(runner));
-            }
-            Runners = actual;
-            ((Runner)Runners[3]).Nicknames = new string[] {"Beast"};
-            Writer.WriteRunners(Runners);
-            Reader.ReadRunners();
-            actual = Runner.List;
-            Assert.AreEqual(Runners.Count, actual.Count);
-            Assert.AreEqual("Beast", ((Runner)actual[3]).Nicknames[0]);
-            Assert.AreEqual(Runners.Count, actual.Count);
             foreach(Model.Runner runner in Runners)
             {
                 Assert.That(actual.Contains(runner));
@@ -1064,34 +923,12 @@ namespace XCAnalyze.Io.Sql
                     }
                 }
             }
-            Schools = actual;
-            ((School)Schools[5]).Nicknames = new string[] {"Caltech"};
-            ((School)Schools[6]).Nicknames = new string[] {"UCSC"};
-            Writer.WriteSchools(Schools);
-            Reader.ReadSchools();
-            actual = School.List;
-            Assert.AreEqual(Schools.Count, actual.Count);
-            Assert.AreEqual("Caltech", ((School)actual[5]).Nicknames[0]);
-            Assert.AreEqual("UCSC", ((School)actual[6]).Nicknames[0]);
-            foreach(Model.School school in Schools)
-            {
-                Assert.That(actual.Contains(school));
-            }
         }
         
         [Test]
         virtual public void TestWriteVenues()
         {
             IList<Venue> actual;
-            Writer.WriteVenues(Venues);
-            Reader.ReadVenues();
-            actual = Venue.List;
-            Assert.AreEqual(Venues.Count, actual.Count);
-            foreach(Venue venue in Venues)
-            {
-                Assert.That(actual.Contains(venue));
-            }
-            Venues = actual;
             Writer.WriteVenues(Venues);
             Reader.ReadVenues();
             actual = Venue.List;

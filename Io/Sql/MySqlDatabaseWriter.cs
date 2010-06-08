@@ -171,40 +171,36 @@ namespace XCAnalyze.Io.Sql
         public static MySqlDatabaseWriter NewInstance (IDbConnection connection,
             string database)
         {
+            MySqlDatabaseWriter writer;
             string fullConnectionString = connection.ConnectionString +
                 "Database=" + database;
-            MySqlDatabaseWriter writer = new MySqlDatabaseWriter (connection, database);
             connection.Open ();
-            writer.Command = connection.CreateCommand ();
-            writer.Command.CommandText = "USE " + database;
+            IDbCommand command = connection.CreateCommand ();
+            command.CommandText = "DROP DATABASE " + database;
             try
             {
-                writer.Command.ExecuteNonQuery ();
+                command.ExecuteNonQuery ();
             }
-            catch (MySqlException exception)
+            catch (MySqlException exception) 
             {
                 Console.WriteLine (exception.Message);
-                Console.WriteLine ("Creating database " + database);
-                writer.Command.CommandText = "CREATE DATABASE " + database;
-                writer.Command.ExecuteNonQuery ();
+                //Getting an exception here is not a problem.
             }
-            writer.Close ();
+            command.CommandText = "CREATE DATABASE " + database;
+            command.ExecuteNonQuery ();
             writer = new MySqlDatabaseWriter (
                 new MySqlConnection (fullConnectionString), database);
             writer.Connection.Open ();
             writer.Command = writer.Connection.CreateCommand ();
-            if (!writer.IsDatabaseInitialized ()) 
-            {
-                writer.InitializeDatabase ();
-            }
+            writer.InitializeDatabase ();
             return writer;
         }
         
         new public IList<string> CreationScript ()
         {
             IList<string> commands;
-            MySqlCreationScriptReader reader;
-            reader = MySqlCreationScriptReader.NewInstance(CREATION_SCRIPT);
+            MySqlScriptReader reader;
+            reader = MySqlScriptReader.NewInstance(CREATION_SCRIPT);
             commands = reader.Read();
             reader.Close();
             return commands;
