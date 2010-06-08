@@ -256,7 +256,13 @@ namespace XCAnalyze.Model {
         /// </summary>
         public void Score ()
         {
-            Dictionary<School, TeamScore> scores = new Dictionary<School, TeamScore> ();
+            Dictionary<School, TeamScore> scores;
+            if (Results.Count == 0)
+            {
+                Scores = new List<TeamScore> ();
+                return;
+            }
+            scores = new Dictionary<School, TeamScore> ();
             //Add the runners to the school
             foreach (Performance result in Results) 
             {

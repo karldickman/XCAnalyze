@@ -147,7 +147,7 @@ namespace XCAnalyze.Io.Sql
     }
     
     [TestFixture]
-    public class TestMySqlCreationScriptReader
+    public class TestMySqlScriptReader
     {
         public const MySqlScriptReader.lineMode CREATE_NEW = MySqlScriptReader.lineMode.CREATE_NEW;
         public const MySqlScriptReader.lineMode EXTEND_PREVIOUS = MySqlScriptReader.lineMode.EXTEND_PREVIOUS;

@@ -1,7 +1,9 @@
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Data;
+using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
 {    
@@ -166,7 +168,15 @@ namespace XCAnalyze.Io.Sql
         [Test]
         public void TestRead ()
         {
-            Reader.Read ();
+            XcData data = Reader.Read ();
+            Assert.IsNotEmpty ((ICollection)data.Affiliations);
+            Assert.IsNotEmpty ((ICollection)data.Conferences);
+            Assert.IsNotEmpty ((ICollection)data.Meets);
+            Assert.IsNotEmpty ((ICollection)data.Performances);
+            Assert.IsNotEmpty ((ICollection)data.Races);
+            Assert.IsNotEmpty ((ICollection)data.Runners);
+            Assert.IsNotEmpty ((ICollection)data.Schools);
+            Assert.IsNotEmpty ((ICollection)data.Venues);
         }
     }
 }

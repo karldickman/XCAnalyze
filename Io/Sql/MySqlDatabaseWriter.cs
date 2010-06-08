@@ -183,7 +183,7 @@ namespace XCAnalyze.Io.Sql
             }
             catch (MySqlException exception) 
             {
-                Console.WriteLine (exception.Message);
+                Console.WriteLine ("\0" + exception);
                 //Getting an exception here is not a problem.
             }
             command.CommandText = "CREATE DATABASE " + database;
@@ -212,7 +212,6 @@ namespace XCAnalyze.Io.Sql
             foreach(string command in creationCommands)
             {
                 Command.CommandText = command;
-                Console.WriteLine(command);
                 Command.ExecuteNonQuery();
             }
         }

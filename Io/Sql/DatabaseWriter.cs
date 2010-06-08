@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -383,18 +384,9 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         virtual public void WritePerformances(IList<Model.Performance> performances)
         {
-            Performance sqlPerformance;
             foreach(Model.Performance performance in performances)
-            {
-                if(performance is Performance)
-                {
-                    sqlPerformance = (Performance)performance;
-                    Command.CommandText = "UPDATE results SET runner_id = " + Format(sqlPerformance.RunnerId) + ", race_id = " + Format(sqlPerformance.RaceId) + ", time = " + Format(sqlPerformance.Time) + " WHERE id = " + sqlPerformance.Id;
-                }
-                else
-                {                    
-                    Command.CommandText = "INSERT INTO results (runner_id, race_id, time) VALUES (" + Format(Runner.GetId(performance.Runner)) + ", " + Format(Race.GetId(performance.Race)) + ", " + Format(performance.Time) + ")";
-                }
+            {                
+                Command.CommandText = "INSERT INTO results (runner_id, race_id, time) VALUES (" + Format(Runner.GetId(performance.Runner)) + ", " + Format(Race.GetId(performance.Race)) + ", " + Format(performance.Time) + ")";
                 Command.ExecuteNonQuery();
             }
         }
@@ -645,7 +637,7 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         } 
         
-        protected internal static bool AreGlobalStatesEqual(Model.XcData item1, Model.XcData item2)
+        protected internal static bool AreDataEqual(Model.XcData item1, Model.XcData item2)
         {
             if(item1.Affiliations.Count != item2.Affiliations.Count)
             {
@@ -755,7 +747,6 @@ namespace XCAnalyze.Io.Sql
         [Test]
         virtual public void TestInitializeDatabase ()
         {
-            Console.WriteLine("Calling partial set up.");
             SetUpPartial ();
             Writer.InitializeDatabase ();
         }
@@ -776,7 +767,15 @@ namespace XCAnalyze.Io.Sql
             Writer.Write(GlobalState);
             actual = Reader.Read();
             Assert.That(actual is XcData);
-            Assert.That(AreGlobalStatesEqual(GlobalState, actual));
+            Assert.IsNotEmpty((ICollection)actual.Affiliations);
+            Assert.IsNotEmpty((ICollection)actual.Conferences);
+            Assert.IsNotEmpty((ICollection)actual.Performances);
+            Assert.IsNotEmpty((ICollection)actual.Meets);
+            Assert.IsNotEmpty((ICollection)actual.Races);
+            Assert.IsNotEmpty((ICollection)actual.Runners);
+            Assert.IsNotEmpty((ICollection)actual.Schools);
+            Assert.IsNotEmpty((ICollection)actual.Venues);
+            Assert.That(AreDataEqual(GlobalState, actual));
         }
         
         [Test]

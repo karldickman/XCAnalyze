@@ -1,7 +1,7 @@
 using Gtk;
 using System;
 using System.Linq;
-using XCAnalyze.Io.Sql;
+using XCAnalyze.Io;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui
@@ -21,8 +21,8 @@ namespace XCAnalyze.Gui
         public static int Main (string[] args)
         {
             Application.Init ();
-            DatabaseReader reader;
-            reader = MySqlDatabaseReader.NewInstance ("xcanalyze", "xcanalyze");
+            IReader<XcData> reader;
+            reader = XcaReader.NewInstance (SupportFiles.GetPath("example.xca"));
             XcData data = reader.Read ();
             MainWindow application = new MainWindow (data);
             application.ShowAll ();
