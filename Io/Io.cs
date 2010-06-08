@@ -44,7 +44,7 @@ namespace XCAnalyze.Io {
     /// The <see cref="IReader"/> for the default file format of XCAnalyze, .xca
     /// files.
     /// </summary>
-    public class XcaReader : IReader<GlobalState>
+    public class XcaReader : IReader<XcData>
     {
         /// <summary>
         /// The reader that actually does everything.
@@ -78,7 +78,7 @@ namespace XCAnalyze.Io {
             Reader.Close ();
         }
         
-        public GlobalState Read ()
+        public XcData Read ()
         {
             return Reader.Read ();
         }
@@ -88,7 +88,7 @@ namespace XCAnalyze.Io {
     /// The <see cref="IWriter"/> for the default file format of XCAnalyze, .xca
     /// files.
     /// </summary>
-    public class XcaWriter : IWriter<GlobalState>
+    public class XcaWriter : IWriter<XcData>
     {
         /// <summary>
         /// The writer that actually does everything.
@@ -122,7 +122,7 @@ namespace XCAnalyze.Io {
             Writer.Close ();
         }
         
-        public void Write (GlobalState toWrite)
+        public void Write (XcData toWrite)
         {
             Writer.Write (toWrite);
         }
@@ -150,7 +150,7 @@ namespace XCAnalyze.Io {
         [Test]
         public void TestIo ()
         {
-            GlobalState data = Reader.Read ();
+            XcData data = Reader.Read ();
             Writer.Write (data);
         }
     }

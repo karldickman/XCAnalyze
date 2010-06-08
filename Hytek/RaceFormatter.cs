@@ -30,7 +30,7 @@ namespace XCAnalyze.Hytek
         }
         
         /// <summary>
-        /// Format a race.
+        /// Format a race the way Hytek Meet Manger does.
         /// </summary>
         /// <param name="race">
         /// A <see cref="Race"/> to be formatted.

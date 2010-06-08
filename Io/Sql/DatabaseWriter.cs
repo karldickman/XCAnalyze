@@ -11,7 +11,7 @@ namespace XCAnalyze.Io.Sql
     /// <summary>
     /// A writer to write all the data in the model to a database.
     /// </summary>
-    abstract public class DatabaseWriter : IWriter<Model.GlobalState>
+    abstract public class DatabaseWriter : IWriter<Model.XcData>
     {
         /// <summary>
         /// The creation script for the database.
@@ -260,12 +260,12 @@ namespace XCAnalyze.Io.Sql
         /// <param name="data">
         /// The <see cref="Data"/> to be written.
         /// </param>
-        virtual public void Write (Model.GlobalState data)
+        virtual public void Write (Model.XcData data)
         {
-            GlobalState sqlData = null;
-            if(data is GlobalState)
+            XcData sqlData = null;
+            if(data is XcData)
             {
-                sqlData = (GlobalState)data;
+                sqlData = (XcData)data;
             }
             if(sqlData != null)
             {
@@ -560,7 +560,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// A sample global state.
         /// </summary>
-        protected internal Model.GlobalState GlobalState { get; set; }
+        protected internal Model.XcData GlobalState { get; set; }
         
         /// <summary>
         /// A sample list of meets.
@@ -694,7 +694,7 @@ namespace XCAnalyze.Io.Sql
             IList<string> conferenceNames = new List<string>(from conference in Conferences select conference.Name);     
             IList<string> meetNames = new List<string>(from meet in Meets select meet.Name);
             IList<string[]> venueInfo = new List<string[]>(from venue in Venues select new string[] { venue.Name, venue.City, venue.State });
-            GlobalState = new Model.GlobalState(Affiliations, conferenceNames, meetNames, Performances, Races, Runners, Schools, venueInfo);
+            GlobalState = new Model.XcData(Affiliations, conferenceNames, meetNames, Performances, Races, Runners, Schools, venueInfo);
         }
         
         abstract public void SetUpPartial();        
@@ -706,7 +706,7 @@ namespace XCAnalyze.Io.Sql
             Reader.Close ();
         } 
         
-        protected internal static bool AreGlobalStatesEqual(Model.GlobalState item1, Model.GlobalState item2)
+        protected internal static bool AreGlobalStatesEqual(Model.XcData item1, Model.XcData item2)
         {
             if(item1.Affiliations.Count != item2.Affiliations.Count)
             {
@@ -833,10 +833,10 @@ namespace XCAnalyze.Io.Sql
         [Test]
         virtual public void TestWrite()
         {
-            Model.GlobalState actual;
+            Model.XcData actual;
             Writer.Write(GlobalState);
             actual = Reader.Read();
-            Assert.That(actual is GlobalState);
+            Assert.That(actual is XcData);
             Assert.That(AreGlobalStatesEqual(GlobalState, actual));
             GlobalState = actual;
             Console.WriteLine("*********************.");

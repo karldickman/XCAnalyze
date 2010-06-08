@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace XCAnalyze.Model
 {
-    public class GlobalState
+    public class XcData
     {
         /// <summary>
         /// All the runner-school affiliations.
@@ -46,7 +46,7 @@ namespace XCAnalyze.Model
         /// </summary>
         virtual public IList<string[]> Venues { get; protected internal set; }
         
-        protected internal GlobalState(IList<Affiliation> affiliations,
+        protected internal XcData(IList<Affiliation> affiliations,
             IList<Performance> performances, IList<Race> races,
             IList<Runner> runners, IList<School> schools)
             : this(affiliations, null, null, performances, races, runners,
@@ -79,7 +79,7 @@ namespace XCAnalyze.Model
         /// <param name="venues">
         /// All he venues where meets are held.
         /// </param>
-        public GlobalState (IList<Affiliation> affiliations,
+        public XcData (IList<Affiliation> affiliations,
             IList<string> conferences, IList<string> meets,
             IList<Performance> performances, IList<Race> races,
             IList<Runner> runners, IList<School> schools,
