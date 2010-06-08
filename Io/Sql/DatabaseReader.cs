@@ -8,7 +8,7 @@ namespace XCAnalyze.Io.Sql
     /// A <see cref="IReader"/> that reads all the required data for the model out of a
     /// database.
     /// </summary>
-    public class DatabaseReader : IReader<Model.GlobalState>
+    public class DatabaseReader : IReader<Model.XcData>
     {
         /// <summary>
         /// The reader for the resultset.
@@ -70,7 +70,7 @@ namespace XCAnalyze.Io.Sql
         /// A <see cref="Model.GlobalState"/> containing all the data in the
         /// database.
         /// </returns>
-        virtual public Model.GlobalState Read ()
+        virtual public Model.XcData Read ()
         {
             ReadConferences ();
             ReadRunners ();
@@ -80,7 +80,7 @@ namespace XCAnalyze.Io.Sql
             ReadVenues ();
             ReadRaces();
             ReadPerformances ();
-            return new GlobalState (Affiliation.List, Conference.List,
+            return new XcData (Affiliation.List, Conference.List,
                 Meet.List, Performance.List, Race.List, Runner.List,
                 School.List, Venue.List);
         }

@@ -8,7 +8,7 @@ namespace XCAnalyze.Io.Sql.Tables
     /// <summary>
     /// All the information in the database.
     /// </summary>
-    public class GlobalState : Model.GlobalState
+    public class XcData : Model.XcData
     {
         override public IList<string> Conferences
         {
@@ -79,7 +79,7 @@ namespace XCAnalyze.Io.Sql.Tables
         /// <param name="venues">
         /// The contents of the venues table.
         /// </param>
-        public GlobalState(IList<Model.Affiliation> affiliations,
+        public XcData(IList<Model.Affiliation> affiliations,
             IList<Conference> conferences, IList<Meet> meets, 
             IList<Model.Performance> performances, IList<Model.Race> races,
             IList<Model.Runner> runners, IList<Model.School> schools,
