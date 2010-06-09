@@ -26,7 +26,7 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The runners who have competed for this school.
         /// </summary>
-        public List<Affiliation> Runners { get; protected internal set; }
+        virtual public List<Affiliation> Runners { get; protected internal set; }
 
         /// <summary>
         /// The type of the school (University, College, etc.)

@@ -23,45 +23,55 @@ namespace XCAnalyze.Io.Sql.Tables
             get { return new List<Model.Race> (IdMap.Values); }
         }
         
-        override public string City
-        {
-            get
-            {
-                if(SqlVenue == null)
-                {
-                    return null;
-                }
-                return SqlVenue.City;
-            }
-        }
-        
         /// <summary>
         /// The row id.
         /// </summary>
         public int Id { get; protected internal set; }
         
-        override public string Name
+        override public Model.Date Date { get; protected internal set; }
+        
+        /// <summary>
+        /// The meet name of this race.
+        /// </summary>
+        public MeetName MeetName
         {
             get
             {
-                if(MeetId == null)
+                if (MeetNameId == null) 
                 {
                     return null;
                 }
-                if(Tables.Meet.Exists(MeetId.Value))
+                if (MeetName.Exists (MeetNameId.Value)) 
                 {
-                    return Tables.Meet.Get(MeetId.Value).Name;
+                    return MeetName.Get (MeetNameId.Value);
                 }
-                return base.Name;
+                return null;
             }
         }
         
         /// <summary>
         /// The row id of the meet.
         /// </summary>
-        public int? MeetId { get; protected internal set; }
+        public int? MeetNameId { get; protected internal set; }
         
-        protected internal Venue SqlVenue
+        override public string Name
+        {
+            get
+            {
+                if(MeetName == null)
+                {
+                    return null;
+                }
+                return MeetName.Name;
+            }
+            
+            protected internal set
+            {
+                MeetName.Name = value;
+            }
+        }
+        
+        override public Model.Venue Venue
         {
             get
             {
@@ -71,33 +81,9 @@ namespace XCAnalyze.Io.Sql.Tables
                 }
                 if (Tables.Venue.Exists (VenueId.Value))
                 {
-                    return Tables.Venue.Get (VenueId.Value);
+                    return (Venue)Tables.Venue.Get (VenueId.Value);
                 }
                 return null;
-            }
-        }
-        
-        override public string State
-        {
-            get
-            {
-                if(SqlVenue == null)
-                {
-                    return null;
-                }
-                return SqlVenue.State;
-            }
-        }
-        
-        override public string Venue
-        {
-            get
-            {
-                if(SqlVenue == null)
-                {
-                    return null;
-                }
-                return SqlVenue.Name;
             }
         }
         
@@ -129,12 +115,13 @@ namespace XCAnalyze.Io.Sql.Tables
         /// <param name="distance">
         /// The distance of the race.
         /// </param>
-        public Race (int id, int? meetId, int? venueId, Model.Date date,
+        public Race (int id, int? meetId, Model.Date date, int? venueId,
             Model.Gender gender, int distance)
-            : base(date, gender, distance)
+            : base(gender, distance)
         {
             Id = id;
-            MeetId = meetId;
+            MeetNameId = meetId;
+            Date = date;
             VenueId = venueId;
             IdMap[id] = this;
         }
@@ -186,20 +173,17 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </returns>
         public static int? GetId (Model.Race race)
         {
-            Race candidate;
             if (race is Race)
             {
                 return ((Race)race).Id;
             }
             foreach (KeyValuePair<int, Model.Race> entry in IdMap)
             {
-                candidate = (Race)entry.Value;
-                if (candidate.Name.Equals (race.Name)
-                    && candidate.Date.Equals (race.Date)
-                    && candidate.Gender == race.Gender
-                    && candidate.Venue.Equals (race.Venue)
-                    && candidate.City.Equals (race.City)
-                    && candidate.State.Equals(race.State)) 
+                Race candidate = (Race)entry.Value;
+                if (race.Name.Equals (candidate.Name)
+                    && race.Date.Equals (candidate.Date)
+                    && race.Gender == candidate.Gender
+                    && race.Venue.Equals (candidate.Venue))
                 {
                     return entry.Key;
                 }
@@ -211,34 +195,42 @@ namespace XCAnalyze.Io.Sql.Tables
     [TestFixture]
     public class TestRace
     {
-        protected internal IList<Model.Race> Races { get; set; }
+        protected internal IList<Model.Meet> Meets { get; set; }
+        protected internal IList<Model.Venue> Venues { get; set; }
         
         [SetUp]
         public void SetUp ()
         {
             Race.Clear ();
-            Races = new List<Model.Race> ();
-            Races.Add (new Model.Race ("Lewis & Clark Invitational", new Model.Date (2009, 9, 5), Model.Gender.FEMALE, 6000, "Milo McIver State Park", "Estacada", "OR"));
-            Races.Add (new Model.Race ("Sundodger Invitational", new Model.Date (2009, 9, 15), Model.Gender.MALE, 8000, "Lincoln Park", "Seattle", "WA"));
-            Races.Add (new Model.Race ("Charles Bowles Invitational", new Model.Date (2009, 10, 1), Model.Gender.FEMALE, 5000, "Bush Pasture Park", "Salem", "OR"));
-            Races.Add (new Model.Race ("Summer's End Invitational", new Model.Date (2008, 8, 31), Model.Gender.MALE, 8000, "Western Oregon University Campus", "Monmouth", "OR"));
-            IDictionary<string, Meet> meets = new Dictionary<string, Meet> ();
-            for (int i = 0; i < Races.Count; i++)
+            Venues = new List<Model.Venue> ();
+            Venues.Add (new Model.Venue ("Milo McIver State Park", "Estacada", "OR"));
+            Venues.Add (new Model.Venue ("Lincoln Park", "Seattle", "WA"));
+            Venues.Add (new Model.Venue ("Bush Pasture Park", "Salem", "OR"));
+            Venues.Add (new Model.Venue ("Western Oregon University Campus", "Monmouth", "OR"));
+            Meets = new List<Model.Meet> ();
+            Meets.Add (new Model.Meet ("Lewis & Clark Invitational", new Model.Date (2009, 9, 5), Venues[0],
+                    new Model.Race (Model.Gender.MALE, 8000), new Model.Race (Model.Gender.FEMALE, 6000)));
+            Meets.Add (new Model.Meet ("Sundodger Invitational", new Model.Date (2009, 9, 15), Venues[1],
+                    new Model.Race (Model.Gender.MALE, 8000), new Model.Race (Model.Gender.FEMALE, 6000)));
+            Meets.Add (new Model.Meet ("Charles Bowles Invitational", new Model.Date (2009, 10, 1), Venues[2],
+                    new Model.Race (Model.Gender.MALE, 8000), new Model.Race (Model.Gender.FEMALE, 5000)));
+            Meets.Add (new Model.Meet ("Summer's End Invitational", new Model.Date (2008, 8, 31), Venues[3],
+                    new Model.Race (Model.Gender.MALE, 7085), new Model.Race (Model.Gender.FEMALE, 4840)));
+            IDictionary<string, MeetName> meetNames = new Dictionary<string, MeetName> ();
+            for (int i = 0; i < Meets.Count; i++)
             {
-                meets[Races[i].Name] = new Meet (i, Races[i].Name);
+                meetNames[Meets[i].Name] = new MeetName (i, Meets[i].Name);
             }
             IDictionary<string, Venue> venues = new Dictionary<string, Venue> ();
-            for (int i = 0; i < Races.Count; i++)
+            for (int i = 0; i < Meets.Count; i++)
             {
-                venues[Races[i].Venue] = new Venue (i, Races[i].Venue, Races[i].City, Races[i].State, null);
+                venues[Meets[i].Venue.Name] = new Venue (i, Meets[i].Venue.Name, Meets[i].City, Meets[i].State, null);
             }
-            for (int i = 0; i < Races.Count; i++)
+            for (int i = 0; i < Meets.Count; i++)
             {
-                Race race = new Race (i, meets[Races[i].Name].Id, venues[Races[i].Venue].Id, Races[i].Date, Races[i].Gender, Races[i].Distance);
-                if (i == 3)
-                {
-                    race.Distance = 7085;
-                }
+                Race race = new Race (2 * i, meetNames[Meets[i].Name].Id, Meets[i].Date, venues[Meets[i].Venue.Name].Id, Model.Gender.MALE, Meets[i].MensDistance);
+                race = new Race (2 * i + 1, meetNames[Meets[i].Name].Id, Meets[i].Date, venues[Meets[i].Venue.Name].Id, Model.Gender.FEMALE, Meets[i].WomensDistance);
+                Console.WriteLine ("\0" + race);
             }
         }
         
@@ -251,9 +243,10 @@ namespace XCAnalyze.Io.Sql.Tables
         [Test]
         public void TestGetId ()
         {
-            for (int i = 0; i < Races.Count; i++)
+            for (int i = 0; i < Meets.Count; i++)
             {
-                Assert.AreEqual (i, Race.GetId (Races[i]));
+                Assert.AreEqual (2 * i, Race.GetId (Meets[i].MensRace));
+                Assert.AreEqual (2 * i + 1, Race.GetId (Meets[i].WomensRace));
             }
         }
     }

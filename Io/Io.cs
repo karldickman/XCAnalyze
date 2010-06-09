@@ -153,19 +153,112 @@ namespace XCAnalyze.Io {
     }
     
     [TestFixture]
-    public class TextXcaWriter
+    public class TestXcaWriter
     {
         protected internal XcData Data { get; set; }
+        protected internal XcaReader Reader { get; set; }
         protected internal XcaWriter Writer { get; set; }
+                
+        public static bool AreDataEqual(Model.XcData item1, Model.XcData item2)
+        {
+            if(item1.Affiliations.Count != item2.Affiliations.Count)
+            {
+                return false;
+            }
+            foreach(Model.Affiliation affiliation in item1.Affiliations)
+            {
+                if(!item2.Affiliations.Contains(affiliation))
+                {
+                    return false;
+                }
+            }
+            if(item1.Conferences.Count != item2.Conferences.Count)
+            {
+                return false;
+            }
+            foreach(string conference in item1.Conferences)
+            {
+                if(!item2.Conferences.Contains(conference))
+                {
+                    return false;
+                }
+            }
+            if(item1.Meets.Count != item2.Meets.Count)
+            {
+                return false;
+            }
+            foreach(string meetName in item1.MeetNames)
+            {
+                if(!item2.MeetNames.Contains(meetName))
+                {
+                    return false;
+                }
+            }
+            if(item1.Performances.Count != item2.Performances.Count)
+            {
+                return false;
+            }
+            foreach(Model.Performance performance in item1.Performances)
+            {
+                if(!item2.Performances.Contains(performance))
+                {
+                    return false;
+                }
+            }
+            if(item1.Races.Count != item2.Races.Count)
+            {
+                return false;
+            }
+            foreach(Model.Race race in item1.Races)
+            {
+                if(!item2.Races.Contains(race))
+                {
+                    return false;
+                }
+            }
+            if(item1.Runners.Count != item2.Runners.Count)
+            {
+                return false;
+            }
+            foreach(Model.Runner runner in item1.Runners)
+            {
+                if(!item2.Runners.Contains(runner))
+                {
+                    return false;
+                }
+            }
+            if(item1.Schools.Count != item2.Schools.Count)
+            {
+                return false;
+            }
+            foreach(Model.School school in item1.Schools)
+            {
+                if(!item2.Schools.Contains(school))
+                {
+                    return false;
+                }
+            }
+            if(item1.Venues.Count != item2.Venues.Count)
+            {
+                return false;
+            }
+            foreach(Model.Venue venue in item1.Venues)
+            {
+                if(!item2.Venues.Contains(venue))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         
         [SetUp]
         public void SetUp ()
         {
-            XcaReader reader;
-            reader = XcaReader.NewInstance (SupportFiles.GetPath ("example.xca"));
-            Data = reader.Read ();
-            reader.Close ();
-            Writer = XcaWriter.NewInstance (SupportFiles.GetPath ("example.xca"));
+            Reader = XcaReader.NewInstance (SupportFiles.GetPath ("example.xca"));
+            Data = Reader.Read ();
+            Reader.Close ();         
+            Writer = XcaWriter.NewInstance (SupportFiles.GetPath ("example.xca")); 
         }
         
         [TearDown]
@@ -177,7 +270,18 @@ namespace XCAnalyze.Io {
         [Test]
         public void TestWrite ()
         {
-            Writer.Write (Data);
+            XcData actual;
+            for (int i = 0; i < 3; i++)
+            {
+                Writer.Write (Data);
+                Writer.Close ();
+                Reader = XcaReader.NewInstance (SupportFiles.GetPath ("example.xca"));
+                actual = Reader.Read ();
+                Reader.Close ();
+                Assert.That (AreDataEqual (Data, actual));
+                Data = actual;
+                Writer.Writer.Open ();
+            }
         }
     }
 }

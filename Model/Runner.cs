@@ -29,12 +29,12 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The performances this runner has achieved.
         /// </summary>
-        public IList<Performance> Performances { get; protected internal set; }
+        virtual public IList<Performance> Performances { get; protected internal set; }
 
         /// <summary>
         /// The affiliations of the runner over their career.
         /// </summary>
-        public IDictionary<int, Affiliation> Schools { get; protected internal set; }
+        virtual public IDictionary<int, Affiliation> Schools { get; protected internal set; }
 
         /// <summary>
         /// The runner's surname.

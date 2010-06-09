@@ -7,23 +7,18 @@ namespace XCAnalyze.Model {
     /// An instance of a meet.
     /// </summary>
     public class Race : IComparable<Race>
-    {
-        /// <summary>
-        /// The city in which the meet was held.
-        /// </summary>
-        virtual public string City { get; protected internal set; }
-
-        /// <summary>
-        /// The date on which the race was held.
-        /// </summary>
-        virtual public Date Date { get; protected internal set; }
-
-        /// <summary>
-        /// The day of the month on which the race was held.
-        /// </summary>
-        public int Day
+    {        
+        virtual public Date Date
         {
-            get { return Date.Day; }
+            get
+            {
+                return Meet.Date;
+            }
+            
+            protected internal set
+            {
+                Meet.Date = value;
+            }
         }
         
         /// <summary>
@@ -37,63 +32,37 @@ namespace XCAnalyze.Model {
         virtual public Gender Gender { get; protected internal set; }
 
         /// <summary>
-        /// The location of the race.
+        /// The meet of which this race is a part.
         /// </summary>
-        public string Location
-        {
-            get { return Venue + ", " + City + ", " + State; }
-        }
-
-        /// <summary>
-        /// The name of the meet.
-        /// </summary>
-        virtual public string Name { get; protected internal set; }
-
-        /// <summary>
-        /// The month in which this race occurred.
-        /// </summary>
-        public int Month
-        {
-            get { return Date.Month; }
+        virtual public Meet Meet { get; protected internal set; }
+        
+        virtual public string Name {
+            get
+            {
+                return Meet.Name;
+            }
+            
+            protected internal set
+            {
+                Meet.Name = value;
+            }
         }
 
         /// <summary>
         /// The results of the meet.
         /// </summary>
-        public List<Performance> Results { get; protected internal set; }
+        virtual public List<Performance> Results { get; protected internal set; }
 
         /// <summary>
         /// The team scores of the meet.
         /// </summary>
-        public IList<TeamScore> Scores { get; protected internal set; }
-
-        /// <summary>
-        /// The state in which the meet was held.
-        /// </summary>
-        virtual public string State { get; protected internal set; }
-
-        /// <summary>
-        /// The name of the venue.
-        /// </summary>
-        virtual public string Venue { get; protected internal set; }
-
-        /// <summary>
-        /// The year in which teh race was held.
-        /// </summary>
-        public int Year
-        {
-            get { return Date.Year; }
-        }
+        virtual public IList<TeamScore> Scores { get; protected internal set; }
         
-        protected internal Race(Date date, Gender gender, int distance)
-            : this(null, date, gender, distance, null, null, null) {}
-
+        virtual public Venue Venue { get { return Meet.Venue; } }
+        
         /// <summary>
         /// Create a new race.
         /// </summary>
-        /// <param name="meet">
-        /// The meet which this race is an instance of.
-        /// </param>
         /// <param name="date">
         /// The <see cref="Date"/> on which this races was held.
         /// </param>
@@ -103,59 +72,35 @@ namespace XCAnalyze.Model {
         /// <param name="distance">
         /// The length of the race.
         /// </param>
-        /// <param name="venue">
-        /// The venue where this race was held.
-        /// </param>
-        /// <param name="city">
-        /// The city in which this race was held.
-        /// </param>
-        /// <param name="state">
-        /// The state in which this race was held.
-        /// </param>
-        /// <param name="scoreMeet">
-        /// Should this meet be scored right away or not?
-        /// </param>
-        public Race (string name, Date date, Gender gender, int distance,
-            string venue, string city, string state)
-            : this(name, date, gender, distance, venue, city, state, false,
-                new List<Performance>()) {}
-        
-        /// <summary>
-        /// Create a new race.
-        /// </summary>
-        /// <param name="meet">
-        /// The meet which this race is an instance of.
-        /// </param>
-        /// <param name="date">
-        /// The <see cref="Date"/> on which this races was held.
-        /// </param>
-        /// <param name="gender">
-        /// A <see cref="Gender"/>.  Was this a men's or a women's race.
-        /// </param>
-        /// <param name="distance">
-        /// The length of the race.
-        /// </param>
-        /// <param name="venue">
-        /// The venue where this race was held.
-        /// </param>
-        /// <param name="city">
-        /// The city in which this race was held.
-        /// </param>
-        /// <param name="state">
-        /// The state in which this race was held.
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
         /// </param>
-        public Race(string name, Date date, Gender gender, int distance,
-            string venue, string city, string state, List<Performance> results)
-            : this(name, date, gender, distance, venue, city, state, false,
-                results) {}
+        public Race (Gender gender, int distance)
+            : this(gender, distance, new List<Performance>()) {}
+        
+        /// <summary>
+        /// Create a new race.
+        /// </summary>
+        /// <param name="date">
+        /// The <see cref="Date"/> on which this races was held.
+        /// </param>
+        /// <param name="gender">
+        /// A <see cref="Gender"/>.  Was this a men's or a women's race.
+        /// </param>
+        /// <param name="distance">
+        /// The length of the race.
+        /// </param>
+        /// <param name="results">
+        /// The <see cref="List<Performance>"/> of results.
+        /// </param>
+        public Race(Gender gender, int distance, List<Performance> results)
+            : this(null, gender, distance, results) {}
         
         /// <summary>
         /// Create a new race.
         /// </summary>
         /// <param name="meet">
-        /// The meet which this race is an instance of.
+        /// The meet which this race is a part of.
         /// </param>
         /// <param name="date">
         /// The <see cref="Date"/> on which this races was held.
@@ -180,20 +125,49 @@ namespace XCAnalyze.Model {
         /// </param>
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
-        /// </param>
-        public Race (string name, Date date, Gender gender, int distance,
-            string venue, string city, string state, bool scoreMeet,
+        /// </param>       
+        public Race(Meet meet, Gender gender, int distance,
             List<Performance> results)
+            : this(meet, gender, distance, results, false) {}
+        
+        /// <summary>
+        /// Create a new race.
+        /// </summary>
+        /// <param name="meet">
+        /// The meet which this race is a part of.
+        /// </param>
+        /// <param name="date">
+        /// The <see cref="Date"/> on which this races was held.
+        /// </param>
+        /// <param name="gender">
+        /// A <see cref="Gender"/>.  Was this a men's or a women's race.
+        /// </param>
+        /// <param name="distance">
+        /// The length of the race.
+        /// </param>
+        /// <param name="venue">
+        /// The venue where this race was held.
+        /// </param>
+        /// <param name="city">
+        /// The city in which this race was held.
+        /// </param>
+        /// <param name="state">
+        /// The state in which this race was held.
+        /// </param>
+        /// <param name="scoreMeet">
+        /// Should this meet be scored right away or not?
+        /// </param>
+        /// <param name="results">
+        /// The <see cref="List<Performance>"/> of results.
+        /// </param>
+        public Race (Meet meet, Gender gender, int distance, 
+            List<Performance> results, bool scoreMeet)
         {
-            Date = date;
             Gender = gender;
             Distance = distance;
-            Name = name;
-            Venue = venue;
-            City = city;
-            State = state;
+            Meet = meet;
             Results = results;
-            results.Sort ();
+            Results.Sort ();
             if (scoreMeet)
             {
                 Score ();
@@ -211,14 +185,17 @@ namespace XCAnalyze.Model {
             Results.Add (result);
             Results.Sort ();
         }
-
+        
         /// <summary>
-        /// Races are ordered first by date, then by name of meet, then by location, then by gender.
+        /// Races are compared first by date, then by name, then by gender.
         /// </summary>
+        /// <param name="other">
+        /// The <see cref="Race"/> to compare with.
+        /// </param>
         public int CompareTo (Race other)
         {
             int comparison;
-            if (this == other)
+            if (this == other) 
             {
                 return 0;
             }
@@ -227,30 +204,32 @@ namespace XCAnalyze.Model {
             {
                 return comparison;
             }
-            comparison = Name.CompareTo (other.Name);
+            comparison = ObjectComparer<string>.Compare(Name, other.Name, -1);
             if (comparison != 0)
             {
                 return comparison;
             }
-            return Location.CompareTo (other.Location);
+            return Gender.CompareTo(other.Gender);
         }
-
+        
         override public bool Equals (object other)
         {
-            if (this == other) {
+            if(this == other)
+            {
                 return true;
             }
-            if (other is Race) {
-                return 0 == CompareTo ((Race)other);
+            if(other is Race)
+            {
+                return 0 == CompareTo((Race)other);
             }
             return false;
         }
-
-        override public int GetHashCode ()
+        
+        override public int GetHashCode()
         {
-            return ToString ().GetHashCode ();
+            return ("" + Date + Name + Gender).GetHashCode();
         }
-
+        
         /// <summary>
         /// Score the race.
         /// </summary>
@@ -332,16 +311,11 @@ namespace XCAnalyze.Model {
             scoreList.Sort ();
             Scores = scoreList;
         }
-
-        override public string ToString ()
+        
+        override public string ToString()
         {
-            string result;
-            if (Gender.IsMale ()) {
-                result = "Men";
-            } else {
-                result = "Women";
-            }
-            return result + "'s " + Distance + " m run, " + Name + " (" + Date + "), " + Location;
+            string gender = Gender.IsMale ? "Men's" : "Women's";
+            return Name + " (" + Date + ") " + gender + " " + Distance + " m run.";
         }
     }
 }

@@ -22,6 +22,18 @@ namespace XCAnalyze.Io.Sql
             : base(connection) {}
         
         /// <summary>
+        /// Create a new reader.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> to use.
+        /// </param>
+        /// <param name="command">
+        /// The <see cref="IDbCommand"/> to use.
+        /// </param>
+        public MySqlDatabaseReader(IDbConnection connection,
+            IDbCommand command) : base(connection, command) {}
+        
+        /// <summary>
         /// Create a new reader connection to the local server.
         /// </summary>
         /// <param name="database">

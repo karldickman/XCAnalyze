@@ -8,41 +8,26 @@ namespace XCAnalyze.Io.Sql.Tables
     /// <summary>
     /// A representation of a row of the venue table in the database.
     /// </summary>
-    public class Venue : IComparable<Venue>
+    public class Venue : Model.Venue
     {
         /// <summary>
         /// A registry of the instances (i.e rows) by id number.
         /// </summary>
-        protected internal static IDictionary<int, Venue> IdMap =
-            new Dictionary<int, Venue>();
+        protected internal static IDictionary<int, Model.Venue> IdMap =
+            new Dictionary<int, Model.Venue>();
         
         /// <summary>
         /// Get all instances of this class.
         /// </summary>
-        public static IList<Venue> List
+        public static IList<Model.Venue> List
         {
-            get { return new List<Venue> (IdMap.Values); }
+            get { return new List<Model.Venue> (IdMap.Values); }
         }
             
         /// <summary>
         /// The id number.
         /// </summary>
         public int Id { get; protected internal set; }
-        
-        /// <summary>
-        /// The name of the venue.
-        /// </summary>
-        public string Name { get; protected internal set; }
-        
-        /// <summary>
-        /// The city nearest to the venue.
-        /// </summary>
-        public string City { get; protected internal set; }
-        
-        /// <summary>
-        /// Which state the venue is in.
-        /// </summary>
-        public string State { get; protected internal set; }
         
         /// <summary>
         /// The elevation (in meters) of the venue.
@@ -69,11 +54,9 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </param>
         public Venue (int id, string name, string city, string state,
             int? elevation)
+            : base(name, city, state)
         {
             Id = id;
-            Name = name;
-            City = city;
-            State = state;
             Elevation = elevation;
             IdMap[id] = this;
         }    
@@ -109,43 +92,34 @@ namespace XCAnalyze.Io.Sql.Tables
         /// <returns>
         /// The <see cref="Venue"/> with the requested id number.
         /// </returns>
-        public static Venue Get (int id)
+        public static Model.Venue Get (int id)
         {
             return IdMap[id];
         }
         
         /// <summary>
-        /// Get the id number of the venue instance that has a particular name
-        /// and location.
+        /// Get the id number of the particular venue instance.
         /// </summary>
-        /// <param name="name">
-        /// The name of the venue.
-        /// </param>
-        /// <param name="city">
-        /// The city where the venue is.
-        /// </param>
-        /// <param name="state">
-        /// The state in which the venue is.
+        /// <param name="venue">
+        /// The <see cref="Venue"/> for which to search.
         /// </param>
         /// <returns>
         /// The id number of the found instance.  If no instance is found,
         /// returns null.
         /// </returns>
-        public static int? GetId (string name, string city, string state)
+        public static int? GetId (Model.Venue venue)
         {
-            Venue candidate;
-            foreach (KeyValuePair<int, Venue> entry in IdMap)
+            if (venue == null)
             {
-                candidate = entry.Value;
-                if (candidate.Name != null
-                    && candidate.Name.Equals (name)
-                    && candidate.City.Equals (city)
-                    && candidate.State.Equals (state)) 
-                {
-                    return entry.Key;
-                }
+                return null;
             }
-            return null;
+            if (venue is Venue)
+            {
+                return ((Venue)venue).Id;
+            }
+            return (from Venue candidate in IdMap.Values
+                where venue.Equals (candidate)
+                select candidate.Id).FirstOrDefault();
         }
         
         /// <summary>
@@ -159,54 +133,10 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </returns>
         public static IList<int> GetIds (string name)
         {
-            return new List<int>(from venue in IdMap.Values
+            return new List<int>(from Venue venue in IdMap.Values
                 where venue.Name.Equals (name)
                 select venue.Id);
         }
-        
-        /// <summary>
-        /// Venues are compared first by state, then by city, then by name.
-        /// </summary>
-        /// <param name="other">
-        /// The <see cref="Venue"/> to compare with.
-        /// </param>
-        public int CompareTo (Venue other)
-        {
-            int comparison;
-            if (this == other) 
-            {
-                return 0;
-            }
-            comparison = State.CompareTo (other.State);
-            if (comparison != 0) 
-            {
-                return comparison;
-            }
-            comparison = City.CompareTo (other.City);
-            if (comparison != 0) 
-            {
-                return comparison;
-            }
-            return Name.CompareTo (other.Name);
-        }    
-        
-        override public bool Equals (object other)
-        {
-            if(this == other)
-            {
-                return true;
-            }
-            if(other is Venue)
-            {
-                return 0 == CompareTo((Venue)other);
-            }
-            return false;
-        }
-        
-        override public int GetHashCode ()
-        {
-            return base.GetHashCode();
-        }    
     }
     
     [TestFixture]
@@ -241,7 +171,7 @@ namespace XCAnalyze.Io.Sql.Tables
         {
             foreach (Venue venue in Venues)
             {
-                Assert.AreEqual (venue.Id, Venue.GetId (venue.Name, venue.City, venue.State));
+                Assert.AreEqual (venue.Id, Venue.GetId (venue));
             }
         }
         

@@ -11,7 +11,7 @@ namespace XCAnalyze.Io.Sql
     /// A <see cref="IWriter"/> to write the model to a MySQL database.
     /// </summary>
     public class MySqlDatabaseWriter : DatabaseWriter
-    {        
+    {
         override public string CREATION_SCRIPT_EXTENSION
         {
             get { return "mysql"; }
@@ -28,9 +28,16 @@ namespace XCAnalyze.Io.Sql
         }
         
         /// <summary>
-        /// The name of the database to which we are connected.
+        /// Create a new database writer.
         /// </summary>
-        protected internal string Database { get; set; }
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> to use.
+        /// </param>
+        /// <param name="command">
+        /// The <see cref="IDbCommand"/> to use.
+        /// </param>
+        public MySqlDatabaseWriter(IDbConnection connection, string database,
+            IDbCommand command) : base(connection, database, command) {}
         
         /// <summary>
         /// Create a new database writer.
@@ -42,11 +49,25 @@ namespace XCAnalyze.Io.Sql
         /// The name of the database.
         /// </param>
         protected internal MySqlDatabaseWriter(IDbConnection connection,
-            string database) : base(connection)
+            string database) : this(connection, database, true) {}
+        
+        /// <summary>
+        /// Create a new database writer.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> to use.
+        /// </param>
+        /// <param name="database">
+        /// The name of the database.
+        /// </param>
+        /// <param name="open">
+        /// Should the connection be opened?
+        /// </param>
+        protected internal MySqlDatabaseWriter(IDbConnection connection,
+            string database, bool open)
+            : base(connection, database, open)
         {
-            DatabaseReader = MySqlDatabaseReader.NewInstance(
-                new MySqlConnection(connection.ConnectionString));
-            Database = database;
+            DatabaseReader = new MySqlDatabaseReader(connection, Command);
         }
                 
         /// <summary>
@@ -155,8 +176,9 @@ namespace XCAnalyze.Io.Sql
             bool pooling)
         {
             string connectionString = "Server=" + host + "; User ID=" + user +
-                "; Password=" + password + "; Pooling=" + pooling + ";";
-            return NewInstance (new MySqlConnection(connectionString), database);
+                "; Database=" + database + "; Password=" + password +
+                    "; Pooling=" + pooling + ";";
+            return NewInstance (new MySqlConnection (connectionString), database);
         }
         
         /// <summary>
@@ -171,29 +193,7 @@ namespace XCAnalyze.Io.Sql
         public static MySqlDatabaseWriter NewInstance (IDbConnection connection,
             string database)
         {
-            MySqlDatabaseWriter writer;
-            string fullConnectionString = connection.ConnectionString +
-                "Database=" + database;
-            connection.Open ();
-            IDbCommand command = connection.CreateCommand ();
-            command.CommandText = "DROP DATABASE " + database;
-            try
-            {
-                command.ExecuteNonQuery ();
-            }
-            catch (MySqlException exception) 
-            {
-                Console.WriteLine ("\0" + exception);
-                //Getting an exception here is not a problem.
-            }
-            command.CommandText = "CREATE DATABASE " + database;
-            command.ExecuteNonQuery ();
-            writer = new MySqlDatabaseWriter (
-                new MySqlConnection (fullConnectionString), database);
-            writer.Connection.Open ();
-            writer.Command = writer.Connection.CreateCommand ();
-            writer.InitializeDatabase ();
-            return writer;
+            return new MySqlDatabaseWriter(connection, database);
         }
         
         new public IList<string> CreationScript ()
@@ -215,6 +215,23 @@ namespace XCAnalyze.Io.Sql
                 Command.ExecuteNonQuery();
             }
         }
+        
+        override public void Open ()
+        {
+            Connection.Open();
+            Command = Connection.CreateCommand();
+            Command.CommandText = "DROP DATABASE " + Database;
+            try
+            {
+                Command.ExecuteNonQuery();
+            }
+            catch(MySqlException) {}
+            Command.CommandText = "CREATE DATABASE " + Database;
+            Command.ExecuteNonQuery();
+            Command.CommandText = "USE " + Database;
+            Command.ExecuteNonQuery();
+            InitializeDatabase();
+        }
     }
   
     [TestFixture]
@@ -231,11 +248,10 @@ namespace XCAnalyze.Io.Sql
         override public void SetUpPartial ()
         {
             IDbCommand command;
-            string connectionString = "Server=localhost; Database=" + TEST_DATABASE + "; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
-            Writer = new MySqlDatabaseWriter (new MySqlConnection (
-                    connectionString), TEST_DATABASE);
-            Writer.Connection.Open ();
-            command = Writer.Command = Writer.Connection.CreateCommand ();
+            Writer.Close();
+            Writer.Connection.Open();
+            command = Writer.Connection.CreateCommand();
+            Writer = new MySqlDatabaseWriter (Writer.Connection, Writer.Database, command);
             command.CommandText = "DROP DATABASE " + TEST_DATABASE;
             command.ExecuteNonQuery();
             command.CommandText = "CREATE DATABASE " + TEST_DATABASE;

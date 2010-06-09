@@ -2,7 +2,6 @@ using System;
 
 namespace XCAnalyze.Model
 {
-    
     /// <summary>
     /// A runners time (in seconds) at a particular race.
     /// </summary>
@@ -41,7 +40,7 @@ namespace XCAnalyze.Model
         /// </summary>
         public School School
         {
-            get { return Runner.School(Race.Date.Year); }
+            get { return Runner.School(Race.Meet.Date.Year); }
         }
 
         protected internal Performance(Time time) : this(null, null, time) {}
@@ -109,6 +108,11 @@ namespace XCAnalyze.Model
         public double Pace ()
         {
             return Time.Seconds / Distance * 60;
+        }
+        
+        override public string ToString()
+        {
+            return Time + " run by " + Runner.Name;
         }
     }
 }

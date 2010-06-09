@@ -37,14 +37,27 @@ namespace XCAnalyze.Io.Sql
         }
         
         /// <summary>
+        /// Create a new reader.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> to connect to.
+        /// </param>
+        /// <param name="command">
+        /// The <see cref="IDbCommand"/> to use.
+        /// </param>
+        public DatabaseReader(IDbConnection connection,
+            IDbCommand command) : this(connection)
+        {
+            Command = command;
+        }
+        
+        /// <summary>
         /// Create a new database reader using the provided connection;
         /// </summary>
         public static DatabaseReader NewInstance (IDbConnection connection)
         {
-            DatabaseReader reader = new DatabaseReader (connection);
-            reader.Connection.Open ();
-            reader.Command = reader.Connection.CreateCommand ();
-            return reader;
+            connection.Open ();
+            return new DatabaseReader (connection, connection.CreateCommand());
         }
 
         /// <summary>
@@ -76,13 +89,13 @@ namespace XCAnalyze.Io.Sql
             ReadRunners ();
             ReadSchools ();
             ReadAffiliations ();
-            ReadMeets ();
+            ReadMeetNames ();
             ReadVenues ();
             ReadRaces();
             ReadPerformances ();
-            return new XcData (Affiliation.List, Conference.List,
-                Meet.List, Performance.List, Race.List, Runner.List,
-                School.List, Venue.List);
+            return new Tables.XcData (Tables.Affiliation.List, Tables.Conference.List,
+                Tables.MeetName.List, Tables.Performance.List, Tables.Race.List,
+                Tables.Runner.List, Tables.School.List, Tables.Venue.List);
         }
         
         /// <summary>
@@ -134,16 +147,16 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// Read the meets table of the database.
         /// </summary>
-        virtual public void ReadMeets ()
+        virtual public void ReadMeetNames ()
         {
-            Meet.Clear();
+            MeetName.Clear();
             int id;
             Command.CommandText = "SELECT * FROM meets";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse(Reader["id"].ToString());
-                new Meet (id, (string)Reader["name"]);
+                new MeetName (id, (string)Reader["name"]);
             }
             Reader.Close ();
         }
@@ -196,9 +209,8 @@ namespace XCAnalyze.Io.Sql
                 {
                     venueId = new int?(int.Parse(Reader["venue_id"].ToString()));
                 }
-                new Race (id, meetId, venueId,
-                    new Model.Date((DateTime)Reader["date"]),
-                    Model.Gender.FromString ((string)Reader["gender"]),
+                new Race (id, meetId, new Model.Date((DateTime)Reader["date"]),
+                    venueId, Model.Gender.FromString ((string)Reader["gender"]),
                     (int)Reader["distance"]);
             }
             Reader.Close ();

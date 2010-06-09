@@ -19,21 +19,12 @@ namespace XCAnalyze.Io.Sql.Tables
             }
         }
         
-        override public IList<string> Meets
+        override public IList<string> MeetNames
         {
             get
             {
-                return new List<string>(from meet in SqlMeets
-                    select meet.Name);
-            }
-        }
-        
-        override public IList<string[]> Venues
-        {
-            get
-            {
-                return new List<string[]>(from venue in SqlVenues
-                    select new string[] {venue.Name, venue.City, venue.State});
+                return new List<string>(from meetName in SqlMeetNames
+                    select meetName.Name);
             }
         }
         
@@ -45,12 +36,7 @@ namespace XCAnalyze.Io.Sql.Tables
         /// <summary>
         /// The meets stored in the database.
         /// </summary>
-        public IList<Meet> SqlMeets { get; protected internal set; }
-        
-        /// <summary>
-        /// The venues stored in the database.
-        /// </summary>
-        public IList<Venue> SqlVenues { get; protected internal set; }
+        public IList<MeetName> SqlMeetNames { get; protected internal set; }
 
         /// <summary>
         /// Create a new description of the database.
@@ -80,15 +66,15 @@ namespace XCAnalyze.Io.Sql.Tables
         /// The contents of the venues table.
         /// </param>
         public XcData(IList<Model.Affiliation> affiliations,
-            IList<Conference> conferences, IList<Meet> meets, 
+            IList<Conference> conferences, IList<MeetName> meetNames, 
             IList<Model.Performance> performances, IList<Model.Race> races,
             IList<Model.Runner> runners, IList<Model.School> schools,
-            IList<Venue> venues)
-            : base(affiliations, performances, races, runners, schools)
+            IList<Model.Venue> venues)
+            : base(affiliations, Meet.MeetsList(races), performances, runners,
+                schools, venues)
         {
             SqlConferences = conferences;
-            SqlMeets = meets;
-            SqlVenues = venues;
+            SqlMeetNames = meetNames;
         }
     }
 }

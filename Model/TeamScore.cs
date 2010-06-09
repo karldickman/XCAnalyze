@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace XCAnalyze.Model
 {
-    
     /// <summary>
     /// A team's score at a race.
     /// </summary>
@@ -180,7 +179,7 @@ namespace XCAnalyze.Model
             int breakAt = 5;
             List<Performance>[] performances = new List<Performance>[2] { new List<Performance> (), new List<Performance> () };
             Performance[] fifthMen = new Performance[2];
-            Race race = new Race(null, new Date(DateTime.Now), null, 8000, null, null, null);
+            Race race = new Race(Gender.MALE, 8000);
             fifthMen[0] = new Performance (null, race, new Time(1500));
             fifthMen[1] = new Performance (null, race, new Time(1600));
             fifthMen[0].Points = 5;

@@ -1,9 +1,13 @@
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace XCAnalyze.Model
 {
+    /// <summary>
+    /// All of the information currently being modelled.
+    /// </summary>
     public class XcData
     {
         /// <summary>
@@ -17,9 +21,14 @@ namespace XCAnalyze.Model
         virtual public IList<string> Conferences { get; protected internal set; }
         
         /// <summary>
+        /// The names of all meets that have occurred.
+        /// </summary>
+        virtual public IList<string> MeetNames { get; protected internal set; }
+        
+        /// <summary>
         /// All the meets that have occurred.
         /// </summary>
-        virtual public IList<string> Meets { get; protected internal set; }
+        virtual public IList<Meet> Meets { get; protected internal set; }
         
         /// <summary>
         /// All the performances that have been run.
@@ -44,55 +53,54 @@ namespace XCAnalyze.Model
         /// <summary>
         /// All the venues at which races have been run.
         /// </summary>
-        virtual public IList<string[]> Venues { get; protected internal set; }
-        
-        protected internal XcData(IList<Affiliation> affiliations,
-            IList<Performance> performances, IList<Race> races,
-            IList<Runner> runners, IList<School> schools)
-            : this(affiliations, null, null, performances, races, runners,
-            schools, null) {}
-
+        virtual public IList<Venue> Venues { get; protected internal set; }
+                
         /// <summary>
         /// Create a new description of the model.
         /// </summary>
         /// <param name="affiliations">
         /// The <see cref="IList<Affiliation>"/>.
         /// </param>
-        /// <param name="conferences">
-        /// The athletic conferences.
-        /// </param>
         /// <param name="meets">
-        /// All the meets that have occurred.
+        /// A <see cref="IList<Meet>"/> of all the meets that have occurred.
         /// </param>
         /// <param name="performances">
-        /// The <see cref="IList<Performance>"/>.
-        /// </param>
-        /// <param name="races">
-        /// All the <see cref="IList<Race>"/> that have been held.
+        /// A <see cref="IList<Performance>"/> of all performances.
         /// </param>
         /// <param name="runners">
-        /// All the <see cref="IList<Runner>"/>.
+        /// A <see cref="IList<Runner>"/> of all runners.
         /// </param>
         /// <param name="schools">
-        /// All the <see cref="IList<School>"/> schools.
+        /// A <see cref="IList<School>"/> of all schools.
         /// </param>
         /// <param name="venues">
-        /// All he venues where meets are held.
+        /// A <see cref="IList<Venue>"/> of all venues where meets have been
+        /// held.
         /// </param>
-        public XcData (IList<Affiliation> affiliations,
-            IList<string> conferences, IList<string> meets,
-            IList<Performance> performances, IList<Race> races,
-            IList<Runner> runners, IList<School> schools,
-            IList<string[]> venues)
+        public XcData (IList<Affiliation> affiliations, IList<Meet> meets,
+            IList<Performance> performances, IList<Runner> runners,
+            IList<School> schools, IList<Venue> venues)
         {
             Affiliations = affiliations;
-            Conferences = conferences;
+            Conferences = ConferencesList (schools);
+            MeetNames = MeetNamesList (meets);
             Meets = meets;
             Performances = performances;
-            Races = races;
             Runners = runners;
             Schools = schools;
             Venues = venues;
+            Races = new List<Race> ();
+            foreach (Meet meet in meets)
+            {
+                if (meet.MensRace != null) 
+                {
+                    Races.Add (meet.MensRace);
+                }
+                if (meet.WomensRace != null) 
+                {
+                    Races.Add (meet.WomensRace);
+                }
+            }
             foreach (Affiliation affiliation in affiliations)
             {
                 Affiliate (affiliation);
@@ -101,6 +109,39 @@ namespace XCAnalyze.Model
             {
                 RegisterPerformance (performance);
             }
+        }
+        
+        /// <summary>
+        /// Get the of conferences a particular group of schools is
+        /// affiliated with.
+        /// </summary>
+        /// <param name="schools">
+        /// The <see cref="IList<School>"/> to consider.
+        /// </param>
+        /// <returns>
+        /// The conferences that were found.
+        /// </returns>
+        public static IList<string> ConferencesList (IList<School> schools)
+        {
+            return new List<string> ((from school in schools
+                where school.Conference != null
+                select school.Conference).Distinct ());
+        }
+        
+        /// <summary>
+        /// Get the names of all of a particular group of meets.
+        /// </summary>
+        /// <param name="meets">
+        /// The <see cref="IList<Meet>"/> to consider.
+        /// </param>
+        /// <returns>
+        /// The meet names that were found.
+        /// </returns>
+        public static IList<string> MeetNamesList (IList<Meet> meets)
+        {
+            return new List<string> ((from meet in meets
+                    where meet.Name != null
+                    select meet.Name).Distinct());
         }
         
         /// <summary>
@@ -189,5 +230,54 @@ namespace XCAnalyze.Model
                     && affiliation.Runner.Gender == gender)
                 select affiliation.Runner);
         }     
+    }
+    
+    [TestFixture]
+    public class TestXcData
+    {
+        [Test]
+        public void TestConferencesList ()
+        {
+            string[] conferences = new string[] { "NWC", "SCIAC", "SCAC" };
+            IList<School> schools = new List<School> ();
+            schools.Add (new School ("Lewis & Clark", "College", conferences[0]));
+            schools.Add (new School ("Linfield", "College", conferences[0]));
+            schools.Add (new School ("Whitman", "College", conferences[0]));
+            schools.Add (new School ("Willamette", "University", conferences[0]));
+            schools.Add (new School ("Pomona-Pizer", "College", conferences[1]));
+            schools.Add (new School ("Claremont-Mudd-Scripps", "College", conferences[2]));
+            schools.Add (new School ("Colorado", "College", conferences[2]));
+            schools.Add (new School ("Chapman", "University", null));
+            IList<string> actual = XcData.ConferencesList (schools);
+            Assert.AreEqual (conferences.Length, actual.Count);
+            foreach (string conference in conferences)
+            {
+                Assert.That (actual.Contains (conference));
+            }
+        }
+        
+        [Test]
+        public void TestMeetNamesList ()
+        {
+            string[] meetNames = new string[] { "LC Invite", "Chuck Bowles" };
+            IList<Meet> meets = new List<Meet> ();
+            meets.Add (new Meet (meetNames[0], new Date (2006, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[0], new Date (2007, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[0], new Date (2008, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[0], new Date (2009, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[0], new Date (2010, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[1], new Date (2006, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[1], new Date (2007, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[1], new Date (2008, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[1], new Date (2009, 9, 5), null, null, null));
+            meets.Add (new Meet (meetNames[1], new Date (2010, 9, 5), null, null, null));
+            meets.Add (new Meet (null, new Date (2012, 9, 27), null, null, null));
+            IList<string> actual = XcData.MeetNamesList (meets);
+            Assert.AreEqual (meetNames.Length, actual.Count);
+            foreach (string meetName in meetNames)
+            {
+                Assert.That (actual.Contains (meetName));
+            }
+        }
     }
 }

@@ -28,7 +28,17 @@ namespace XCAnalyze.Model
         /// The female instance.
         /// </summary>
 		public static readonly Gender FEMALE = new Gender (gender.F);
+          
+        /// <summary>
+        /// Is this the male instance?
+        /// </summary>>
+        public bool IsMale { get { return this == MALE; } }
 
+        /// <summary>
+        /// Is this the female instance.
+        /// </summary>
+        public bool IsFemale { get { return this == FEMALE; } }
+        
 		internal Gender (gender gender)
 		{
 			this.gender = gender;
@@ -72,27 +82,11 @@ namespace XCAnalyze.Model
 		}
 
 		/// <summary>
-		/// Is this the male instance?
-		/// </summary>>
-		public bool IsMale ()
-		{
-			return this == MALE;
-		}
-
-		/// <summary>
-		/// Is this the female instance.
-		/// </summary>
-		public bool IsFemale ()
-		{
-			return this == FEMALE;
-		}
-
-		/// <summary>
 		/// "M" if male, "F" if female.
 		/// </summary>
 		override public String ToString ()
 		{
-			if (IsMale ())
+			if (IsMale)
 			{
 				return "M";
 			}

@@ -35,8 +35,21 @@ namespace XCAnalyze.Io.Sql
         /// <param name="connection">
         /// The <see cref="IDbConnection"/> to use.
         /// </param>
-        protected internal SqliteDatabaseWriter(IDbConnection connection)
-            : base(connection)
+        protected internal SqliteDatabaseWriter(IDbConnection connection,
+            string database) : this(connection, database, true) {}
+            
+        /// <summary>
+        /// Create a new writer using a particular connection.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> to use.
+        /// </param>
+        /// <param name="oepn">
+        /// Should the database be opened.
+        /// </param>
+        protected internal SqliteDatabaseWriter(IDbConnection connection,
+            string database, bool open)
+            : base(connection, database, open)
         {
             DatabaseReader = SqliteDatabaseReader.NewInstance(
                 new SqliteConnection(connection.ConnectionString));
@@ -59,30 +72,31 @@ namespace XCAnalyze.Io.Sql
         public static SqliteDatabaseWriter NewInstance (string fileName)
         {
             return NewInstance (
-                new SqliteConnection ("Data Source=" + fileName));
+                new SqliteConnection ("Data Source=" + fileName), fileName);
         }
 
         /// <summary>
         /// Create a new SqliteDatabaseWriter using the given connection.
         /// </summary>
-        public static SqliteDatabaseWriter NewInstance (IDbConnection connection)
+        public static SqliteDatabaseWriter NewInstance (IDbConnection connection,
+            string database)
         {
-            SqliteDatabaseWriter writer = new SqliteDatabaseWriter (connection);
-            writer.Connection.Open ();
-            writer.Command = writer.Connection.CreateCommand ();
-            if (writer.IsDatabaseInitialized ())
+            return new SqliteDatabaseWriter (connection, database);
+        }
+        
+        override public void Open()
+        {
+            Connection.Open();
+            Command = Connection.CreateCommand();
+            if(IsDatabaseInitialized())
             {
-                for (int i = TABLES.Length - 1; i >= 0; i--)
+                for(int i = TABLES.Length - 1; i >= 0; i--)
                 {
-                    writer.Command.CommandText = "DELETE FROM " + TABLES[i];
-                    writer.Command.ExecuteNonQuery ();
+                    Command.CommandText = "DROP TABLE " + TABLES[i];
+                    Command.ExecuteNonQuery();
                 }
             }
-            else
-            {
-                writer.InitializeDatabase ();
-            }
-            return writer;
+            InitializeDatabase();
         }
     }
     
@@ -105,9 +119,9 @@ namespace XCAnalyze.Io.Sql
         
         override public void SetUpPartial ()
         {
-            TearDown ();
+            File.Delete(TEST_DATABASE);
             Writer = new SqliteDatabaseWriter (new SqliteConnection (
-                    "Data Source=" + TEST_DATABASE));
+                    "Data Source=" + TEST_DATABASE), TEST_DATABASE, false);
             Writer.Connection.Open ();
             Writer.Command = Writer.Connection.CreateCommand ();
         }
