@@ -11,7 +11,7 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The widget where race results are displayed.
         /// </summary>
-        protected internal RaceResultsWidget RaceResults { get; set; }
+        protected internal MeetViewer RaceInfo { get; set; }
         
         /// <summary>
         /// The data with which the application will be working.
@@ -30,10 +30,7 @@ namespace XCAnalyze.Gui
             return 0;
         }
         
-        protected internal MainWindow() : base("XCAnalyze v 0.1")
-        {
-            SetDefaultSize(600, 600);
-        }
+        protected internal MainWindow() : base("XCAnalyze v 0.1") {}
         
         /// <summary>
         /// Create a new application to work with a particular piece of data.
@@ -44,15 +41,21 @@ namespace XCAnalyze.Gui
         public MainWindow (XcData data) : this()
         {
             XcData = data;
-            Race wRegM;
-            wRegM = (from race in data.Races
-                where (race.Name != null
-                    && race.Name.Equals ("NCAA West Region Championship")
-                    && race.Year == 2009)
-                select race).First ();
-            wRegM.Score ();
-            RaceResults = new RaceResultsWidget (wRegM);
-            Add (RaceResults);
+            Meet wReg = (from meet in data.Meets
+                where ("NCAA West Region Championship".Equals (meet.Name)
+                    && 2009.Equals (meet.Date.Year))
+                select meet).First ();
+            RaceInfo = new MeetViewer (wReg);
+            Add (RaceInfo);
+            SetSizeRequest ();
+        }
+        
+        /// <summary>
+        /// Set the default dimensions of all the children.
+        /// </summary>
+        public void SetSizeRequest ()
+        {
+            RaceInfo.SetSizeRequest ();
         }
     }
 }
