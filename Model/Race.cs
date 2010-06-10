@@ -285,21 +285,24 @@ namespace XCAnalyze.Model {
                 }
             }
             //Tag each runner with their points
-            Performance previous = Results[firstWithScore];
-            int points = 2;
-            for (int i = firstWithScore + 1; i < Results.Count; i++)
+            if (firstWithScore < Results.Count)
             {
-                if (Results[i].Points != null) 
+                Performance previous = Results[firstWithScore];
+                int points = 2;
+                for (int i = firstWithScore + 1; i < Results.Count; i++)
                 {
-                    if (Results[i].Time != previous.Time) 
+                    if (Results[i].Points != null) 
                     {
-                        Results[i].Points = points;
+                        if (Results[i].Time != previous.Time) 
+                        {
+                            Results[i].Points = points;
+                        }
+                        else 
+                        {
+                            Results[i].Points = previous.Points;
+                        }
+                        points++;
                     }
-                    else 
-                    {
-                        Results[i].Points = previous.Points;
-                    }
-                    points++;
                 }
             }
             //Create the final list

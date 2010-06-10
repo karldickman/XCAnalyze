@@ -30,7 +30,7 @@ namespace XCAnalyze.Gui
         {
             MeetSelection = new MeetSelection ();
             Browser = new MeetsList (MeetSelection, meets);
-            Detail = new MeetDetail ();
+            Detail = new MeetDetail (meets[0]);
             Add (Browser);
             Add (Detail);
             MeetSelection.MeetSelector selector =

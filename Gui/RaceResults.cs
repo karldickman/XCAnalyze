@@ -64,6 +64,13 @@ namespace XCAnalyze.Gui
         /// </summary>
         protected internal TextView View { get; set; }
             
+        protected internal RaceResults()
+        {
+            TextBuffer buffer = new TextBuffer(null);
+            View = new RaceResultsView(buffer);
+            Add(View);
+        }
+        
         public RaceResults (Race race)
         {
             TextBuffer buffer = new RaceResultsBuffer (race);
@@ -76,17 +83,19 @@ namespace XCAnalyze.Gui
         /// </summary>
         public void SetSizeRequest ()
         {
-            double factor = 6.0;//For ten point font
-            int width = 0, height;
-            height = Screen.Height * 2 / 3;
-            foreach(string line in View.Buffer.Text.Split('\n'))
+            double factor = 6.0;
+            //For ten point font
+            int width = 0, height = Screen.Height * 2 / 3;
+            string[] lines = View.Buffer.Text.Split ('\n');
+            foreach (string line in lines)
             {
-                if(line.Length > width)
+                if (line.Length > width)
                 {
                     width = line.Length;
                 }
             }
-            SetSizeRequest((int)(width * factor + 20), height);
+            width = (int)(width * factor + 20);
+            SetSizeRequest(width, height);
         }
     }
 }

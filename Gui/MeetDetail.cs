@@ -6,6 +6,9 @@ namespace XCAnalyze.Gui
 {
     public class MeetDetail : VBox
     {
+        protected internal static readonly RaceResults NULL_RACE =
+            new RaceResults();
+            
         /// <summary>
         /// Some information about the race.
         /// </summary>
@@ -34,13 +37,27 @@ namespace XCAnalyze.Gui
         /// </param>
         public MeetDetail (Meet meet) : this()
         {
-            MensRace = new RaceResults (meet.MensRace);
-            WomensRace = new RaceResults (meet.WomensRace);
             Info = new Label (meet.Name + "\n" + meet.Date + "\n" + meet.Venue);
             Info.Justify = Justification.Center;
             Add (Info);
-            Add (MensRace);
-            Add (WomensRace);
+            if (meet.MensRace != null)
+            {
+                MensRace = new RaceResults (meet.MensRace);
+                Add (MensRace);
+            }
+            else
+            {
+                MensRace = NULL_RACE;
+            }
+            if (meet.WomensRace != null)
+            {
+                WomensRace = new RaceResults (meet.WomensRace);
+                Add (WomensRace);
+            }
+            else
+            {
+                WomensRace = NULL_RACE;
+            }
         }
         
         /// <summary>
@@ -48,27 +65,21 @@ namespace XCAnalyze.Gui
         /// </summary>
         public void SetSizeRequest ()
         {
-            if(Children.Length == 0)
-            {
-                SetSizeRequest(Screen.Width / 4, Screen.Height / 3);
-                return;
-            }
-            int infoHeight = Info.SizeRequest().Height;
             int height, width;
+            Requisition mensSize, womensSize;
             MensRace.SetSizeRequest ();
             WomensRace.SetSizeRequest ();
-            Requisition mensSize = MensRace.SizeRequest ();
-            Requisition womensSize = WomensRace.SizeRequest ();
-            height = mensSize.Height / 2;
-            width = mensSize.Width;
-            if(womensSize.Width > width)
+            mensSize = MensRace.SizeRequest ();
+            womensSize = WomensRace.SizeRequest ();
+            if(MensRace == NULL_RACE || WomensRace == NULL_RACE)
             {
-                width = womensSize.Width;
+                height = Screen.Height * 2/3;
             }
-            if(infoHeight + (height + Spacing)* 2 > Screen.Height)
+            else
             {
-                height = (Screen.Height - infoHeight - 2*Spacing) / 2;
+                height = Math.Max(mensSize.Height, womensSize.Height) / 2;
             }
+            width = Math.Max(mensSize.Width, womensSize.Width);
             MensRace.SetSizeRequest(width, height);
             WomensRace.SetSizeRequest(width, height);
         }
