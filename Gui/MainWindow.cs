@@ -1,6 +1,5 @@
 using Gtk;
 using System;
-using System.Linq;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui
@@ -8,14 +7,9 @@ namespace XCAnalyze.Gui
     public class MainWindow : Window
     {
         /// <summary>
-        /// The widget where race results are displayed.
+        /// The browser for the meets.
         /// </summary>
-        protected internal MeetViewer RaceInfo { get; set; }
-        
-        /// <summary>
-        /// The data with which the application will be working.
-        /// </summary>
-        protected internal XcData XcData { get; set; }
+        protected internal MeetBrowser Meets { get; set; }
         
         protected internal MainWindow() : base("XCAnalyze v 0.1") {}
         
@@ -27,13 +21,8 @@ namespace XCAnalyze.Gui
         /// </param>
         public MainWindow (XcData data) : this()
         {
-            XcData = data;
-            Meet wReg = (from meet in data.Meets
-                where ("NCAA West Region Championship".Equals (meet.Name)
-                    && 2009.Equals (meet.Date.Year))
-                select meet).First ();
-            RaceInfo = new MeetViewer (wReg);
-            Add (RaceInfo);
+            Meets = new MeetBrowser(data.Meets);
+            Add(Meets);
             SetSizeRequest ();
         }
         
@@ -42,7 +31,7 @@ namespace XCAnalyze.Gui
         /// </summary>
         public void SetSizeRequest ()
         {
-            RaceInfo.SetSizeRequest ();
+            Meets.SetSizeRequest ();
         }
     }
 }

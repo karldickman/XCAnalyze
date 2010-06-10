@@ -4,7 +4,7 @@ using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui
 {
-    public class MeetViewer : VBox
+    public class MeetDetail : VBox
     {
         /// <summary>
         /// Some information about the race.
@@ -12,19 +12,19 @@ namespace XCAnalyze.Gui
         protected internal Label Info { get; set; }
         
         /// <summary>
-        /// The meet this viewer displays.
-        /// </summary>
-        protected internal Meet Meet { get; set; }
-        
-        /// <summary>
         /// The widget used to display the mens race.
         /// </summary>
-        protected internal RaceResultsViewer MensRaceViewer { get; set; }
+        protected internal RaceResults MensRace { get; set; }
         
         /// <summary>
         /// The widget used to display the womens race.
         /// </summary>
-        protected internal RaceResultsViewer WomensRaceViewer { get; set; }
+        protected internal RaceResults WomensRace { get; set; }
+        
+        protected internal MeetDetail()
+        {
+            Spacing = 20;
+        }
         
         /// <summary>
         /// Create a new meet viewer to display a particular meet.
@@ -32,17 +32,15 @@ namespace XCAnalyze.Gui
         /// <param name="meet">
         /// The <see cref="Meet"/> to display.
         /// </param>
-        public MeetViewer (Meet meet)
+        public MeetDetail (Meet meet) : this()
         {
-            Spacing = 20;
-            Meet = meet;
-            MensRaceViewer = new RaceResultsViewer (Meet.MensRace);
-            WomensRaceViewer = new RaceResultsViewer (Meet.WomensRace);
-            Info = new Label (Meet.Name + "\n" + Meet.Date + "\n" + Meet.Venue);
+            MensRace = new RaceResults (meet.MensRace);
+            WomensRace = new RaceResults (meet.WomensRace);
+            Info = new Label (meet.Name + "\n" + meet.Date + "\n" + meet.Venue);
             Info.Justify = Justification.Center;
             Add (Info);
-            Add (MensRaceViewer);
-            Add (WomensRaceViewer);
+            Add (MensRace);
+            Add (WomensRace);
         }
         
         /// <summary>
@@ -50,12 +48,17 @@ namespace XCAnalyze.Gui
         /// </summary>
         public void SetSizeRequest ()
         {
+            if(Children.Length == 0)
+            {
+                SetSizeRequest(0, 0);
+                return;
+            }
             int infoHeight = Info.SizeRequest().Height;
             int height, width;
-            MensRaceViewer.SetSizeRequest ();
-            WomensRaceViewer.SetSizeRequest ();
-            Requisition mensSize = MensRaceViewer.SizeRequest ();
-            Requisition womensSize = WomensRaceViewer.SizeRequest ();
+            MensRace.SetSizeRequest ();
+            WomensRace.SetSizeRequest ();
+            Requisition mensSize = MensRace.SizeRequest ();
+            Requisition womensSize = WomensRace.SizeRequest ();
             height = mensSize.Height / 2;
             width = mensSize.Width;
             if(womensSize.Width > width)
@@ -66,8 +69,8 @@ namespace XCAnalyze.Gui
             {
                 height = (Screen.Height - infoHeight - 2*Spacing) / 2;
             }
-            MensRaceViewer.SetSizeRequest(width, height);
-            WomensRaceViewer.SetSizeRequest(width, height);
+            MensRace.SetSizeRequest(width, height);
+            WomensRace.SetSizeRequest(width, height);
         }
     }
 }
