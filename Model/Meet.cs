@@ -55,7 +55,7 @@ namespace XCAnalyze.Model
         /// <param name="womensRace">
         /// The women's <see cref="Race"/>.
         /// </param>
-        protected internal Meet (string name, Date date, Venue venue,
+        public Meet (string name, Date date, Venue venue,
             Race mensRace, Race womensRace)
         {
             Name = name;
@@ -71,20 +71,6 @@ namespace XCAnalyze.Model
             {
                 womensRace.Meet = this;
             }
-        }
-        
-        public Meet NewInstance (string name, Date date, Venue venue,
-            Race mensRace, Race womensRace)
-        {
-            if (mensRace != null && mensRace.Gender.IsFemale)
-            {
-                throw new InvalidMeetException ("The men's race is a women's race.");
-            }
-            if (womensRace != null && womensRace.Gender.IsMale)
-            {
-                throw new InvalidMeetException ("The women's race is a men's race.");
-            }
-            return new Meet (name, date, venue, mensRace, womensRace);
         }
         
         override public string ToString()

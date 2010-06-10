@@ -30,6 +30,8 @@ namespace XCAnalyze.Io.Sql.Tables
         
         override public Model.Date Date { get; protected internal set; }
         
+        override public Model.Gender Gender { get; protected internal set; }
+        
         /// <summary>
         /// The meet name of this race.
         /// </summary>
@@ -117,12 +119,13 @@ namespace XCAnalyze.Io.Sql.Tables
         /// </param>
         public Race (int id, int? meetId, Model.Date date, int? venueId,
             Model.Gender gender, int distance)
-            : base(gender, distance)
+            : base(distance)
         {
             Id = id;
             MeetNameId = meetId;
             Date = date;
             VenueId = venueId;
+            Gender = gender;
             IdMap[id] = this;
         }
         
@@ -209,13 +212,13 @@ namespace XCAnalyze.Io.Sql.Tables
             Venues.Add (new Model.Venue ("Western Oregon University Campus", "Monmouth", "OR"));
             Meets = new List<Model.Meet> ();
             Meets.Add (new Model.Meet ("Lewis & Clark Invitational", new Model.Date (2009, 9, 5), Venues[0],
-                    new Model.Race (Model.Gender.MALE, 8000), new Model.Race (Model.Gender.FEMALE, 6000)));
+                    new Model.Race (8000), new Model.Race (6000)));
             Meets.Add (new Model.Meet ("Sundodger Invitational", new Model.Date (2009, 9, 15), Venues[1],
-                    new Model.Race (Model.Gender.MALE, 8000), new Model.Race (Model.Gender.FEMALE, 6000)));
+                    new Model.Race (8000), new Model.Race (6000)));
             Meets.Add (new Model.Meet ("Charles Bowles Invitational", new Model.Date (2009, 10, 1), Venues[2],
-                    new Model.Race (Model.Gender.MALE, 8000), new Model.Race (Model.Gender.FEMALE, 5000)));
+                    new Model.Race (8000), new Model.Race (5000)));
             Meets.Add (new Model.Meet ("Summer's End Invitational", new Model.Date (2008, 8, 31), Venues[3],
-                    new Model.Race (Model.Gender.MALE, 7085), new Model.Race (Model.Gender.FEMALE, 4840)));
+                    new Model.Race (7085), new Model.Race (4840)));
             IDictionary<string, MeetName> meetNames = new Dictionary<string, MeetName> ();
             for (int i = 0; i < Meets.Count; i++)
             {

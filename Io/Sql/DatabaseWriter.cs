@@ -644,17 +644,17 @@ namespace XCAnalyze.Io.Sql
             Venues.Add(new Venue("Lincoln Park", "Seattle", "WA"));
             Meets = new List<Model.Meet>();
             Meets.Add(new Meet(MeetNames[0].Name, new Model.Date(2009, 9, 5), Venues[0],
-                    new Race(Model.Gender.MALE, 8000), new Race(Model.Gender.FEMALE, 6000)));
+                    new Race(8000), new Race(6000)));
             Meets.Add(new Meet(MeetNames[1].Name, new Model.Date(2009, 10, 1), Venues[1],
-                    new Race(Model.Gender.MALE, 8000), new Race(Model.Gender.FEMALE, 5000)));
+                    new Race(8000), new Race(5000)));
             Meets.Add(new Meet(MeetNames[2].Name, new Model.Date(2008, 11, 1), Venues[2],
-                    new Race(Model.Gender.MALE, 8000), new Race(Model.Gender.FEMALE, 6000)));
+                    new Race(8000), new Race(6000)));
             Meets.Add(new Meet(MeetNames[3].Name, new Model.Date(2009, 10, 15), Venues[3],
-                    new Race(Model.Gender.MALE, 8000), new Race(Model.Gender.FEMALE, 6000)));
+                    new Race(8000), new Race(6000)));
             Meets.Add(new Meet(MeetNames[4].Name, new Model.Date(2009, 9, 14), Venues[4],
-                    new Race(Model.Gender.MALE, 8000), new Race(Model.Gender.FEMALE, 6000)));
+                    new Race(8000), new Race(6000)));
             Meets.Add(new Meet(MeetNames[5].Name, new Model.Date(2008, 11, 15), Venues[1],
-                    new Race(Model.Gender.MALE, 8000), new Race(Model.Gender.FEMALE, 6000)));
+                    new Race(8000), new Race(6000)));
             Performances = new List<Model.Performance>();
             Performances.Add(new Model.Performance(karl, Meets[4].MensRace, new Model.Time(24*60+55)));
             Performances.Add(new Model.Performance(karl, Meets[1].MensRace, new Model.Time(24*60+44)));

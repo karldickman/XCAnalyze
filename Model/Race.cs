@@ -29,7 +29,22 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// Was it a men's race or a women's race?
         /// </summary>
-        virtual public Gender Gender { get; protected internal set; }
+        virtual public Gender Gender
+        {
+            get
+            {
+                if(this == Meet.MensRace)
+                {
+                    return Gender.MALE;
+                }
+                return Gender.FEMALE;
+            }
+            
+            protected internal set
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         /// <summary>
         /// The meet of which this race is a part.
@@ -75,8 +90,8 @@ namespace XCAnalyze.Model {
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
         /// </param>
-        public Race (Gender gender, int distance)
-            : this(gender, distance, new List<Performance>()) {}
+        public Race (int distance)
+            : this(distance, new List<Performance>()) {}
         
         /// <summary>
         /// Create a new race.
@@ -93,8 +108,8 @@ namespace XCAnalyze.Model {
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
         /// </param>
-        public Race(Gender gender, int distance, List<Performance> results)
-            : this(null, gender, distance, results) {}
+        public Race(int distance, List<Performance> results)
+            : this(null, distance, results) {}
         
         /// <summary>
         /// Create a new race.
@@ -126,9 +141,8 @@ namespace XCAnalyze.Model {
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
         /// </param>       
-        public Race(Meet meet, Gender gender, int distance,
-            List<Performance> results)
-            : this(meet, gender, distance, results, false) {}
+        public Race(Meet meet, int distance, List<Performance> results)
+            : this(meet, distance, results, false) {}
         
         /// <summary>
         /// Create a new race.
@@ -160,10 +174,9 @@ namespace XCAnalyze.Model {
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
         /// </param>
-        public Race (Meet meet, Gender gender, int distance, 
-            List<Performance> results, bool scoreMeet)
+        public Race (Meet meet, int distance, List<Performance> results,
+            bool scoreMeet)
         {
-            Gender = gender;
             Distance = distance;
             Meet = meet;
             Results = results;
