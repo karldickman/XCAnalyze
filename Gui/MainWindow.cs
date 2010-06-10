@@ -1,7 +1,6 @@
 using Gtk;
 using System;
 using System.Linq;
-using XCAnalyze.Io;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui
@@ -17,18 +16,6 @@ namespace XCAnalyze.Gui
         /// The data with which the application will be working.
         /// </summary>
         protected internal XcData XcData { get; set; }
-        
-        public static int Main (string[] args)
-        {
-            Application.Init ();
-            IReader<XcData> reader;
-            reader = XcaReader.NewInstance (SupportFiles.GetPath("example.xca"));
-            XcData data = reader.Read ();
-            MainWindow application = new MainWindow (data);
-            application.ShowAll ();
-            Application.Run ();
-            return 0;
-        }
         
         protected internal MainWindow() : base("XCAnalyze v 0.1") {}
         
