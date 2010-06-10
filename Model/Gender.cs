@@ -17,7 +17,7 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The gender of the instance.
         /// </summary>
-		private gender gender;
+		private gender _gender;
         
         /// <summary>
         /// The male instance
@@ -41,7 +41,7 @@ namespace XCAnalyze.Model
         
 		internal Gender (gender gender)
 		{
-			this.gender = gender;
+			this._gender = gender;
 		}
 
 		/// <summary>
@@ -78,7 +78,7 @@ namespace XCAnalyze.Model
 
 		override public int GetHashCode ()
 		{
-			return gender.GetHashCode ();
+			return _gender.GetHashCode ();
 		}
 
 		/// <summary>

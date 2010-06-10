@@ -10,11 +10,12 @@ namespace XCAnalyze.Gui
     /// </summary>
     public class MeetsListStore : ListStore
     {
-        public MeetsListStore (IList<Meet> meets) : base(typeof(string))
+        public MeetsListStore (IList<Meet> meets)
+            : base(typeof(Meet), typeof(string))
         {
             foreach (Meet meet in meets)
             {
-                AppendValues (meet.Name);
+                AppendValues (meet, meet.Name);
             }
         }
     }
@@ -23,30 +24,32 @@ namespace XCAnalyze.Gui
     /// A widget to display a list of meets.
     /// </summary>
     public class MeetsView : TreeView
-    {
+    {   
         /// <summary>
-        /// The renderer for cells in the name column.
+        /// The meet that is currently selected.
         /// </summary>
-        protected internal CellRenderer NameCell { get; set; }
+        protected internal MeetSelection MeetSelection { get; set; }
         
-        /// <summary>
-        /// The column that contains the name of the meet.
-        /// </summary>
-        protected internal TreeViewColumn NameColumn { get; set; }
-        
-        protected internal MeetsView ()
+        protected internal MeetsView (MeetSelection selection)
         {
-            NameColumn = new TreeViewColumn ();
-            NameColumn.Title = "Name";
-            NameCell = new CellRendererText ();
-            NameColumn.PackStart (NameCell, true);
-            NameColumn.AddAttribute (NameCell, "text", 0);
-            AppendColumn (NameColumn);
+            MeetSelection = selection;
+            AppendColumn("Name", new CellRendererText(), "text", 1);
+            RowActivated += HandleRowActivated;
         }
         
-        public MeetsView (ListStore model) : this()
+        public MeetsView (MeetSelection selection, ListStore model)
+            : this(selection)
         {
             Model = model;
+        }
+        
+        public void HandleRowActivated (object object_, RowActivatedArgs args)
+        {
+            TreeIter iter = new TreeIter ();
+            if (Model.GetIter (out iter, args.Path))
+            {
+                MeetSelection.Selected = (Meet)Model.GetValue (iter, 0);
+            }
         }
     }
     
@@ -66,10 +69,10 @@ namespace XCAnalyze.Gui
         /// <param name="meets">
         /// The <see cref="IList<Meet>"/> to display.
         /// </param>
-        public MeetsList (IList<Meet> meets)
+        public MeetsList (MeetSelection selection, IList<Meet> meets)
         {
             ListStore model = new MeetsListStore (meets);
-            View = new MeetsView (model);
+            View = new MeetsView (selection, model);
             Add (View);
         }
         

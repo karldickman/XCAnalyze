@@ -56,7 +56,14 @@ namespace XCAnalyze.Hytek
                 valueRow[n++] = (i + 1).ToString ();
                 valueRow[n++] = results[i].Runner.Name;
                 valueRow[n++] = results[i].Runner.Year.ToString ();
-                valueRow[n++] = results[i].School.Name;
+                if (results[i].School == null)
+                {
+                    valueRow[n++] = "";
+                }
+                else
+                {
+                    valueRow[n++] = results[i].School.Name;
+                }
                 valueRow[n++] = results[i].Time.ToString ();
                 valueRow[n++] = results[i].Points.ToString ();
                 values.Add (valueRow);

@@ -21,16 +21,36 @@ namespace XCAnalyze.Gui
         /// </summary>
         protected internal MeetDetail Detail { get; set; }
         
+        /// <summary>
+        /// An object that keeps track of the currently selected meet.
+        /// </summary>
+        protected internal MeetSelection MeetSelection { get; set; }
+        
         public MeetBrowser (IList<Meet> meets)
         {
-            Browser = new MeetsList (meets);
-            Meet wReg = (from meet in meets
-                where ("NCAA West Region Championship".Equals (meet.Name)
-                    && 2009.Equals (meet.Date.Year))
-                select meet).First ();
-            Detail = new MeetDetail (wReg);
+            MeetSelection = new MeetSelection ();
+            Browser = new MeetsList (MeetSelection, meets);
+            Detail = new MeetDetail ();
             Add (Browser);
             Add (Detail);
+            MeetSelection.MeetSelector selector =
+                new MeetSelection.MeetSelector (SelectMeet);
+            MeetSelection.SelectionChanged += selector;
+        }
+        
+        /// <summary>
+        /// Select a particular meet to be shown in the detail view.
+        /// </summary>
+        /// <param name="meet">
+        /// The <see cref="Meet"/> to show.
+        /// </param>
+        public void SelectMeet (Meet meet)
+        {
+            Remove (Detail);
+            Detail = new MeetDetail (meet);
+            Add (Detail);
+            SetSizeRequest ();
+            ShowAll ();
         }
         
         public void SetSizeRequest ()

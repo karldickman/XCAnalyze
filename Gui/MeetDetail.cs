@@ -50,7 +50,7 @@ namespace XCAnalyze.Gui
         {
             if(Children.Length == 0)
             {
-                SetSizeRequest(0, 0);
+                SetSizeRequest(Screen.Width / 4, Screen.Height / 3);
                 return;
             }
             int infoHeight = Info.SizeRequest().Height;
