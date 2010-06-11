@@ -8,70 +8,39 @@ namespace XCAnalyze.Io.Sql
     public class SqliteDatabaseReader : DatabaseReader
     {
         /// <summary>
-        /// Create a new reader.
-        /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to connect to.
-        /// </param>
-        protected internal SqliteDatabaseReader(IDbConnection connection)
-            : base(connection) {}
-    
-        /// <summary>
         /// Create a new reader using an in-memory database.
         /// </summary>
-        public static SqliteDatabaseReader NewInstance ()
-        {
-            return NewInstance (":memory:");
-        }
-        
+        public SqliteDatabaseReader () : this(":memory:") {}
+
         /// <summary>
         /// Create a new reader that reads from a file.
         /// </summary>
         /// <param name="fileName">
         /// The name of the file from which to read.
         /// </param>
-        public static SqliteDatabaseReader NewInstance (string fileName)
-        {
-            return NewInstance (
-                new SqliteConnection ("Data Source=" + fileName));
-        }
+        public SqliteDatabaseReader (string fileName)
+            : this(new SqliteConnection ("Data Source=" + fileName), fileName) {}
         
         /// <summary>
-        /// Create a new reader using a particular connection.
+        /// Create a new reader.
         /// </summary>
         /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to use.
+        /// The <see cref="IDbConnection"/> to connect to.
         /// </param>
-        new public static SqliteDatabaseReader NewInstance (IDbConnection connection)
-        {
-            SqliteDatabaseReader reader = new SqliteDatabaseReader (connection);
-            reader.Connection.Open ();
-            reader.Command = reader.Connection.CreateCommand ();
-            return reader;
-        }
+        /// <param name="database">
+        /// The name of the database from which this reader should read.
+        /// </param>
+        public SqliteDatabaseReader (IDbConnection connection, string database)
+            : base(connection, database) {}
     }
     
     [TestFixture]
-    public class TestSqliteDatabaseReader
-    {
-        protected internal SqliteDatabaseReader Reader { get; set; }
-        
+    public class TestSqliteDatabaseReader : TestDatabaseReader
+    {        
         [SetUp]
-        public void SetUp ()
+        override public void SetUp ()
         {
-            Reader = SqliteDatabaseReader.NewInstance (SupportFiles.GetPath ("example.db"));
-        }
-        
-        [TearDown]
-        public void TearDown ()
-        {
-            Reader.Close ();
-        }
-        
-        [Test]
-        public void TestRead ()
-        {
-            Reader.Read ();
+            Reader = new SqliteDatabaseReader(SupportFiles.GetPath (EXAMPLE_DATABASE + ".db"));
         }
     }
 }

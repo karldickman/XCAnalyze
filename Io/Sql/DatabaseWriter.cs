@@ -8,11 +8,11 @@ using System.Linq;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
-{    
+{   
     /// <summary>
     /// A writer to write all the data in the model to a database.
     /// </summary>
-    abstract public class DatabaseWriter : IWriter<Model.XcData>
+    abstract public class DatabaseWriter : BaseDatabaseWriter
     {
         /// <summary>
         /// The creation script for the database.
@@ -29,10 +29,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// The file extension of the creation script.
         /// </summary>
-        virtual public string CREATION_SCRIPT_EXTENSION
-        {
-            get { return ".sql"; }
-        }
+        abstract public string CREATION_SCRIPT_EXTENSION { get; }
         
         /// <summary>
         /// The title of the column that has the names of all the tables.
@@ -43,171 +40,21 @@ namespace XCAnalyze.Io.Sql
         /// The script used to get the list of tables in the database.
         /// </summary>
         abstract public string GET_TABLES_COMMAND { get; }
-
-        /// <summary>
-        /// The tables that should be in the database.  These are in dependency
-        /// order: tables later in the list have foreign keys referencing tables
-        /// earlier in the list.
-        /// </summary>
-        public static readonly string[] TABLES = {"conferences", "runners",
-        "schools", "affiliations", "meets", "venues", "races", "results"};        
         
-        /// <summary>
-        /// The views that should be in the database.
-        /// </summary>
-        public static readonly string[] VIEWS = {"performances"};
-
-        /// <summary>
-        /// The <see cref="IDbCommand"/> used to query the database.
-        /// </summary>
-        protected internal IDbCommand Command { get; set; }
-
-        /// <summary>
-        /// The <see cref="IDbConnection"/> to the database.
-        /// </summary>
-        protected internal IDbConnection Connection { get; set; }
-
-        /// <summary>
-        /// The name of the database to which this reader is connected.
-        /// </summary>
-        protected internal string Database { get; set; }
+        public DatabaseWriter(IDbConnection connection, string database)
+            : base(connection, database) {}
         
-        /// <summary>
-        /// The <see cref="DatabaseReader" /> used to read things back out of
-        /// the database.
-        /// </summary>
-        protected internal DatabaseReader DatabaseReader { get; set; }
+        public DatabaseWriter(IDbConnection connection, string database,
+            IDbCommand command) : base(connection, database, command) {}
         
-        /// <summary>
-        /// The <see cref="IDataReader"/> used to read responses from the
-        /// database.
-        /// </summary>
-        protected internal IDataReader Reader { get; set; }
-        
-        /// <summary>
-        /// Create a new writer.
-        /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to use.
-        /// </param>
-        /// <param name="command">
-        /// The <see cref="IDbCommand"/> to use.
-        /// </param>
-        public DatabaseWriter (IDbConnection connection, string database,
-            IDbCommand command)
+        override public IList<string> CreationScript()
         {
-            Connection = connection;
-            Database = database;
-            Command = command;
-        }
-        
-        /// <summary>
-        /// Create a new writer.
-        /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to use.
-        /// </param>
-        protected internal DatabaseWriter(IDbConnection connection,
-            string database) : this(connection, database, true) {}
-        
-        /// <summary>
-        /// Create a new writer.
-        /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to use.
-        /// </param>
-        /// <param name="database">
-        /// The name of the database.
-        /// </param>
-        /// <param name="open">
-        /// Should the connection be opened?
-        /// </param>
-        protected internal DatabaseWriter(IDbConnection connection,
-            string database, bool open)
-        {
-            Connection = connection;
-            Database = database;
-            if(open)
-            {
-                Open();
-            }
-        }
-
-        /// <summary>
-        /// Close the connection to the database.
-        /// </summary>
-        public void Close ()
-        {
-            if (Reader != null)
-            {
-                Reader.Close ();
-                Reader = null;
-            }
-            if (Command != null)
-            {
-                Command.Dispose ();
-                Command = null;
-            }
-            Connection.Close ();
-        }
-        
-        /// <summary>
-        /// Get the script to create the database.
-        /// </summary>
-        public string CreationScript ()
-        {
-            return String.Join(" ", File.ReadAllLines(CREATION_SCRIPT));
-        }
-
-        /// <summary>
-        /// Initialize all the tables in the database.
-        /// </summary>
-        virtual public void InitializeDatabase ()
-        {
-            Command.CommandText = CreationScript ();
-            Command.ExecuteNonQuery ();
-        }
-
-        /// <summary>
-        /// Check that all the required tables in the database exist.
-        /// </summary>
-        virtual public bool IsDatabaseInitialized ()
-        {
-            IList<string> foundTables = new List<string> ();
-            Command.CommandText = GET_TABLES_COMMAND;
-            Reader = Command.ExecuteReader ();
-            while (Reader.Read ())
-            {
-                foundTables.Add ((string)Reader[GET_TABLES_COLUMN]);
-            }
-            Reader.Dispose ();
-            if (foundTables.Count < TABLES.Length)
-            {
-                return false;
-            }
-            foreach(string table in TABLES)
-            {
-                if(!foundTables.Contains(table))
-                {
-                    return false;
-                }
-            }
-            if(foundTables.Count == TABLES.Length)
-            {
-                return true;
-            }
-            if(foundTables.Count != TABLES.Length + VIEWS.Length)
-            {
-                return false;
-            }
-            foreach(string table in VIEWS)
-            {
-                if(!foundTables.Contains(table))
-                {
-                    return false;
-                }
-            }
-            return true;
+            IList<string> commands;
+            ScriptReader reader;
+            reader = new ScriptReader(CREATION_SCRIPT);
+            commands = reader.Read();
+            reader.Dispose();
+            return commands;
         }
         
         /// <summary>
@@ -293,60 +140,61 @@ namespace XCAnalyze.Io.Sql
         /// <param name="time">
         /// The <see cref="Model.Time"/> to format.
         /// </param>
-        public string Format(Model.Time time)
+        public string Format (Model.Time time)
         {
-            return time.Seconds.ToString();
+            return time.Seconds.ToString ();
         }
         
-        /// <summary>
-        /// Do all the steps needed to open the connection.
-        /// </summary>
-        abstract public void Open();
-        
-        /// <summary>
-        /// Write data to the database.
-        /// </summary>
-        /// <param name="data">
-        /// The <see cref="Data"/> to be written.
-        /// </param>
-        public void Write (Model.XcData data)
+        override protected internal void InitializeDatabase ()
         {
-            Tables.XcData sqlData = null;
-            if(data is Tables.XcData)
+            IList<string> creationCommands = CreationScript();
+            foreach(string command in creationCommands)
             {
-                sqlData = (Tables.XcData)data;
+                Command.CommandText = command;
+                Command.ExecuteNonQuery();
             }
-            if(sqlData != null)
-            {
-                WriteConferences(sqlData.SqlConferences);
-            }
-            else
-            {
-                WriteConferences(data.Conferences);
-            }
-            WriteRunners(data.Runners);
-            WriteSchools(data.Schools);
-            WriteAffiliations(data.Affiliations);
-            if(sqlData != null)
-            {
-                WriteMeetNames(sqlData.SqlMeetNames);
-            }
-            else
-            {
-                WriteMeetNames(data.MeetNames);
-            }
-            WriteVenues(data.Venues);
-            WriteRaces(data.Races);
-            WritePerformances(data.Performances);
         }
         
-        /// <summary>
-        /// Write the list of affiliations to the database.
-        /// </summary>
-        /// <param name="affiliations">
-        /// The <see cref="IList<Model.Affiliation>"/> to write.
-        /// </param>
-        public void WriteAffiliations(IList<Model.Affiliation> affiliations)
+        override protected internal bool IsDatabaseInitialized ()
+        {
+            IList<string> foundTables = new List<string> ();
+            Command.CommandText = GET_TABLES_COMMAND;
+            ResultsReader = Command.ExecuteReader ();
+            while (ResultsReader.Read ())
+            {
+                foundTables.Add ((string)ResultsReader[GET_TABLES_COLUMN]);
+            }
+            ResultsReader.Dispose ();
+            if (foundTables.Count < TABLES.Length)
+            {
+                return false;
+            }
+            foreach (string table in TABLES)
+            {
+                if (!foundTables.Contains (table))
+                {
+                    return false;
+                }
+            }
+            if (foundTables.Count == TABLES.Length)
+            {
+                return true;
+            }
+            if (foundTables.Count != TABLES.Length + VIEWS.Length)
+            {
+                return false;
+            }
+            foreach (string table in VIEWS)
+            {
+                if (!foundTables.Contains (table))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        override public void WriteAffiliations(IList<Model.Affiliation> affiliations)
         {
             foreach(Model.Affiliation affiliation in affiliations)
             {
@@ -355,29 +203,17 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
-        /// <summary>
-        /// Write the list of conferences to the database.
-        /// <param name="conferences">
-        /// The <see cref="IList<string>"/> to write.
-        /// </param>
-        /// </summary>
-        public void WriteConferences(IList<string> conferences)
+        override public void WriteConferences(IList<string> conferences)
         {
             foreach(string conference in conferences)
             {
                 Command.CommandText = "INSERT INTO conferences (name) VALUES (" + Format(conference) + ")";
                 Command.ExecuteNonQuery();
             }
-            DatabaseReader.ReadConferences();
+            Reader.ReadConferences();
         }
         
-        /// <summary>
-        /// Write the list of conferences to the database.
-        /// <param name="conferences">
-        /// The <see cref="IList<Tables.Conferences>"/> to write.
-        /// </param>
-        /// </summary>
-        public void WriteConferences (IList<Tables.Conference> conferences)
+        override public void WriteConferences (IList<Tables.Conference> conferences)
         {
             foreach (Tables.Conference conference in conferences)
             {
@@ -386,29 +222,17 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
-        /// <summary>
-        /// Write a list of meets to the database.
-        /// </summary>
-        /// <param name="meets">
-        /// The <see cref="IList<System.String>"/> to write.
-        /// </param>
-        public void WriteMeetNames(IList<string> meetNames)
+        override public void WriteMeetNames(IList<string> meetNames)
         {
             foreach(string meet in meetNames)
             {
                 Command.CommandText = "INSERT INTO meets (name) VALUES (" + Format(meet) + ")";
                 Command.ExecuteNonQuery();
             }
-            DatabaseReader.ReadMeetNames();
+            Reader.ReadMeetNames();
         }
         
-        /// <summary>
-        /// Write a list of meets to the database.
-        /// </summary>
-        /// <param name="meets">
-        /// The <see cref="IList<Meet>"/> to write.
-        /// </param>
-        public void WriteMeetNames(IList<Tables.MeetName> meetNames)
+        override public void WriteMeetNames(IList<Tables.MeetName> meetNames)
         {
             foreach(Tables.MeetName meet in meetNames)
             {
@@ -417,13 +241,7 @@ namespace XCAnalyze.Io.Sql
             }
         }
        
-        /// <summary>
-        /// Write a list of performances to the database.
-        /// </summary>
-        /// <param name="performances">
-        /// The <see cref="IList<Model.Performance>"/> to write.
-        /// </param>
-        public void WritePerformances(IList<Model.Performance> performances)
+        override public void WritePerformances(IList<Model.Performance> performances)
         {
             foreach(Model.Performance performance in performances)
             {                
@@ -432,78 +250,64 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
-        /// <summary>
-        /// Write a list of races to the database.
-        /// </summary>
-        /// <param name="races">
-        /// The <see cref="IList<Model.Race>"/> to write.
-        /// </param>
-        public void WriteRaces(IList<Model.Race> races)
+        override public void WriteRaces(IList<Model.Race> races)
         {
             foreach(Model.Race race in races)
             {
                 Command.CommandText = "INSERT INTO races (meet_id, venue_id, date, gender, distance) VALUES (" + Format(Tables.MeetName.GetId(race.Name)) + ", " + Format(Tables.Venue.GetId(race.Venue)) + ", " + Format(race.Date) + ", " + Format(race.Gender) + ", " + race.Distance + ")";
                 Command.ExecuteNonQuery();
             }
-            DatabaseReader.ReadRaces();
+            Reader.ReadRaces();
         }
         
-        /// <summary>
-        /// Write the list of runners to the database.
-        /// </summary>
-        /// <param name="runners">
-        /// The <see cref="IList<Model.Runner>"/> to write.
-        /// </param>
-        public void WriteRunners(IList<Model.Runner> runners)
+        override public void WriteRunners(IList<Model.Runner> runners)
         {
             foreach(Model.Runner runner in runners)
             {
                 Command.CommandText = "INSERT INTO runners (surname, given_name, gender, year) VALUES (" + Format(runner.Surname) + ", " + Format(runner.GivenName) + ", " + Format(runner.Gender) + ", " + Format(runner.Year) + ")";
                 Command.ExecuteNonQuery();
             }
-            DatabaseReader.ReadRunners();
+            Reader.ReadRunners();
         }
         
-        /// <summary>
-        /// Write a list of schools to the database.
-        /// </summary>
-        /// <param name="schools">
-        /// The <see cref="IList<Model.School>"/> to write.
-        /// </param>
-        public void WriteSchools(IList<Model.School> schools)
+        override public void WriteSchools(IList<Model.School> schools)
         {
             foreach(Model.School school in schools)
             {
                 Command.CommandText = "INSERT INTO schools (name, type, name_first, conference_id) VALUES (" + Format(school.Name) + ", " + Format(school.Type) + ", " + Format(school.NameFirst) + ", " + Format(Tables.Conference.GetId(school.Conference)) + ")";
                 Command.ExecuteNonQuery();
             }
-            DatabaseReader.ReadSchools();
+            Reader.ReadSchools();
         }
         
-        /// <summary>
-        /// Write a list of venues to the database.
-        /// </summary>
-        /// <param name="venues">
-        /// The <see cref="IList<System.String[]>"/> to write.
-        /// </param>
-        public void WriteVenues(IList<Model.Venue> venues)
+        override public void WriteVenues(IList<Model.Venue> venues)
         {
             foreach(Model.Venue venue in venues)
             {
                 Command.CommandText = "INSERT INTO venues (name, city, state) VALUES (" + Format(venue.Name) + ", " + Format(venue.City) + ", " + Format(venue.State) + ")";                
                 Command.ExecuteNonQuery();
             }
-            DatabaseReader.ReadVenues();
+            Reader.ReadVenues();
         }
     }
     
     abstract public class TestDatabaseWriter
-    {        
+    {
+        /// <summary>
+        /// A delegate for test methods.
+        /// </summary>
+        protected internal delegate T TestMethod<T>(T value_);
+        
         /// <summary>
         /// The name of the test database.
         /// </summary>
-        virtual public string TEST_DATABASE { get { return "xca_test"; } }
+        public const string TEST_DATABASE = "xca_test";
 
+        /// <summary>
+        /// The username used to connect to the test database.
+        /// </summary>
+        public const string TEST_ACCOUNT = "xcanalyze";
+        
         /// <summary>
         /// A sample list of affiliations.
         /// </summary>
@@ -542,7 +346,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// The reader for the database.
         /// </summary>
-        protected internal DatabaseReader Reader { get; set; }
+        protected internal BaseDatabaseReader Reader { get; set; }
         
         /// <summary>
         /// A sample list of runners.
@@ -562,7 +366,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// The writer for the database.
         /// </summary>
-        protected internal DatabaseWriter Writer { get; set; }
+        protected internal BaseDatabaseWriter Writer { get; set; }
         
         [SetUp]
         virtual public void SetUp()
@@ -663,15 +467,32 @@ namespace XCAnalyze.Io.Sql
             Races = GlobalState.Races;
         }
         
-        abstract public void SetUpPartial();        
+        abstract protected internal void SetUpPartial();        
         
         [TearDown]
         virtual public void TearDown ()
         {
-            Writer.Close ();
-            Reader.Close ();
+            Writer.Dispose ();
+            Reader.Dispose ();
         }
+        
+        abstract protected internal BaseDatabaseWriter CreateWriter();
 
+        protected internal void RepeatTest<T> (TestMethod<T> Test, T original)
+        {
+            RepeatTest (3, Test, original);
+        }
+        
+        protected internal void RepeatTest<T>(int number, TestMethod<T> Test, T original)
+        {
+            for (int i = 0; i < number; i++)
+            {
+                original = Test<T> (original);
+                Writer.Dispose();
+                Writer = CreateWriter();
+            }
+        }        
+        
         [Test]
         virtual public void TestInitializeDatabase ()
         {
@@ -689,234 +510,230 @@ namespace XCAnalyze.Io.Sql
         }
         
         [Test]
-        virtual public void TestWrite()
+        public void TestWrite ()
         {
-            Model.XcData actual;
-            for(int i = 0; i < 3; i++)
-            {
-                Writer.Write(GlobalState);
-                actual = Reader.Read();
-                Assert.That(actual is XcData);
-                Assert.IsNotEmpty((ICollection)actual.Affiliations);
-                Assert.IsNotEmpty((ICollection)actual.Conferences);
-                Assert.IsNotEmpty((ICollection)actual.Performances);
-                Assert.IsNotEmpty((ICollection)actual.Meets);
-                Assert.IsNotEmpty((ICollection)actual.Races);
-                Assert.IsNotEmpty((ICollection)actual.Runners);
-                Assert.IsNotEmpty((ICollection)actual.Schools);
-                Assert.IsNotEmpty((ICollection)actual.Venues);
-                Assert.That(TestXcaWriter.AreDataEqual(GlobalState, actual));
-                Writer.Close();
-                Writer.Open();
-            }
+            RepeatTest (Write, GlobalState);
+        }
+        
+        virtual public XcData Write(XcData expected)
+        {
+            Writer.Write(expected);
+            Model.XcData actual = Reader.Read();
+            Assert.That(actual is Tables.XcData);
+            Assert.IsNotEmpty((ICollection)actual.Affiliations);
+            Assert.IsNotEmpty((ICollection)actual.Conferences);
+            Assert.IsNotEmpty((ICollection)actual.Performances);
+            Assert.IsNotEmpty((ICollection)actual.Meets);
+            Assert.IsNotEmpty((ICollection)actual.Races);
+            Assert.IsNotEmpty((ICollection)actual.Runners);
+            Assert.IsNotEmpty((ICollection)actual.Schools);
+            Assert.IsNotEmpty((ICollection)actual.Venues);
+            Assert.That(TestXcaWriter.AreDataEqual(expected, actual));
+            return actual;
         }
         
         [Test]
         virtual public void TestWriteAffiliations()
         {
-            IList<Model.Affiliation> actual;
-            for(int i = 0; i < 3; i++)
+            RepeatTest(WriteAffiliations, Affiliations);
+        }
+        
+        public IList<Affiliation> WriteAffiliations (IList<Affiliation> expected)
+        {
+            Writer.WriteConferences (Conferences);
+            Reader.ReadConferences ();
+            Writer.WriteRunners (Runners);
+            Reader.ReadRunners ();
+            Writer.WriteSchools (Schools);
+            Reader.ReadSchools ();
+            Writer.WriteAffiliations (expected);
+            Reader.ReadAffiliations ();
+            IList<Affiliation> actual = Tables.Affiliation.List;
+            Assert.AreEqual (Affiliations.Count, actual.Count);
+            foreach (Model.Affiliation affiliation in actual)
             {
-                Writer.WriteConferences(Conferences);
-                Reader.ReadConferences();
-                Writer.WriteRunners(Runners);
-                Reader.ReadRunners();
-                Writer.WriteSchools(Schools);
-                Reader.ReadSchools();
-                Writer.WriteAffiliations(Affiliations);
-                Reader.ReadAffiliations();
-                actual = Tables.Affiliation.List;
-                Assert.AreEqual(Affiliations.Count, actual.Count);
-                foreach(Model.Affiliation affiliation in actual)
-                {
-                    Assert.That(affiliation is Affiliation);
-                }
-                foreach(Model.Affiliation affiliation in Affiliations)
-                {
-                    Assert.That(actual.Contains(affiliation));
-                }
-                Writer.Close();
-                Writer.Open();
-                Affiliations = actual;
+                Assert.That (affiliation is Tables.Affiliation);
             }
+            foreach (Model.Affiliation affiliation in Affiliations)
+            {
+                Assert.That (actual.Contains (affiliation));
+            }
+            return actual;      
         }
         
         [Test]
         virtual public void TestWriteConferences()
         {
-            IList<Tables.Conference> actual;
-            for(int i = 0; i < 3; i++)
+            RepeatTest(WriteConferences, Conferences);
+        }
+        
+        public IList<Tables.Conference> WriteConferences (IList<Tables.Conference> expected)
+        {
+            Writer.WriteConferences (expected);
+            Reader.ReadConferences ();
+            IList<Tables.Conference> actual = Tables.Conference.List;
+            Assert.AreEqual (Conferences.Count, actual.Count);
+            foreach (Tables.Conference conference in Conferences) 
             {
-                Writer.WriteConferences (Conferences);
-                Reader.ReadConferences();
-                actual = Tables.Conference.List;
-                Assert.AreEqual(Conferences.Count, actual.Count);
-                foreach (Tables.Conference conference in Conferences) 
-                {
-                    Assert.That (actual.Contains (conference));
-                }
-                Writer.Close();
-                Writer.Open();
-                Conferences = actual;
+                Assert.That (actual.Contains (conference));
             }
+            return actual;
         }
         
         [Test]
         virtual public void TestWritePerformances()
         {
-            IList<Model.Performance> actual;
-            for(int i = 0; i < 3; i++)
+            RepeatTest(WritePerformances, Performances);
+        }
+        
+        public IList<Performance> WritePerformances(IList<Performance> expected)
+        {
+            Writer.WriteMeetNames(MeetNames);
+            Reader.ReadMeetNames();
+            Writer.WriteVenues(Venues);
+            Reader.ReadVenues();
+            Writer.WriteRaces(Races);
+            Reader.ReadRaces();
+            Writer.WriteRunners(Runners);
+            Reader.ReadRunners();
+            Writer.WritePerformances(expected);
+            Reader.ReadPerformances();
+            IList<Model.Performance> actual = Tables.Performance.List;
+            Assert.AreEqual(Performances.Count, actual.Count);
+            foreach(Model.Performance performance in actual)
             {
-                Writer.WriteMeetNames(MeetNames);
-                Reader.ReadMeetNames();
-                Writer.WriteVenues(Venues);
-                Reader.ReadVenues();
-                Writer.WriteRaces(Races);
-                Reader.ReadRaces();
-                Writer.WriteRunners(Runners);
-                Reader.ReadRunners();
-                Writer.WritePerformances(Performances);
-                Reader.ReadPerformances();
-                actual = Tables.Performance.List;
-                Assert.AreEqual(Performances.Count, actual.Count);
-                foreach(Model.Performance performance in actual)
-                {
-                    Assert.That(performance is Performance);
-                }
-                foreach(Model.Performance performance in Performances)
-                {
-                    Assert.That(actual.Contains(performance));
-                }
-                Writer.Close();
-                Writer.Open();
-                Performances = actual;
+                Assert.That(performance is Tables.Performance);
             }
+            foreach(Model.Performance performance in Performances)
+            {
+                Assert.That(actual.Contains(performance));
+            }
+            return actual;
         }
         
         [Test]
         virtual public void TestWriteMeetNames()
         {
-            IList<Tables.MeetName> actual;
-            for(int i = 0; i < 3; i++)
+            RepeatTest(WriteMeetNames, MeetNames);
+        }
+        
+        public IList<Tables.MeetName> WriteMeetNames(IList<Tables.MeetName> expected)
+        {
+            Writer.WriteMeetNames(MeetNames);
+            Reader.ReadMeetNames();
+            IList<Tables.MeetName>actual = Tables.MeetName.List;
+            Assert.AreEqual(MeetNames.Count, actual.Count);
+            foreach(Tables.MeetName meet in MeetNames)
             {
-                Writer.WriteMeetNames(MeetNames);
-                Reader.ReadMeetNames();
-                actual = Tables.MeetName.List;
-                Assert.AreEqual(MeetNames.Count, actual.Count);
-                foreach(Tables.MeetName meet in MeetNames)
-                {
-                    Assert.That(actual.Contains(meet));
-                }
-                Writer.Close();
-                Writer.Open();
-                MeetNames = actual;
+                Assert.That(actual.Contains(meet));
             }
+            return actual;
         }
         
         [Test]
         virtual public void TestWriteRaces()
         {
-            IList<Model.Race> actual;
-            for(int i = 0; i < 3; i++)
+            RepeatTest(WriteRaces, Races);
+        }
+        
+        public IList<Race> WriteRaces (IList<Race> expected)
+        {
+            Writer.WriteMeetNames (MeetNames);
+            Reader.ReadMeetNames ();
+            Writer.WriteVenues (Venues);
+            Reader.ReadVenues ();
+            Writer.WriteRaces (expected);
+            Reader.ReadRaces ();
+            IList<Race> actual = Tables.Race.List;
+            Assert.AreEqual (Races.Count, actual.Count);
+            foreach (Race race in actual)
             {
-                Writer.WriteMeetNames(MeetNames);
-                Reader.ReadMeetNames();
-                Writer.WriteVenues(Venues);
-                Reader.ReadVenues();
-                Writer.WriteRaces(Races);
-                Reader.ReadRaces();
-                actual = Tables.Race.List;
-                Assert.AreEqual(Races.Count, actual.Count);
-                foreach(Race race in actual)
-                {
-                    Assert.That(race is Tables.Race);
-                }
-                foreach(Model.Race race in Races)
-                {
-                    Assert.That(actual.Contains(race));
-                }
-                Writer.Close();
-                Writer.Open();
-                Races = actual;
+                Assert.That (race is Tables.Race);
             }
+            foreach (Model.Race race in Races)
+            {
+                Assert.That (actual.Contains (race));
+            }
+            return actual;
         }
         
         [Test]
         virtual public void TestWriteRunners()
         {
-            IList<Model.Runner> actual;
-            for(int i = 0; i < 3; i++)
+            RepeatTest(WriteRunners, Runners);
+        }
+        
+        public IList<Runner> WriteRunners (IList<Runner> runners)
+        {
+            Writer.WriteRunners (Runners);
+            Reader.ReadRunners ();
+            IList<Runner> actual = Tables.Runner.List;
+            Assert.AreEqual (Runners.Count, actual.Count);
+            foreach (Model.Runner runner in actual)
             {
-                Writer.WriteRunners(Runners);
-                Reader.ReadRunners();
-                actual = Tables.Runner.List;
-                Assert.AreEqual(Runners.Count, actual.Count);
-                foreach(Model.Runner runner in actual)
-                {
-                    Assert.That(runner is Tables.Runner);
-                }
-                foreach(Model.Runner runner in Runners)
-                {
-                    Assert.That(actual.Contains(runner));
-                }
-                Writer.Close();
-                Writer.Open();
-                Runners = actual;
+                Assert.That (runner is Tables.Runner);
             }
+            foreach (Model.Runner runner in Runners)
+            {
+                Assert.That (actual.Contains (runner));
+            }
+            return actual;
         }
         
         [Test]
         virtual public void TestWriteSchools()
         {
-            IList<Model.School> actual;
-            for(int i = 0; i < 3; i++)
+            RepeatTest(WriteSchools, Schools);
+        }
+        
+        public IList<School> WriteSchools (IList<School> expected)
+        {
+            Writer.WriteConferences (Conferences);
+            Reader.ReadConferences ();
+            Writer.WriteSchools (expected);
+            Reader.ReadSchools ();
+            IList<School> actual = Tables.School.List;
+            Assert.AreEqual (Schools.Count, actual.Count);
+            foreach (Model.School school in actual)
             {
-                Writer.WriteConferences(Conferences);
-                Reader.ReadConferences();
-                Writer.WriteSchools(Schools);
-                Reader.ReadSchools();
-                actual = Tables.School.List;
-                Assert.AreEqual(Schools.Count, actual.Count);
-                foreach(Model.School school in actual)
+                Assert.That (school is Tables.School);
+            }
+            foreach (Model.School school in Schools)
+            {
+                Assert.That (actual.Contains (school));
+                foreach (Tables.Conference conference in Conferences)
                 {
-                    Assert.That(school is School);
-                }
-                foreach(Model.School school in Schools)
-                {
-                    Assert.That(actual.Contains(school));
-                    foreach(Tables.Conference conference in Conferences)
+                    if (school.Conference != null && school.Conference.Equals (conference.Name))
                     {
-                        if(school.Conference != null && school.Conference.Equals(conference.Name))
-                        {
-                            Assert.AreEqual(conference.Name, ((School)actual[actual.IndexOf(school)]).Conference);
-                            break;
-                        }
+                        Assert.AreEqual (conference.Name, ((School)actual[actual.IndexOf (school)]).Conference);
+                        break;
                     }
                 }
-                Writer.Close();
-                Writer.Open();
-                Schools = actual;
             }
+            return actual;
         }
         
         [Test]
         virtual public void TestWriteVenues()
         {
-            IList<Venue> actual;
-            for(int i = 0; i < 3; i++)
+            RepeatTest(WriteVenues, Venues);
+        }
+        
+        public IList<Venue> WriteVenues (IList<Venue> Venues)
+        {
+            Writer.WriteVenues (Venues);
+            Reader.ReadVenues ();
+            IList<Venue> actual = Tables.Venue.List;
+            Assert.AreEqual (Venues.Count, actual.Count);
+            foreach (Venue venue in actual)
             {
-                Writer.WriteVenues(Venues);
-                Reader.ReadVenues();
-                actual = Tables.Venue.List;
-                Assert.AreEqual(Venues.Count, actual.Count);
-                foreach(Venue venue in Venues)
-                {
-                    Assert.That(actual.Contains(venue));
-                }
-                Writer.Close();
-                Writer.Open();
-                Venues = actual;
+                Assert.That (venue is Tables.Venue);
             }
+            foreach (Venue venue in actual)
+            {
+                Assert.That (actual.Contains (venue));
+            }
+            return actual;
         }
     }
 }

@@ -81,20 +81,6 @@ CREATE TABLE results
     FOREIGN KEY (race_id) REFERENCES races (id)
 );
 
-/*
-DROP PROCEDURE IF EXISTS get_team;
-DELIMITER //
-CREATE PROCEDURE get_team(which_school INT UNSIGNED, competition_year YEAR)
-BEGIN
-    SELECT runner_id, surname, given_name, nicknames, gender, runners.`year`, school_id
-    FROM runners INNER JOIN affiliations
-    ON runners.id = affiliations.runner_id
-    WHERE affiliations.`year` = competition_year AND school_id = which_school
-    ORDER BY gender, surname, given_name, runners.`year`;
-END //
-DELIMITER ;
-*/
-
 DROP VIEW IF EXISTS performances;
 CREATE VIEW performances
     AS SELECT results.id, runner_id, race_id, `time`, distance, (`time`/distance*1609) AS pace

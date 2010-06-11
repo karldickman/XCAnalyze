@@ -78,9 +78,4 @@ namespace XCAnalyze.Model
             return Name + " (" + Date + ")";
         }
     }
-    
-    public class InvalidMeetException : Exception
-    {
-        public InvalidMeetException(string message) : base(message) {}
-    }
 }

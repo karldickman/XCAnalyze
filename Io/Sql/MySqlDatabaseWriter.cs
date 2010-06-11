@@ -48,27 +48,8 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database.
         /// </param>
-        protected internal MySqlDatabaseWriter(IDbConnection connection,
-            string database) : this(connection, database, true) {}
-        
-        /// <summary>
-        /// Create a new database writer.
-        /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to use.
-        /// </param>
-        /// <param name="database">
-        /// The name of the database.
-        /// </param>
-        /// <param name="open">
-        /// Should the connection be opened?
-        /// </param>
-        protected internal MySqlDatabaseWriter(IDbConnection connection,
-            string database, bool open)
-            : base(connection, database, open)
-        {
-            DatabaseReader = new MySqlDatabaseReader(connection, Command);
-        }
+        public MySqlDatabaseWriter(IDbConnection connection, string database)
+        : base(connection, database) {}
                 
         /// <summary>
         /// Create a new writer connected to a local database.
@@ -79,11 +60,8 @@ namespace XCAnalyze.Io.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public static MySqlDatabaseWriter NewInstance (string database,
-            string user)
-        {
-            return NewInstance ("localhost", database, user);
-        }
+        public MySqlDatabaseWriter (string database, string user)
+        : this ("localhost", database, user) {}
            
         /// <summary>
         /// Create a new writer.
@@ -97,11 +75,8 @@ namespace XCAnalyze.Io.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public static MySqlDatabaseWriter NewInstance (string host,
-            string database, string user)
-        {
-            return NewInstance (host, database, user, user);
-        }
+        public MySqlDatabaseWriter (string host, string database, string user)
+        : this (host, database, user, user) {}
                
         /// <summary>
         /// Create a new writer connected to a password-protected database.
@@ -118,11 +93,8 @@ namespace XCAnalyze.Io.Sql
         /// <param name="password">
         /// The user's password.
         /// </param>
-        public static MySqlDatabaseWriter NewInstance (string host,
-            string database, string user, string password)
-        {
-            return NewInstance (host, database, user, password, 3306);
-        }        
+        public MySqlDatabaseWriter (string host, string database, string user,
+            string password) : this (host, database, user, password, 3306) {}  
                 
         /// <summary>
         /// Create a new writer connected to a password-protected database on a
@@ -143,11 +115,9 @@ namespace XCAnalyze.Io.Sql
         /// <param name="port">
         /// The port number on which the server is listening.
         /// </param>
-        public static MySqlDatabaseWriter NewInstance (string host,
-            string database, string user, string password, int port)
-        {
-            return NewInstance (host, database, user, password, port, false);
-        }
+        public MySqlDatabaseWriter (string host, string database, string user,
+            string password, int port)
+            : this(host, database, user, password, port, false) {}
         
         /// <summary>
         /// Create a new writer connected to a password-protected database on a
@@ -171,52 +141,19 @@ namespace XCAnalyze.Io.Sql
         /// <param name="pooling">
         /// Should pooling be turned on or off.
         /// </param>
-        public static MySqlDatabaseWriter NewInstance (string host,
-            string database, string user, string password, int port,
-            bool pooling)
+        public MySqlDatabaseWriter (string host, string database, string user,
+            string password, int port, bool pooling)
+            : this(new MySqlConnection (
+                    "Server=" + host + "; User ID=" + user +
+                    "; Database=" + database + "; Password=" + password +
+                    "; Pooling=" + pooling + ";"), database) {}
+        
+        override protected internal BaseDatabaseReader CreateReader()
         {
-            string connectionString = "Server=" + host + "; User ID=" + user +
-                "; Database=" + database + "; Password=" + password +
-                    "; Pooling=" + pooling + ";";
-            return NewInstance (new MySqlConnection (connectionString), database);
+            return new MySqlDatabaseReader(Connection, Command, Database);
         }
         
-        /// <summary>
-        /// Create a new writer using a particular connection.
-        /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to use.
-        /// </param>
-        /// <param name="database">
-        /// The name of the database.
-        /// </param>
-        public static MySqlDatabaseWriter NewInstance (IDbConnection connection,
-            string database)
-        {
-            return new MySqlDatabaseWriter(connection, database);
-        }
-        
-        new public IList<string> CreationScript ()
-        {
-            IList<string> commands;
-            MySqlScriptReader reader;
-            reader = MySqlScriptReader.NewInstance(CREATION_SCRIPT);
-            commands = reader.Read();
-            reader.Close();
-            return commands;
-        }
-        
-        override public void InitializeDatabase()
-        {
-            IList<string> creationCommands = CreationScript();
-            foreach(string command in creationCommands)
-            {
-                Command.CommandText = command;
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override public void Open ()
+        override protected internal void Open ()
         {
             Connection.Open();
             Command = Connection.CreateCommand();
@@ -241,14 +178,19 @@ namespace XCAnalyze.Io.Sql
         override public void SetUp ()
         {
             base.SetUp();
-            Writer = MySqlDatabaseWriter.NewInstance (TEST_DATABASE, "xcanalyze");
-            Reader = MySqlDatabaseReader.NewInstance (TEST_DATABASE, "xcanalyze");
+            Writer = CreateWriter();
+            Reader = new MySqlDatabaseReader (TEST_DATABASE, TEST_ACCOUNT);
         }  
         
-        override public void SetUpPartial ()
+        override protected internal BaseDatabaseWriter CreateWriter()
+        {
+            return new MySqlDatabaseWriter(TEST_DATABASE, TEST_ACCOUNT);
+        }
+        
+        override protected internal void SetUpPartial ()
         {
             IDbCommand command;
-            Writer.Close();
+            Writer.Dispose();
             Writer.Connection.Open();
             command = Writer.Connection.CreateCommand();
             Writer = new MySqlDatabaseWriter (Writer.Connection, Writer.Database, command);

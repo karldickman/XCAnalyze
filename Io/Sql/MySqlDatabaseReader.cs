@@ -18,8 +18,11 @@ namespace XCAnalyze.Io.Sql
         /// <param name="connection">
         /// The <see cref="IDbConnection"/> to use.
         /// </param>
-        protected internal MySqlDatabaseReader(IDbConnection connection)
-            : base(connection) {}
+        /// <param name="database">
+        /// The name of the database from which this reader should read.
+        /// </param>
+        protected internal MySqlDatabaseReader(IDbConnection connection,
+            string database) : base(connection, database) {}
         
         /// <summary>
         /// Create a new reader.
@@ -30,8 +33,12 @@ namespace XCAnalyze.Io.Sql
         /// <param name="command">
         /// The <see cref="IDbCommand"/> to use.
         /// </param>
+        /// <param name="database">
+        /// The name of the database from which this reader should read.
+        /// </param>
         public MySqlDatabaseReader(IDbConnection connection,
-            IDbCommand command) : base(connection, command) {}
+            IDbCommand command, string database)
+        : base(connection, command, database) {}
         
         /// <summary>
         /// Create a new reader connection to the local server.
@@ -42,11 +49,8 @@ namespace XCAnalyze.Io.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public static MySqlDatabaseReader NewInstance (string database,
-            string user)
-        {
-            return NewInstance ("localhost", database, user);
-        }
+        public MySqlDatabaseReader (string database, string user)
+            : this("localhost", database, user) {}
         
         /// <summary>
         /// Create a new reader using no password.
@@ -60,11 +64,8 @@ namespace XCAnalyze.Io.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public static MySqlDatabaseReader NewInstance (string host,
-            string database, string user)
-        {
-            return NewInstance (host, database, user, user);
-        }
+        public MySqlDatabaseReader (string host, string database, string user)
+            : this(host, database, user, user) {}
         
         /// <summary>
         /// Connect to a database using a password.
@@ -81,11 +82,8 @@ namespace XCAnalyze.Io.Sql
         /// <param name="password">
         /// The user's password.
         /// </param>
-        public static MySqlDatabaseReader NewInstance (string host,
-            string database, string user, string password)
-        {
-            return NewInstance (host, database, user, password, 3306);
-        }
+        public MySqlDatabaseReader (string host, string database, string user,
+            string password) : this (host, database, user, password, 3306) {}
         
         /// <summary>
         /// Connect to a database server on a particular port using a password.
@@ -105,11 +103,9 @@ namespace XCAnalyze.Io.Sql
         /// <param name="port">
         /// The port number the server is listening on.
         /// </param>
-        public static MySqlDatabaseReader NewInstance (string host,
-            string database, string user, string password, int port)
-        {
-            return NewInstance (host, database, user, password, port, false);
-        }
+        public MySqlDatabaseReader (string host, string database, string user,
+            string password, int port)
+            : this(host, database, user, password, port, false) {}
 
         /// <summary>
         /// Connect to a database server on a particular port using a password.
@@ -132,27 +128,12 @@ namespace XCAnalyze.Io.Sql
         /// <param name="pooling">
         /// Should pooling be turned on or off.
         /// </param>
-        public static MySqlDatabaseReader NewInstance (string host,
-            string database, string user, string password, int port,
-            bool pooling)
-        {
-            string connectionString = "Server=" + host + "; Database=" + database + "; User ID=" + user + "; Password=" + password + "; Pooling=" + pooling + ";";
-            return NewInstance (new MySqlConnection (connectionString));
-        }
-        
-        /// <summary>
-        /// Create a new reader using a particular connection.
-        /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to use.
-        /// </param>
-        new public static MySqlDatabaseReader NewInstance (IDbConnection connection)
-        {
-            MySqlDatabaseReader reader = new MySqlDatabaseReader (connection);
-            reader.Connection.Open ();
-            reader.Command = reader.Connection.CreateCommand ();
-            return reader;
-        }
+        public MySqlDatabaseReader (string host, string database, string user,
+            string password, int port, bool pooling)
+            : this(new MySqlConnection(
+                    "Server=" + host + "; Database=" + database +
+                    "; User ID=" + user + "; Password=" + password +
+                    "; Pooling=" + pooling + ";"), database) {}
     }
     
     [TestFixture]
@@ -168,13 +149,13 @@ namespace XCAnalyze.Io.Sql
         {
             string connectionString = "Server=localhost; Database=" + EXAMPLE_DATABASE + "; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
             Connection = new MySqlConnection (connectionString);
-            Reader = DatabaseReader.NewInstance (Connection);
+            Reader = new DatabaseReader (Connection, EXAMPLE_DATABASE);
         }
         
         [TearDown]
         public void TearDown ()
         {
-            Reader.Close ();
+            Reader.Dispose ();
         }
 
         [Test]

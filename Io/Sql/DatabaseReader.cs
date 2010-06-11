@@ -1,40 +1,28 @@
+using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Data;
-using XCAnalyze.Io.Sql.Tables;
+using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
-{
+{    
     /// <summary>
     /// A <see cref="IReader"/> that reads all the required data for the model out of a
     /// database.
     /// </summary>
-    public class DatabaseReader : IReader<Model.XcData>
+    public class DatabaseReader : BaseDatabaseReader
     {
-        /// <summary>
-        /// The reader for the resultset.
-        /// </summary>
-        protected internal IDataReader Reader { get; set; }
-        
-        /// <summary>
-        /// The command used to query the database.
-        /// </summary>
-        protected internal IDbCommand Command { get; set; }
-        
-        /// <summary>
-        /// The connection to the database.
-        /// </summary>
-        protected internal IDbConnection Connection { get; set; }
-
         /// <summary>
         /// Create a new reader.
         /// </summary>
         /// <param name="connection">
         /// The <see cref="IDbConnection"/> to connect to.
         /// </param>
-        protected internal DatabaseReader (IDbConnection connection)
-        {
-            Connection = connection;
-        }
+        /// <param name="database">
+        /// The name of the database from which this reader should read.
+        /// </param>
+        public DatabaseReader (IDbConnection connection, string database)
+        : base(connection, database) {}
         
         /// <summary>
         /// Create a new reader.
@@ -44,86 +32,33 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         /// <param name="command">
         /// The <see cref="IDbCommand"/> to use.
+        /// </param>        
+        /// <param name="database">
+        /// The name of the database from which this reader should read.
         /// </param>
-        public DatabaseReader(IDbConnection connection,
-            IDbCommand command) : this(connection)
-        {
-            Command = command;
-        }
+        public DatabaseReader(IDbConnection connection, IDbCommand command,
+            string database) : base(connection, command, database) {}
         
-        /// <summary>
-        /// Create a new database reader using the provided connection;
-        /// </summary>
-        public static DatabaseReader NewInstance (IDbConnection connection)
+        override public void ReadAffiliations ()
         {
-            connection.Open ();
-            return new DatabaseReader (connection, connection.CreateCommand());
-        }
-
-        /// <summary>
-        /// Close this database reader.
-        /// </summary>
-        public void Close ()
-        {
-            if (Reader != null)
-            {
-                Reader.Close ();
-            }
-            if (Command != null)
-            {
-                Command.Dispose ();
-            }
-            Connection.Close ();
-        }
-
-        /// <summary>
-        /// Read the data out of the database.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Model.GlobalState"/> containing all the data in the
-        /// database.
-        /// </returns>
-        public Model.XcData Read ()
-        {
-            ReadConferences ();
-            ReadRunners ();
-            ReadSchools ();
-            ReadAffiliations ();
-            ReadMeetNames ();
-            ReadVenues ();
-            ReadRaces();
-            ReadPerformances ();
-            return new Tables.XcData (Tables.Affiliation.List, Tables.Conference.List,
-                Tables.MeetName.List, Tables.Performance.List, Tables.Race.List,
-                Tables.Runner.List, Tables.School.List, Tables.Venue.List);
-        }
-        
-        /// <summary>
-        /// Read the affiliations table of the database.
-        /// </summary>
-        public void ReadAffiliations ()
-        {
-            Affiliation.Clear();
+            Tables.Affiliation.Clear ();
             int id, runnerId, schoolId;
             Command.CommandText = "SELECT * FROM affiliations";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
-                id = int.Parse(Reader["id"].ToString());
-                runnerId = int.Parse(Reader["runner_id"].ToString());
-                schoolId = int.Parse(Reader["school_id"].ToString());
-                new Affiliation (id, runnerId, schoolId,
-                    int.Parse(Reader["year"].ToString()));
+                id = int.Parse (Reader["id"].ToString ());
+                runnerId = int.Parse (Reader["runner_id"].ToString ());
+                schoolId = int.Parse (Reader["school_id"].ToString ());
+                new Tables.Affiliation (id, runnerId, schoolId,
+                    int.Parse (Reader["year"].ToString ()));
             }
             Reader.Close ();
         }
         
-        /// <summary>
-        /// Read the conferences table of the database.
-        /// </summary>
-        public void ReadConferences ()
+        override public void ReadConferences ()
         {
-            Conference.Clear ();
+            Tables.Conference.Clear ();
             int id;
             string abbreviation;
             Command.CommandText = "SELECT * FROM conferences";
@@ -139,34 +74,28 @@ namespace XCAnalyze.Io.Sql
                 {
                     abbreviation = (string)Reader["abbreviation"];
                 }
-                new Conference (id, (string)Reader["name"], abbreviation);
+                new Tables.Conference (id, (string)Reader["name"], abbreviation);
             }
             Reader.Close ();
         }
         
-        /// <summary>
-        /// Read the meets table of the database.
-        /// </summary>
-        public void ReadMeetNames ()
+        override public void ReadMeetNames ()
         {
-            MeetName.Clear();
+            Tables.MeetName.Clear();
             int id;
             Command.CommandText = "SELECT * FROM meets";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse(Reader["id"].ToString());
-                new MeetName (id, (string)Reader["name"]);
+                new Tables.MeetName (id, (string)Reader["name"]);
             }
             Reader.Close ();
         }
-        
-        /// <summary>
-        /// Read the performances table of the database.
-        /// </summary>
-        public void ReadPerformances ()
+
+        override public void ReadPerformances ()
         {
-            Performance.Clear();
+            Tables.Performance.Clear();
             int id, runnerId, raceId;
             Command.CommandText = "SELECT * FROM results";
             Reader = Command.ExecuteReader ();
@@ -175,18 +104,15 @@ namespace XCAnalyze.Io.Sql
                 id = int.Parse(Reader["id"].ToString());
                 runnerId = int.Parse(Reader["runner_id"].ToString());
                 raceId = int.Parse(Reader["race_id"].ToString());
-                new Performance ((int)id, runnerId,
+                new Tables.Performance ((int)id, runnerId,
                         raceId, new Model.Time((double)Reader["time"]));
             }
             Reader.Close ();
         }
-        
-        /// <summary>
-        /// Read the races table of the database.
-        /// </summary>
-        public void ReadRaces ()
+
+        override public void ReadRaces ()
         {
-            Race.Clear();
+            Tables.Race.Clear();
             int id;
             int? meetId, venueId;
             Command.CommandText = "SELECT * FROM races";
@@ -209,19 +135,16 @@ namespace XCAnalyze.Io.Sql
                 {
                     venueId = new int?(int.Parse(Reader["venue_id"].ToString()));
                 }
-                new Race (id, meetId, new Model.Date((DateTime)Reader["date"]),
+                new Tables.Race (id, meetId, new Model.Date((DateTime)Reader["date"]),
                     venueId, Model.Gender.FromString ((string)Reader["gender"]),
                     (int)Reader["distance"]);
             }
             Reader.Close ();
         }
-        
-        /// <summary>
-        /// Read the runners table of the database.
-        /// </summary>
-        public void ReadRunners ()
+
+        override public void ReadRunners ()
         {
-            Runner.Clear ();
+            Tables.Runner.Clear ();
             int id;
             int? year;
             string[] nicknames;
@@ -249,19 +172,16 @@ namespace XCAnalyze.Io.Sql
                 {
                     year = new Nullable<int>(int.Parse(Reader["year"].ToString()));
                 }
-                new Runner ((int)id, (string)Reader["surname"],
+                new Tables.Runner ((int)id, (string)Reader["surname"],
                     (string)Reader["given_name"], nicknames,
                     Model.Gender.FromString ((string)Reader["gender"]), year);
             }
             Reader.Close ();
         }
 
-        /// <summary>
-        /// Read the schools table of the database.
-        /// </summary>
-        public void ReadSchools ()
+        override public void ReadSchools ()
         {
-            School.Clear ();
+            Tables.School.Clear ();
             int id;
             int? conferenceId;
             string[] nicknames;
@@ -299,18 +219,15 @@ namespace XCAnalyze.Io.Sql
                 {
                     conferenceId = int.Parse (Reader["conference_id"].ToString ());
                 }
-                new School (id, (string)Reader["name"], nicknames, type,
+                new Tables.School (id, (string)Reader["name"], nicknames, type,
                     (bool)Reader["name_first"], conferenceId);
             }
             Reader.Close ();
         }
-        
-        /// <summary>
-        /// Read the venues table of the database.
-        /// </summary>
-        public void ReadVenues ()
+
+        override public void ReadVenues ()
         {
-            Venue.Clear();
+            Tables.Venue.Clear();
             int id;
             int? elevation;
             string name;
@@ -335,10 +252,31 @@ namespace XCAnalyze.Io.Sql
                 {
                     elevation = (int)Reader["elevation"];
                 }
-                new Venue (id, name, (string)Reader["city"],
+                new Tables.Venue (id, name, (string)Reader["city"],
                     (string)Reader["state"], elevation);
             }
             Reader.Close ();
+        }
+    }
+    
+    abstract public class TestDatabaseReader
+    {
+        public const string EXAMPLE_DATABASE = "xca_example";
+        
+        protected internal BaseDatabaseReader Reader { get; set; }
+        
+        abstract public void SetUp();
+        
+        [TearDown]
+        public void TearDown ()
+        {
+            Reader.Dispose ();
+        }
+        
+        [Test]
+        virtual public void TestRead ()
+        {
+            Reader.Read ();
         }
     }
 }

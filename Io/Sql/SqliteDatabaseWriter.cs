@@ -30,13 +30,27 @@ namespace XCAnalyze.Io.Sql
         }
 
         /// <summary>
+        /// Create a new SqliteDatabaseWriter using an in-memory database.
+        /// </summary>
+        public SqliteDatabaseWriter () : this(":memory:") {}
+
+        /// <summary>
+        /// Create a new SqliteDatabaseWriter using a specific database file.
+        /// </summary>
+        /// <param name="fileName">
+        /// The name of the file to connect to.
+        /// </param>
+        public SqliteDatabaseWriter (string fileName) 
+            : this(new SqliteConnection ("Data Source=" + fileName), fileName) {}
+
+        /// <summary>
         /// Create a new writer using a particular connection.
         /// </summary>
         /// <param name="connection">
         /// The <see cref="IDbConnection"/> to use.
         /// </param>
-        protected internal SqliteDatabaseWriter(IDbConnection connection,
-            string database) : this(connection, database, true) {}
+        public SqliteDatabaseWriter (IDbConnection connection,
+            string database) : base(connection, database) {}
             
         /// <summary>
         /// Create a new writer using a particular connection.
@@ -48,43 +62,15 @@ namespace XCAnalyze.Io.Sql
         /// Should the database be opened.
         /// </param>
         protected internal SqliteDatabaseWriter(IDbConnection connection,
-            string database, bool open)
-            : base(connection, database, open)
+            string database, IDbCommand command)
+        : base(connection, database, command) {}
+        
+        override protected internal BaseDatabaseReader CreateReader()
         {
-            DatabaseReader = SqliteDatabaseReader.NewInstance(
-                new SqliteConnection(connection.ConnectionString));
-        }
-
-        /// <summary>
-        /// Create a new SqliteDatabaseWriter using an in-memory database.
-        /// </summary>
-        public static SqliteDatabaseWriter NewInstance ()
-        {
-            return NewInstance (":memory:");
-        }
-
-        /// <summary>
-        /// Create a new SqliteDatabaseWriter using a specific database file.
-        /// </summary>
-        /// <param name="fileName">
-        /// The name of the file to connect to.
-        /// </param>
-        public static SqliteDatabaseWriter NewInstance (string fileName)
-        {
-            return NewInstance (
-                new SqliteConnection ("Data Source=" + fileName), fileName);
-        }
-
-        /// <summary>
-        /// Create a new SqliteDatabaseWriter using the given connection.
-        /// </summary>
-        public static SqliteDatabaseWriter NewInstance (IDbConnection connection,
-            string database)
-        {
-            return new SqliteDatabaseWriter (connection, database);
+            return new DatabaseReader(Connection, Command, Database);
         }
         
-        override public void Open()
+        override protected internal void Open()
         {
             Connection.Open();
             Command = Connection.CreateCommand();
@@ -102,28 +88,29 @@ namespace XCAnalyze.Io.Sql
     
     [TestFixture]
     public class TestSqliteDatabaseWriter : TestDatabaseWriter
-    {      
-        /// <summary>
-        /// The name of the test database file.
-        /// </summary>
-        override public string TEST_DATABASE { get { return "xca_test.db"; } }
-
+    {
         [SetUp]
         override public void SetUp ()
         {
             base.SetUp();
-            Writer = SqliteDatabaseWriter.NewInstance (TEST_DATABASE);
-            Reader = DatabaseReader.NewInstance (new SqliteConnection (
-                    Writer.Connection.ConnectionString));
+            Writer = CreateWriter();
+            Reader = new DatabaseReader (new SqliteConnection (
+                    Writer.Connection.ConnectionString), TEST_DATABASE);
         }
         
-        override public void SetUpPartial ()
+        override protected internal BaseDatabaseWriter CreateWriter()
+        {
+            return new SqliteDatabaseWriter(TEST_DATABASE);
+        }
+        
+        override protected internal void SetUpPartial ()
         {
             File.Delete(TEST_DATABASE);
-            Writer = new SqliteDatabaseWriter (new SqliteConnection (
-                    "Data Source=" + TEST_DATABASE), TEST_DATABASE, false);
-            Writer.Connection.Open ();
-            Writer.Command = Writer.Connection.CreateCommand ();
+            IDbConnection connection = new SqliteConnection(
+                "Data Source=" + TEST_DATABASE);
+            connection.Open();
+            IDbCommand command = connection.CreateCommand();
+            Writer = new SqliteDatabaseWriter(connection, TEST_DATABASE, command);
         }
 
         [TearDown]

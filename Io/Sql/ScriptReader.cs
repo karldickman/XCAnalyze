@@ -5,7 +5,7 @@ using System.IO;
 
 namespace XCAnalyze.Io.Sql
 {    
-    public class MySqlScriptReader : IReader<IList<string>>
+    public class ScriptReader : IReader<IList<string>>
     {       
         /// <summary>
         /// The default sting used to delimit SQL commands.
@@ -41,7 +41,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="path">
         /// The path to the file that contains the creation script.
         /// </param>
-        protected internal MySqlScriptReader(string path)
+        protected internal ScriptReader(string path)
         {
             FilePath = path;
             Commands = new List<string>();
@@ -51,24 +51,9 @@ namespace XCAnalyze.Io.Sql
         }
         
         /// <summary>
-        /// Create a new reader that reads from a particular file.
-        /// </summary>
-        /// <param name="path">
-        /// The path to the file that contains the creation script.
-        /// </param>
-        public static MySqlScriptReader NewInstance (string path)
-        {
-            if(!File.Exists(path))
-            {
-                return null;
-            }
-            return new MySqlScriptReader (path);
-        }
-        
-        /// <summary>
         /// Cease operations of the reader.
         /// </summary>
-        public void Close ()
+        public void Dispose ()
         {
             Commands = null;
         }
@@ -147,23 +132,33 @@ namespace XCAnalyze.Io.Sql
     }
     
     [TestFixture]
-    public class TestMySqlScriptReader
+    public class TestSqlScriptReader
     {
-        public const MySqlScriptReader.lineMode CREATE_NEW = MySqlScriptReader.lineMode.CREATE_NEW;
-        public const MySqlScriptReader.lineMode EXTEND_PREVIOUS = MySqlScriptReader.lineMode.EXTEND_PREVIOUS;
+        public const ScriptReader.lineMode CREATE_NEW = ScriptReader.lineMode.CREATE_NEW;
+        public const ScriptReader.lineMode EXTEND_PREVIOUS = ScriptReader.lineMode.EXTEND_PREVIOUS;
         
-        protected internal MySqlScriptReader Reader { get; set; }
+        protected internal static readonly string[] systems = {"mysql", "sqlite"};
+        protected internal ScriptReader Reader { get; set; }
+        protected internal IDictionary<string, ScriptReader> Readers { get; set; }
         
         [SetUp]
         public void SetUp ()
         {
-            Reader = MySqlScriptReader.NewInstance (SupportFiles.GetPath ("xca_create.mysql"));
+            Readers = new Dictionary<string, ScriptReader> ();
+            foreach (string system in systems)
+            {
+                Readers[system] = new ScriptReader (SupportFiles.GetPath ("xca_create." + system));
+            }
+            Reader = Readers[systems[0]];
         }
         
         [Test]
         public void TestRead ()
         {
-            Reader.Read ();
+            foreach (ScriptReader reader in Readers.Values)
+            {
+                reader.Read ();
+            }
         }
         
         [Test]

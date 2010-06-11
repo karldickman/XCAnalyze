@@ -29,7 +29,7 @@ namespace XCAnalyze
             Files.Add ("xca_create.sql", SUPPORT_DIR);
             Files.Add ("xca_create.sqlite", SUPPORT_DIR);
             Files.Add ("xca_create.mysql", SUPPORT_DIR);
-            Files.Add ("example.db", SUPPORT_DIR);
+            Files.Add ("xca_example.db", SUPPORT_DIR);
             Files.Add ("example.xca", SUPPORT_DIR);
         }
         

@@ -11,7 +11,7 @@ namespace XCAnalyze
         {
             Gtk.Application.Init ();
             IReader<XcData> reader;
-            reader = XcaReader.NewInstance (SupportFiles.GetPath ("example.xca"));
+            reader = new XcaReader (SupportFiles.GetPath ("example.xca"));
             XcData data = reader.Read ();
             MainWindow application = new MainWindow (data);
             application.ShowAll ();
