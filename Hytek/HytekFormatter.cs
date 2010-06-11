@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TextFormat;
 using TextFormat.Table;
@@ -30,7 +31,7 @@ namespace XCAnalyze.Hytek
         /// <summary>
         /// The Header of the hytek table.
         /// </summary>
-        protected internal string[] Header { get; set; }
+        protected internal IList<string> Header { get; set; }
 
         /// <summary>
         /// The title of the table.
@@ -48,7 +49,7 @@ namespace XCAnalyze.Hytek
         /// <param name="header">
         /// A <see cref="System.String[]"/>.  The header of the table.
         /// </param>
-        public HytekFormatter (string[] header) : this(null, header) {}
+        public HytekFormatter (IList<string> header) : this(null, header) {}
         
         /// <summary>
         /// Create a formatter that produces tables with titles.
@@ -59,7 +60,7 @@ namespace XCAnalyze.Hytek
         /// <param name="header">
         /// A <see cref="System.String[]"/>.  The header of the table.
         /// </param>
-        public HytekFormatter (string title, string[] header)
+        public HytekFormatter (string title, IList<string> header)
         {
             Title = title;
             Header = header;
@@ -79,10 +80,15 @@ namespace XCAnalyze.Hytek
         /// <returns>
         /// A <see cref="IList<System.String>"/> of table lines.
         /// </returns>
-        protected internal IList<string> Format (IList<object[]> values,
-            Alignment[] alignments)
+        protected internal IList<string> Format (IList<IList> values,
+            IList<Alignment> alignments)
         {
-            IList<string> tableLines = TableFormatter.Format (Header, values,
+            IList header = new ArrayList();
+            foreach(string title in Header)
+            {
+                header.Add(title);
+            }
+            IList<string> tableLines = TableFormatter.Format (header, values,
                 alignments);
             IList<string> lines = new List<string>();
             if(Title == null)

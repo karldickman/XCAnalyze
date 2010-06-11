@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TextFormat;
 using XCAnalyze.Model;
@@ -49,9 +50,9 @@ namespace XCAnalyze.Hytek
             Alignment[] alignments = new Alignment[] {
                 StringFormatting.RightJustified, null, null, null, null,
                 AlignPoints };
-            IList<object[]> values = new List<object[]> ();
+            IList<IList> values = new List<IList> ();
             for (int i = 0; i < results.Count; i++) {
-                object[] valueRow = new object[Header.Length];
+                object[] valueRow = new object[Header.Count];
                 int n = 0;
                 valueRow[n++] = (i + 1).ToString ();
                 valueRow[n++] = results[i].Runner.Name;

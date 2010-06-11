@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TextFormat;
 using XCAnalyze.Model;
@@ -31,55 +32,38 @@ namespace XCAnalyze.Hytek
             Alignment R = StringFormatting.RightJustified;
             Alignment[] alignments = new Alignment[] { R, null, R, R, R, R, R, R, R, R };
             Performance runner;
-            int? score;
-            List<object[]> values = new List<object[]> ();
+            List<IList> values = new List<IList> ();
             for (int i = 0; i < scores.Count; i++)
             {
-                int n = 0;
-                object[] valueRow = new object[Header.Length];
+                IList valueRow = new ArrayList ();
                 if (scores[i].Score () != null)
                 {
-                    valueRow[n++] = (i + 1).ToString ();
+                    valueRow.Add (i + 1);
                 }
                 else
                 {
-                    valueRow[n++] = "";
+                    valueRow.Add (null);
                 }
-                valueRow[n++] = scores[i].School.Name;
-                score = scores[i].Score ();
-                if (score != null)
-                {
-                    valueRow[n++] = score.Value.ToString ();
-                }
-                else
-                {
-                    valueRow[n++] = null;
-                }
+                valueRow.Add (scores[i].School.Name);
+                valueRow.Add (scores[i].Score ());
                 for (int j = 0; j < 7; j++) {
                     if (j < scores[i].Runners.Count)
                     {
                         runner = scores[i].Runners[j];
-                        if (runner.Points != null)
-                        {
-                            valueRow[n++] = runner.Points.ToString ();
-                        }
-                        else
-                        {
-                            valueRow[n++] = null;
-                        }
+                        valueRow.Add (runner.Points);
                     }
                     else
                     {
-                        valueRow[n++] = null;
+                        valueRow.Add (null);
                     }
                 }
                 values.Add (valueRow);
-                valueRow = new object[Header.Length];
+                valueRow = new object[Header.Count];
                 valueRow[1] = "  Top 5 Avg: " + scores[i].TopFiveAverage ().Time;
                 values.Add (valueRow);
                 if (scores[i].Runners.Count > 5)
                 {
-                    valueRow = new object[Header.Length];
+                    valueRow = new object[Header.Count];
                     valueRow[1] = "  Top 7 Avg: " + scores[i].TopSevenAverage ().Time;
                     values.Add (valueRow);
                 }
