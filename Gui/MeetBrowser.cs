@@ -5,7 +5,7 @@ using System.Linq;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui
-{
+{    
     /// <summary>
     /// A way to browse the meets in the database.
     /// </summary>
@@ -49,14 +49,18 @@ namespace XCAnalyze.Gui
             Remove (Detail);
             Detail = new MeetDetail (meet);
             Add (Detail);
-            SetSizeRequest ();
+            UsePreferredSize ();
             ShowAll ();
         }
         
-        public void SetSizeRequest ()
+        /// <summary>
+        /// Set the size request to its ideal value.
+        /// </summary>
+        public void UsePreferredSize ()
         {
-            Browser.SetSizeRequest ();
-            Detail.SetSizeRequest ();
+            //Defer to children
+            Browser.UsePreferredSize ();
+            Detail.UsePreferredSize ();
         }
     }
 }

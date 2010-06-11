@@ -81,11 +81,10 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// Set the default dimensions of this widget and all its children.
         /// </summary>
-        public void SetSizeRequest ()
+        public void UseSizeRequest ()
         {
-            double factor = 6.0;
-            //For ten point font
-            int width = 0, height = Screen.Height * 2 / 3;
+            double factor = 6.0;//For ten point font
+            int width = 0;
             string[] lines = View.Buffer.Text.Split ('\n');
             foreach (string line in lines)
             {
@@ -95,7 +94,7 @@ namespace XCAnalyze.Gui
                 }
             }
             width = (int)(width * factor + 20);
-            SetSizeRequest(width, height);
+            SetSizeRequest(width, 0);
         }
     }
 }

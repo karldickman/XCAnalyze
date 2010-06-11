@@ -63,25 +63,23 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// Set the default dimensions of all children of this widget.
         /// </summary>
-        public void SetSizeRequest ()
+        public void UsePreferredSize ()
         {
-            int height, width;
-            Requisition mensSize, womensSize;
-            MensRace.SetSizeRequest ();
-            WomensRace.SetSizeRequest ();
-            mensSize = MensRace.SizeRequest ();
-            womensSize = WomensRace.SizeRequest ();
-            if(MensRace == NULL_RACE || WomensRace == NULL_RACE)
+            int raceHeight, width, numRaces = 2;
+            MensRace.UseSizeRequest ();
+            WomensRace.UseSizeRequest ();
+            if (MensRace == NULL_RACE || WomensRace == NULL_RACE)
             {
-                height = Screen.Height * 2/3;
+                numRaces = 1;
             }
-            else
-            {
-                height = Math.Max(mensSize.Height, womensSize.Height) / 2;
-            }
-            width = Math.Max(mensSize.Width, womensSize.Width);
-            MensRace.SetSizeRequest(width, height);
-            WomensRace.SetSizeRequest(width, height);
+            width = Math.Max(MensRace.WidthRequest, WomensRace.WidthRequest);
+            raceHeight = Screen.Height * 2/3;
+            raceHeight -= Info.HeightRequest;
+            raceHeight -= numRaces * Spacing;
+            raceHeight /= 2;
+            //Defer to children
+            MensRace.SetSizeRequest(width, raceHeight);
+            WomensRace.SetSizeRequest(width, raceHeight);
         }
     }
 }

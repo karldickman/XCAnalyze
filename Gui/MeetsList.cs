@@ -76,12 +76,13 @@ namespace XCAnalyze.Gui
             Add (View);
         }
         
-        public void SetSizeRequest ()
+        /// <summary>
+        /// Set the size request to its ideal value.
+        /// </summary>
+        public void UsePreferredSize ()
         {
-            int width, height;
-            height = Screen.Height * 2 / 3;
-            width = View.SizeRequest().Width + 20;
-            SetSizeRequest(width, height);
+            //Defer to children
+            SetSizeRequest(View.SizeRequest().Width + 20, 0);
         }
     }
 }

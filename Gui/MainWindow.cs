@@ -4,6 +4,9 @@ using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui
 {
+    /// <summary>
+    /// The main window of the application.
+    /// </summary>
     public class MainWindow : Window
     {
         /// <summary>
@@ -23,15 +26,15 @@ namespace XCAnalyze.Gui
         {
             Meets = new MeetBrowser(data.Meets);
             Add(Meets);
-            SetSizeRequest ();
+            UsePreferredSize ();
         }
         
         /// <summary>
-        /// Set the default dimensions of all the children.
+        /// Set the size request to its ideal value.
         /// </summary>
-        public void SetSizeRequest ()
+        public void UsePreferredSize ()
         {
-            Meets.SetSizeRequest ();
+            Meets.UsePreferredSize ();//Defer to child
         }
     }
 }
