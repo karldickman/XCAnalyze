@@ -216,7 +216,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="value_">
         /// The <see cref="Model.Date"/> to format.
         /// </param>
-        virtual public string Format(Model.Date value_)
+        public string Format(Model.Date value_)
         {
             string result = value_.Year + "-";
             if(value_.Month < 10)
@@ -234,7 +234,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// Format a particular boolean value for insertion in an SQL query.
         /// </summary>
-        virtual public string Format (bool value_)
+        public string Format (bool value_)
         {
             if (value_)
             {
@@ -246,7 +246,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// Format the given gender for insertion in an SQL query.
         /// </summary>
-        virtual public string Format(Model.Gender value_)
+        public string Format(Model.Gender value_)
         {
             return Format(value_.ToString());
         }
@@ -254,7 +254,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// Format the given value for insertion in an SQL query.
         /// </summary>
-        virtual public string Format(int? value_)
+        public string Format(int? value_)
         {
             if(value_ == null)
             {
@@ -266,7 +266,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// Format the given value for insertion in an SQL query.
         /// </summary>
-        virtual public string Format (string value_)
+        public string Format (string value_)
         {
             if (value_ == null)
             {
@@ -278,7 +278,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// Format the given value for insertion in an SQL query.
         /// </summary>
-        virtual public string Format(string[] value_)
+        public string Format(string[] value_)
         {
             if(value_ == null)
             {
@@ -293,7 +293,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="time">
         /// The <see cref="Model.Time"/> to format.
         /// </param>
-        virtual public string Format(Model.Time time)
+        public string Format(Model.Time time)
         {
             return time.Seconds.ToString();
         }
@@ -309,7 +309,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="data">
         /// The <see cref="Data"/> to be written.
         /// </param>
-        virtual public void Write (Model.XcData data)
+        public void Write (Model.XcData data)
         {
             Tables.XcData sqlData = null;
             if(data is Tables.XcData)
@@ -346,7 +346,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="affiliations">
         /// The <see cref="IList<Model.Affiliation>"/> to write.
         /// </param>
-        virtual public void WriteAffiliations(IList<Model.Affiliation> affiliations)
+        public void WriteAffiliations(IList<Model.Affiliation> affiliations)
         {
             foreach(Model.Affiliation affiliation in affiliations)
             {
@@ -361,7 +361,7 @@ namespace XCAnalyze.Io.Sql
         /// The <see cref="IList<string>"/> to write.
         /// </param>
         /// </summary>
-        virtual public void WriteConferences(IList<string> conferences)
+        public void WriteConferences(IList<string> conferences)
         {
             foreach(string conference in conferences)
             {
@@ -377,7 +377,7 @@ namespace XCAnalyze.Io.Sql
         /// The <see cref="IList<Tables.Conferences>"/> to write.
         /// </param>
         /// </summary>
-        virtual public void WriteConferences (IList<Tables.Conference> conferences)
+        public void WriteConferences (IList<Tables.Conference> conferences)
         {
             foreach (Tables.Conference conference in conferences)
             {
@@ -392,7 +392,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="meets">
         /// The <see cref="IList<System.String>"/> to write.
         /// </param>
-        virtual public void WriteMeetNames(IList<string> meetNames)
+        public void WriteMeetNames(IList<string> meetNames)
         {
             foreach(string meet in meetNames)
             {
@@ -408,7 +408,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="meets">
         /// The <see cref="IList<Meet>"/> to write.
         /// </param>
-        virtual public void WriteMeetNames(IList<Tables.MeetName> meetNames)
+        public void WriteMeetNames(IList<Tables.MeetName> meetNames)
         {
             foreach(Tables.MeetName meet in meetNames)
             {
@@ -423,7 +423,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="performances">
         /// The <see cref="IList<Model.Performance>"/> to write.
         /// </param>
-        virtual public void WritePerformances(IList<Model.Performance> performances)
+        public void WritePerformances(IList<Model.Performance> performances)
         {
             foreach(Model.Performance performance in performances)
             {                
@@ -438,7 +438,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="races">
         /// The <see cref="IList<Model.Race>"/> to write.
         /// </param>
-        virtual public void WriteRaces(IList<Model.Race> races)
+        public void WriteRaces(IList<Model.Race> races)
         {
             foreach(Model.Race race in races)
             {
@@ -454,7 +454,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="runners">
         /// The <see cref="IList<Model.Runner>"/> to write.
         /// </param>
-        virtual public void WriteRunners(IList<Model.Runner> runners)
+        public void WriteRunners(IList<Model.Runner> runners)
         {
             foreach(Model.Runner runner in runners)
             {
@@ -470,7 +470,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="schools">
         /// The <see cref="IList<Model.School>"/> to write.
         /// </param>
-        virtual public void WriteSchools(IList<Model.School> schools)
+        public void WriteSchools(IList<Model.School> schools)
         {
             foreach(Model.School school in schools)
             {
@@ -486,7 +486,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="venues">
         /// The <see cref="IList<System.String[]>"/> to write.
         /// </param>
-        virtual public void WriteVenues(IList<Model.Venue> venues)
+        public void WriteVenues(IList<Model.Venue> venues)
         {
             foreach(Model.Venue venue in venues)
             {

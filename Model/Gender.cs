@@ -7,7 +7,7 @@ namespace XCAnalyze.Model
     /// instance.  This is an example of the doubleton pattern.
     /// (http://thedailywtf.com/articles/the-doubleton-patten.aspx)
 	/// </summary>
-	public class Gender : IComparable<Gender>
+	sealed public class Gender : IComparable<Gender>
 	{        
         /// <summary>
         /// The male instance

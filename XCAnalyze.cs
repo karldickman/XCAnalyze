@@ -7,7 +7,7 @@ namespace XCAnalyze
 {
     public class XCAnalyze
     {
-        public static int Main (string[] args)
+        public static void Main (string[] args)
         {
             Gtk.Application.Init ();
             IReader<XcData> reader;
@@ -16,7 +16,6 @@ namespace XCAnalyze
             MainWindow application = new MainWindow (data);
             application.ShowAll ();
             Gtk.Application.Run ();
-            return 0;
         }
     }
 }
