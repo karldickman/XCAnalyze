@@ -12,7 +12,7 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The date on which this meet was held.
         /// </summary>
-        virtual public Date Date { get; protected internal set; }
+        public Date Date { get; protected internal set; }
         
         /// <summary>
         /// The distance of the men's race.
@@ -22,19 +22,19 @@ namespace XCAnalyze.Model
         /// <summary>
         /// This meet's men's race.
         /// </summary>
-        virtual public Race MensRace { get; protected internal set; }
+        public Race MensRace { get; protected internal set; }
         
         public string State { get { return Venue.State; } }
         
         /// <summary>
         /// The name of the meet.
         /// </summary>
-        virtual public string Name { get; protected internal set; }
+        public string Name { get; protected internal set; }
         
         /// <summary>
         /// The venue whereat this meet was held.
         /// </summary>
-        virtual public Venue Venue { get; protected internal set; }
+        public Venue Venue { get; protected internal set; }
         
         /// <summary>
         /// The length of the women's race.
@@ -44,7 +44,7 @@ namespace XCAnalyze.Model
         /// <summary>
         /// This meet's women's race.
         /// </summary>
-        virtual public Race WomensRace { get; protected internal set; }
+        public Race WomensRace { get; protected internal set; }
         
         /// <summary>
         /// Create a new meet.

@@ -10,17 +10,17 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The <see cref="Runner"/> affiliated with a School.
         /// </summary>
-        virtual public Runner Runner { get; protected internal set; }
+        public Runner Runner { get; protected internal set; }
 
         /// <summary>
         /// The <see cref="School"/> with which a Runner is affiliated.
         /// </summary>
-        virtual public School School { get; protected internal set; }
+        public School School { get; protected internal set; }
 
         /// <summary>
         /// The Year in which the Runner was affiliated with the School.
         /// </summary>
-        virtual public int Year { get; protected internal set; }
+        public int Year { get; protected internal set; }
         
         protected internal Affiliation(int year) : this(null, null, year) {}
         

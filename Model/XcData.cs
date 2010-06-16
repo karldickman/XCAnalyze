@@ -13,47 +13,47 @@ namespace XCAnalyze.Model
         /// <summary>
         /// All the runner-school affiliations.
         /// </summary>
-        virtual public IList<Affiliation> Affiliations { get; protected internal set; }
+        public IList<Affiliation> Affiliations { get; protected internal set; }
         
         /// <summary>
         /// All the athletic conferences.
         /// </summary>
-        virtual public IList<string> Conferences { get; protected internal set; }
+        public IList<string> Conferences { get; protected internal set; }
         
         /// <summary>
         /// The names of all meets that have occurred.
         /// </summary>
-        virtual public IList<string> MeetNames { get; protected internal set; }
+        public IList<string> MeetNames { get; protected internal set; }
         
         /// <summary>
         /// All the meets that have occurred.
         /// </summary>
-        virtual public IList<Meet> Meets { get; protected internal set; }
+        public IList<Meet> Meets { get; protected internal set; }
         
         /// <summary>
         /// All the performances that have been run.
         /// </summary>
-        virtual public IList<Performance> Performances { get; protected internal set; }
+        public IList<Performance> Performances { get; protected internal set; }
         
         /// <summary>
         /// All the races that have occurred.
         /// </summary>
-        virtual public IList<Race> Races { get; protected internal set; }
+        public IList<Race> Races { get; protected internal set; }
         
         /// <summary>
         /// All the runners.
         /// </summary>
-        virtual public IList<Runner> Runners { get; protected internal set; }
+        public IList<Runner> Runners { get; protected internal set; }
         
         /// <summary>
         /// All the schools.
         /// </summary>
-        virtual public IList<School> Schools { get; protected internal set; }
+        public IList<School> Schools { get; protected internal set; }
         
         /// <summary>
         /// All the venues at which races have been run.
         /// </summary>
-        virtual public IList<Venue> Venues { get; protected internal set; }
+        public IList<Venue> Venues { get; protected internal set; }
                 
         /// <summary>
         /// Create a new description of the model.

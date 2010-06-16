@@ -7,17 +7,17 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The city in which the venue is.
         /// </summary>
-        virtual public string City { get; protected internal set; }
+        public string City { get; protected internal set; }
         
         /// <summary>
         /// The name of the venue.
         /// </summary>
-        virtual public string Name { get; protected internal set; }
+        public string Name { get; protected internal set; }
         
         /// <summary>
         /// The state where the venue is.
         /// </summary>
-        virtual public string State { get; protected internal set; }
+        public string State { get; protected internal set; }
         
         /// <summary>
         /// Create a new venue.

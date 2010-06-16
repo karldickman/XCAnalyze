@@ -10,22 +10,22 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The number of points the runner earned in the race for this performance.
         /// </summary>
-        virtual public int? Points { get; protected internal set; }
+        public int? Points { get; protected internal set; }
 
         /// <summary>
         /// The race whereat the time was run.
         /// </summary>
-        virtual public Race Race { get; protected internal set; }
+        public Race Race { get; protected internal set; }
 
         /// <summary>
         /// The runner who ran the time.
         /// </summary>
-        virtual public Runner Runner { get; protected internal set; }
+        public Runner Runner { get; protected internal set; }
 
         /// <summary>
         /// The time that was run.
         /// </summary>
-        virtual public Time Time { get; protected internal set; }
+        public Time Time { get; protected internal set; }
         
         /// <summary>
         /// The length of the race whereat the time was run.
