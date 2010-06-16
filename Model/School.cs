@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using XCAnalyze.Collections;
 
-namespace XCAnalyze.Model {
-    
+namespace XCAnalyze.Model
+{    
     /// <summary>
     /// A college or university that fields a Cross-Country team.
     /// </summary>
@@ -32,7 +31,7 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The runners who have competed for this school.
         /// </summary>
-        public IExtendedList<Affiliation> Runners { get; protected internal set; }
+        public IList<Affiliation> Runners { get; protected internal set; }
 
         /// <summary>
         /// The type of the school (University, College, etc.)
@@ -190,7 +189,7 @@ namespace XCAnalyze.Model {
         public School(string name, string type, bool nameFirst, 
             IList<string> nicknames, string conference)
         : this(name, type, nameFirst, nicknames, conference,
-            new ExtendedList<Affiliation>()) {}
+            new List<Affiliation>()) {}
                 
         /// <summary>
         /// Create a new school.
@@ -210,11 +209,11 @@ namespace XCAnalyze.Model {
         /// The conference with which this school is affiliated.
         /// </param>
         /// <param name="runners">
-        /// A <see cref="ExtendedList<Affiliation>"/> of runners who have
+        /// A <see cref="List<Affiliation>"/> of runners who have
         /// competed for this school.
         /// </param>
         public School (string name, string type, bool nameFirst,
-            string conference, ExtendedList<Affiliation> runners)
+            string conference, List<Affiliation> runners)
         : this(name, type, nameFirst, new List<string>(), conference, runners) {}
         
         /// <summary>
@@ -244,7 +243,7 @@ namespace XCAnalyze.Model {
         /// </param>
         public School (string name, string type, bool nameFirst,
             IList<string> nicknames, string conference,
-            IExtendedList<Affiliation> runners)
+            IList<Affiliation> runners)
         {
             Name = name;
             Type = type;
@@ -263,7 +262,6 @@ namespace XCAnalyze.Model {
         public void AddRunner (Affiliation runner)
         {
             Runners.Add (runner);
-            Runners.Sort ();
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql

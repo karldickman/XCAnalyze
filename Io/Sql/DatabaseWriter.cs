@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
@@ -360,7 +359,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// A sample list of races.
         /// </summary>
-        protected internal IList<Model.Race> Races { get; set; }
+        protected internal IList<Race> Races { get; set; }
         
         /// <summary>
         /// The reader for the database.
@@ -565,7 +564,8 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteAffiliations, Affiliations);
         }
         
-        public IList<Affiliation> WriteAffiliations (IList<Affiliation> expected)
+        public IList<Affiliation> WriteAffiliations (
+            IList<Affiliation> expected)
         {
             Writer.WriteConferences (Conferences);
             IDictionary<int, string> conferenceIds =
@@ -616,7 +616,7 @@ namespace XCAnalyze.Io.Sql
         public IList<Performance> WritePerformances (IList<Performance> expected)
         {
             Writer.WriteRaces (Races);
-            IDictionary<int, Race> raceIds = new Dictionary<int, Race>();
+            IDictionary<int, Race> raceIds = new Dictionary<int, Race> ();
             for (int i = 0; i < Races.Count; i++)
             {
                 raceIds[i + 1] = Races[i];

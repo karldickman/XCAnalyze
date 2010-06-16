@@ -126,10 +126,12 @@ namespace XCAnalyze.Model
         /// <returns>
         /// The conferences that were found.
         /// </returns>
-        public static IList<string> ConferencesList (IList<School> schools)
+        public static IList<string> ConferencesList (
+            IList<School> schools)
         {
             return new List<string> ((from school in schools
                 where school.Conference != null
+                orderby school.Conference
                 select school.Conference).Distinct ());
         }
         
@@ -145,8 +147,9 @@ namespace XCAnalyze.Model
         public static IList<string> MeetNamesList (IList<Meet> meets)
         {
             return new List<string> ((from meet in meets
-                    where meet.Name != null
-                    select meet.Name).Distinct());
+                where meet.Name != null
+                orderby meet.Name
+                select meet.Name).Distinct ());
         }
         
         /// <summary>
