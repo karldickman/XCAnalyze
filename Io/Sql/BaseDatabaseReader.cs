@@ -1,17 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
 {
     /// <summary>
     /// The interface which all database readers must implement.
     /// </summary>
-    abstract public class BaseDatabaseReader : IReader<Model.XcData>
-    {        
+    abstract public class BaseDatabaseReader : IReader<XcData>
+    {
         /// <summary>
-        /// The reader for the resultset.
+        /// Has this instance been disposed of yet?
         /// </summary>
-        protected internal IDataReader Reader { get; set; }
+        private bool disposed;
         
         /// <summary>
         /// The command used to query the database.
@@ -29,6 +32,16 @@ namespace XCAnalyze.Io.Sql
         protected internal string Database { get; set; }
         
         /// <summary>
+        /// The reader for the resultset.
+        /// </summary>
+        protected internal IDataReader Reader { get; set; }
+        
+        protected internal BaseDatabaseReader()
+        {
+            disposed = false;
+        }
+        
+        /// <summary>
         /// Create a new reader.
         /// </summary>
         /// <param name="connection">
@@ -38,6 +51,7 @@ namespace XCAnalyze.Io.Sql
         /// The name of the database from which this reader should read.
         /// </param>
         public BaseDatabaseReader (IDbConnection connection, string database)
+        : this()
         {
             Connection = connection;
             Connection.Open ();
@@ -59,20 +73,29 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         public BaseDatabaseReader (IDbConnection connection, IDbCommand command,
             string database)
+        : this()
         {
             Connection = connection;
             Command = command;
             Database = database;
         }
         
+        /// <summary>
+        /// Dispose of this instance.
+        /// </summary>
         public void Dispose ()
         {
-            if (Reader != null)
+            if (!disposed)
             {
-                Reader.Dispose ();
+                if (Reader != null)
+                {
+                    Reader.Dispose ();
+                }
+                Command.Dispose ();
+                Connection.Dispose ();
+                GC.SuppressFinalize (this);
+                disposed = true;
             }
-            Command.Dispose ();
-            Connection.Dispose ();
         }
 
         /// <summary>
@@ -82,60 +105,147 @@ namespace XCAnalyze.Io.Sql
         /// A <see cref="Model.GlobalState"/> containing all the data in the
         /// database.
         /// </returns>
-        public Model.XcData Read ()
+        public XcData Read ()
         {
-            ReadConferences ();
-            ReadRunners ();
-            ReadSchools ();
-            ReadAffiliations ();
-            ReadMeetNames ();
-            ReadVenues ();
-            ReadRaces ();
-            ReadPerformances ();
-            return new Tables.XcData (Tables.Affiliation.List,
-                Tables.Conference.List, Tables.MeetName.List,
-                Tables.Performance.List, Tables.Race.List, Tables.Runner.List,
-                Tables.School.List, Tables.Venue.List);
+            IDictionary<int, string> conferenceIds = ReadConferences ();
+            IDictionary<int, Runner> runnerIds = ReadRunners ();
+            IDictionary<int, School> schoolIds = ReadSchools (conferenceIds);
+            IDictionary<int, Affiliation> affiliationIds =
+                ReadAffiliations (runnerIds, schoolIds);
+            IDictionary<int, string> meetNameIds = ReadMeetNames ();
+            IDictionary<int, Race> raceIds = ReadRaces ();
+            IDictionary<int, Venue> venueIds = ReadVenues ();
+            IDictionary<int, Meet> meetIds = ReadMeets (meetNameIds, raceIds,
+                venueIds);
+            IDictionary<int, Performance> performanceIds = ReadPerformances (
+                raceIds, runnerIds);
+            IList<Affiliation> affiliations =
+                new List<Affiliation> (affiliationIds.Values);
+            IList<Meet> meets = new List<Meet> (meetIds.Values);
+            IList<Performance> performances =
+                new List<Performance> (performanceIds.Values);
+            IList<Runner> runners = new List<Runner> (runnerIds.Values);
+            IList<School> schools = new List<School> (schoolIds.Values);
+            return new XcData (affiliations, meets, performances, runners,
+                schools);
         }
                 
         /// <summary>
-        /// Read the affiliations table of the database.
+        /// Read the affiliations.
         /// </summary>
-        abstract public void ReadAffiliations();
+        /// <param name="runners">
+        /// A <see cref="IDictionary<System.Int32, Runner>"/> mapping id numbers
+        /// to runners.
+        /// </param>
+        /// <param name="schools">
+        /// A <see cref="IDictionary<System.Int32, School>"/> mapping id numbers
+        /// to schools.
+        /// </param>
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, Affiliation>"/> mapping id
+        /// numbers to affiliations.
+        /// </returns>
+        abstract public IDictionary<int, Affiliation> ReadAffiliations(
+            IDictionary<int, Runner> runners, IDictionary<int, School> schools);
         
         /// <summary>
-        /// Read the conferences table of the database.
+        /// Read the conferences.
         /// </summary>
-        abstract public void ReadConferences();        
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, System.String>"/> mapping
+        /// id numbers to conferences.
+        /// </returns>
+        abstract public IDictionary<int, string> ReadConferences();        
         
         /// <summary>
-        /// Read the meets table of the database.
+        /// Read the meets.
         /// </summary>
-        abstract public void ReadMeetNames();
-             
-        /// <summary>
-        /// Read the performances table of the database.
-        /// </summary>           
-        abstract public void ReadPerformances();
+        /// <param name="meetNames">
+        /// A <see cref="IDictionary<System.Int32, System.String>"/> mapping id
+        /// numbers to meet names.
+        /// </param>
+        /// <param name="races">
+        /// A <see cref="IDictionary<System.Int32, Race>"/> mapping id numbers
+        /// to races.
+        /// </param>
+        /// <param name="venues">
+        /// A <see cref="IDictionary<System.Int32, Venue>"/> mapping id numbers
+        /// to venues.
+        /// </param>
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, Meet>"/> mapping id numbers
+        /// to meets.
+        /// </returns>
+        abstract public IDictionary<int, Meet> ReadMeets(
+            IDictionary<int, string> meetNames, IDictionary<int, Race> races,
+            IDictionary<int, Venue> venues);
         
         /// <summary>
-        /// Read the races table of the database.
+        /// Read the meets.
         /// </summary>
-        abstract public void ReadRaces();
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, System.String>"/> mapping
+        /// id numbers to meet names.
+        /// </returns>
+        abstract public IDictionary<int, string> ReadMeetNames();
+        
+        /// <summary>
+        /// Read the performances.
+        /// </summary>
+        /// <param name="races">
+        /// A <see cref="IDictionary<System.Int32, Race>"/> mapping id numbers
+        /// to races.
+        /// </param>
+        /// <param name="runners">
+        /// A <see cref="IDictionary<System.Int32, Runner>"/> mapping id numbers
+        /// to runners.
+        /// </param>
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, Performance>"/> mapping id
+        /// numbers to performances.
+        /// </returns>
+        abstract public IDictionary<int, Performance> ReadPerformances(
+            IDictionary<int, Race> races, IDictionary<int, Runner> runners);
+        
+        /// <summary>
+        /// Read the races.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, Race>"/> mapping id nubmers
+        /// to races.
+        /// </returns>
+        abstract public IDictionary<int, Race> ReadRaces();
                 
         /// <summary>
-        /// Read the runners table of the database.
+        /// Read the runners.
         /// </summary>
-        abstract public void ReadRunners();
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, Runner>"/> mapping id numbers
+        /// to runners.
+        /// </returns>
+        abstract public IDictionary<int, Runner> ReadRunners();
         
         /// <summary>
-        /// Read the schools table of the database.
+        /// Read the schools.
         /// </summary>
-        abstract public void ReadSchools();
+        /// <param name="conferences">
+        /// A <see cref="IDictionary<System.Int32, System.String>"/> mapping id
+        /// numbers to conferences.
+        /// </param>
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, School>"/> mapping id numbers
+        /// to schools.
+        /// </returns>
+        abstract public IDictionary<int, School> ReadSchools(
+            IDictionary<int, string> conferences);
                 
         /// <summary>
-        /// Read the venues table of the database.
+        /// Read the venues.
         /// </summary>
-        abstract public void ReadVenues();
+        /// <returns>
+        /// A <see cref="IDictionary<System.Int32, Venue>"/> mapping id numbers
+        /// to venues.
+        /// </returns>
+        abstract public IDictionary<int, Venue> ReadVenues();
     }
 }

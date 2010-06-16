@@ -79,17 +79,18 @@ namespace XCAnalyze.Model
         /// </param>
         public XcData (IList<Affiliation> affiliations, IList<Meet> meets,
             IList<Performance> performances, IList<Runner> runners,
-            IList<School> schools, IList<Venue> venues)
+            IList<School> schools)
         {
             Affiliations = affiliations;
             Conferences = ConferencesList (schools);
             MeetNames = MeetNamesList (meets);
             Meets = meets;
             Performances = performances;
+            Races = new List<Race> ();
             Runners = runners;
             Schools = schools;
-            Venues = venues;
-            Races = new List<Race> ();
+            Venues = new List<Venue> ();
+            //Compile the list of races and venues
             foreach (Meet meet in meets)
             {
                 if (meet.MensRace != null) 
@@ -99,6 +100,10 @@ namespace XCAnalyze.Model
                 if (meet.WomensRace != null) 
                 {
                     Races.Add (meet.WomensRace);
+                }
+                if (meet.Venue != null && !Venues.Contains (meet.Venue)) 
+                {
+                    Venues.Add (meet.Venue);
                 }
             }
             foreach (Affiliation affiliation in affiliations)
@@ -247,7 +252,7 @@ namespace XCAnalyze.Model
             schools.Add (new School ("Pomona-Pizer", "College", conferences[1]));
             schools.Add (new School ("Claremont-Mudd-Scripps", "College", conferences[2]));
             schools.Add (new School ("Colorado", "College", conferences[2]));
-            schools.Add (new School ("Chapman", "University", null));
+            schools.Add (new School ("Chapman", "University", (string)null));
             IList<string> actual = XcData.ConferencesList (schools);
             Assert.AreEqual (conferences.Length, actual.Count);
             foreach (string conference in conferences)

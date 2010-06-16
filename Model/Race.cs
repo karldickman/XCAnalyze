@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 
-namespace XCAnalyze.Model {
-    
+namespace XCAnalyze.Model
+{    
     /// <summary>
     /// An instance of a meet.
     /// </summary>
     public class Race : IComparable<Race>
     {        
-        virtual public Date Date
+        public Date Date
         {
             get
             {
@@ -24,12 +24,12 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The length of the race.
         /// </summary>
-        virtual public int Distance { get; protected internal set; }
+        public int Distance { get; protected internal set; }
 
         /// <summary>
         /// Was it a men's race or a women's race?
         /// </summary>
-        virtual public Gender Gender
+        public Gender Gender
         {
             get
             {
@@ -49,9 +49,10 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The meet of which this race is a part.
         /// </summary>
-        virtual public Meet Meet { get; protected internal set; }
+        public Meet Meet { get; protected internal set; }
         
-        virtual public string Name {
+        public string Name
+        {
             get
             {
                 return Meet.Name;
@@ -66,77 +67,35 @@ namespace XCAnalyze.Model {
         /// <summary>
         /// The results of the meet.
         /// </summary>
-        virtual public List<Performance> Results { get; protected internal set; }
+        public List<Performance> Results { get; protected internal set; }
 
         /// <summary>
         /// The team scores of the meet.
         /// </summary>
-        virtual public IList<TeamScore> Scores { get; protected internal set; }
+        public IList<TeamScore> Scores { get; protected internal set; }
         
-        virtual public Venue Venue { get { return Meet.Venue; } }
-        
-        /// <summary>
-        /// Create a new race.
-        /// </summary>
-        /// <param name="date">
-        /// The <see cref="Date"/> on which this races was held.
-        /// </param>
-        /// <param name="gender">
-        /// A <see cref="Gender"/>.  Was this a men's or a women's race.
-        /// </param>
-        /// <param name="distance">
-        /// The length of the race.
-        /// </param>
-        /// <param name="results">
-        /// The <see cref="List<Performance>"/> of results.
-        /// </param>
-        public Race (int distance)
-            : this(distance, new List<Performance>()) {}
-        
-        /// <summary>
-        /// Create a new race.
-        /// </summary>
-        /// <param name="date">
-        /// The <see cref="Date"/> on which this races was held.
-        /// </param>
-        /// <param name="gender">
-        /// A <see cref="Gender"/>.  Was this a men's or a women's race.
-        /// </param>
-        /// <param name="distance">
-        /// The length of the race.
-        /// </param>
-        /// <param name="results">
-        /// The <see cref="List<Performance>"/> of results.
-        /// </param>
-        public Race(int distance, List<Performance> results)
-            : this(null, distance, results) {}
+        public Venue Venue { get { return Meet.Venue; } }
         
         /// <summary>
         /// Create a new race.
         /// </summary>
         /// <param name="meet">
-        /// The meet which this race is a part of.
-        /// </param>
-        /// <param name="date">
-        /// The <see cref="Date"/> on which this races was held.
-        /// </param>
-        /// <param name="gender">
-        /// A <see cref="Gender"/>.  Was this a men's or a women's race.
+        /// The meet which this race is part of.
         /// </param>
         /// <param name="distance">
         /// The length of the race.
         /// </param>
-        /// <param name="venue">
-        /// The venue where this race was held.
+        public Race(Meet meet, int distance)
+        : this(meet, distance, new List<Performance>()) {}
+        
+        /// <summary>
+        /// Create a new race.
+        /// </summary>
+        /// <param name="meet">
+        /// The <see cref="Meet"/> which this race is a part of.
         /// </param>
-        /// <param name="city">
-        /// The city in which this race was held.
-        /// </param>
-        /// <param name="state">
-        /// The state in which this race was held.
-        /// </param>
-        /// <param name="scoreMeet">
-        /// Should this meet be scored right away or not?
+        /// <param name="distance">
+        /// The length of the race.
         /// </param>
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
@@ -148,31 +107,16 @@ namespace XCAnalyze.Model {
         /// Create a new race.
         /// </summary>
         /// <param name="meet">
-        /// The meet which this race is a part of.
-        /// </param>
-        /// <param name="date">
-        /// The <see cref="Date"/> on which this races was held.
-        /// </param>
-        /// <param name="gender">
-        /// A <see cref="Gender"/>.  Was this a men's or a women's race.
+        /// The <see cref="Meet"/> which this race is a part of.
         /// </param>
         /// <param name="distance">
         /// The length of the race.
         /// </param>
-        /// <param name="venue">
-        /// The venue where this race was held.
-        /// </param>
-        /// <param name="city">
-        /// The city in which this race was held.
-        /// </param>
-        /// <param name="state">
-        /// The state in which this race was held.
+        /// <param name="results">
+        /// The <see cref="List<Performance>"/> of results.
         /// </param>
         /// <param name="scoreMeet">
         /// Should this meet be scored right away or not?
-        /// </param>
-        /// <param name="results">
-        /// The <see cref="List<Performance>"/> of results.
         /// </param>
         public Race (Meet meet, int distance, List<Performance> results,
             bool scoreMeet)
@@ -200,10 +144,11 @@ namespace XCAnalyze.Model {
         }
         
         /// <summary>
-        /// Races are compared first by date, then by name, then by gender.
+        /// Races are compared first by meet, then by distance (in descending
+        /// order).
         /// </summary>
         /// <param name="other">
-        /// The <see cref="Race"/> to compare with.
+        /// The <see cref="Race"/> with which to comare.
         /// </param>
         public int CompareTo (Race other)
         {
@@ -212,20 +157,15 @@ namespace XCAnalyze.Model {
             {
                 return 0;
             }
-            comparison = Date.CompareTo (other.Date);
-            if (comparison != 0)
+            comparison = Meet.CompareTo(other.Meet);
+            if (comparison != 0) 
             {
                 return comparison;
             }
-            comparison = ObjectComparer<string>.Compare(Name, other.Name, -1);
-            if (comparison != 0)
-            {
-                return comparison;
-            }
-            return Gender.CompareTo(other.Gender);
+            return -Distance.CompareTo (other.Distance);
         }
         
-        override public bool Equals (object other)
+        override public bool Equals(object other)
         {
             if(this == other)
             {
@@ -238,9 +178,9 @@ namespace XCAnalyze.Model {
             return false;
         }
         
-        override public int GetHashCode()
+        override public int GetHashCode ()
         {
-            return ("" + Date + Name + Gender).GetHashCode();
+            return Meet.GetHashCode() + Distance;
         }
         
         /// <summary>
@@ -330,8 +270,7 @@ namespace XCAnalyze.Model {
         
         override public string ToString()
         {
-            string gender = Gender.IsMale ? "Men's" : "Women's";
-            return Name + " (" + Date + ") " + gender + " " + Distance + " m run.";
+            return Distance + " m run.";
         }
     }
 }

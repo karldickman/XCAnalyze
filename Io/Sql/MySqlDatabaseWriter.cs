@@ -182,6 +182,11 @@ namespace XCAnalyze.Io.Sql
             Reader = new MySqlDatabaseReader (TEST_DATABASE, TEST_ACCOUNT);
         }  
         
+        override protected internal BaseDatabaseReader CreateExampleReader()
+        {
+            return new MySqlDatabaseReader(EXAMPLE_DATABASE, TEST_ACCOUNT);
+        }
+        
         override protected internal BaseDatabaseWriter CreateWriter()
         {
             return new MySqlDatabaseWriter(TEST_DATABASE, TEST_ACCOUNT);

@@ -42,8 +42,6 @@ namespace XCAnalyze.Model
         {
             get { return Runner.School(Race.Meet.Date.Year); }
         }
-
-        protected internal Performance(Time time) : this(null, null, time) {}
         
         /// <summary>
         /// Create a new performance.

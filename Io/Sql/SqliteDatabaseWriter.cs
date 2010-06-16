@@ -1,6 +1,7 @@
 using Mono.Data.Sqlite;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 
@@ -74,13 +75,18 @@ namespace XCAnalyze.Io.Sql
         {
             Connection.Open();
             Command = Connection.CreateCommand();
-            if(IsDatabaseInitialized())
+            Command.CommandText = GET_TABLES_COMMAND;
+            IDataReader reader = Command.ExecuteReader();
+            IList<string> tables = new List<string>();
+            while(reader.Read())
             {
-                for(int i = TABLES.Length - 1; i >= 0; i--)
-                {
-                    Command.CommandText = "DROP TABLE " + TABLES[i];
-                    Command.ExecuteNonQuery();
-                }
+                tables.Add(reader[GET_TABLES_COLUMN].ToString());
+            }
+            reader.Close();
+            foreach(string table in tables)
+            {
+                Command.CommandText = "DROP TABLE " + table;
+                Command.ExecuteNonQuery();
             }
             InitializeDatabase();
         }
@@ -96,6 +102,11 @@ namespace XCAnalyze.Io.Sql
             Writer = CreateWriter();
             Reader = new DatabaseReader (new SqliteConnection (
                     Writer.Connection.ConnectionString), TEST_DATABASE);
+        }
+        
+        override protected internal BaseDatabaseReader CreateExampleReader()
+        {
+            return new SqliteDatabaseReader(SupportFiles.GetPath(EXAMPLE_DATABASE + ".db"));
         }
         
         override protected internal BaseDatabaseWriter CreateWriter()

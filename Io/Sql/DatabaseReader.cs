@@ -39,129 +39,179 @@ namespace XCAnalyze.Io.Sql
         public DatabaseReader(IDbConnection connection, IDbCommand command,
             string database) : base(connection, command, database) {}
         
-        override public void ReadAffiliations ()
+        override public IDictionary<int, Affiliation> ReadAffiliations (
+            IDictionary<int, Runner> runners, IDictionary<int, School> schools)
         {
-            Tables.Affiliation.Clear ();
-            int id, runnerId, schoolId;
+            IDictionary<int, Affiliation> affiliations =
+                new Dictionary<int, Affiliation>();
+            int id, year;
+            Runner runner;
+            School school;
             Command.CommandText = "SELECT * FROM affiliations";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse (Reader["id"].ToString ());
-                runnerId = int.Parse (Reader["runner_id"].ToString ());
-                schoolId = int.Parse (Reader["school_id"].ToString ());
-                new Tables.Affiliation (id, runnerId, schoolId,
-                    int.Parse (Reader["year"].ToString ()));
+                runner = runners[int.Parse (Reader["runner_id"].ToString ())];
+                school = schools[int.Parse (Reader["school_id"].ToString ())];
+                year = int.Parse(Reader["year"].ToString());
+                affiliations.Add(id, new Affiliation(runner, school, year));
             }
             Reader.Close ();
+            return affiliations;
         }
         
-        override public void ReadConferences ()
+        override public IDictionary<int, string> ReadConferences ()
         {
-            Tables.Conference.Clear ();
+            IDictionary<int, string> conferences = new Dictionary<int, string>();
             int id;
-            string abbreviation;
             Command.CommandText = "SELECT * FROM conferences";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse (Reader["id"].ToString ());
-                if(Reader["abbreviation"] is DBNull)
+                conferences.Add(id, (string)Reader["name"]);
+            }
+            Reader.Close ();
+            return conferences;
+        }
+        
+        /// <exception>
+        /// A <see cref="ArgumentNullException"/> is thrown when a meet with two
+        /// null races is encountered.
+        /// </exception>
+        override public IDictionary<int, Meet> ReadMeets(
+            IDictionary<int, string> meetNames, IDictionary<int, Race> races,
+            IDictionary<int, Venue> venues)
+        {
+            IDictionary<int, Meet> meets = new Dictionary<int, Meet>();
+            int id;
+            Date date;
+            Race mensRace, womensRace;
+            string meetName;
+            Venue venue;
+            Command.CommandText = "SELECT * FROM meets";
+            Reader = Command.ExecuteReader();
+            while(Reader.Read())
+            {
+                id = int.Parse(Reader["id"].ToString());
+                if(Reader["meet_name_id"] is DBNull)
                 {
-                    abbreviation = null;
+                    meetName = null;
                 }
                 else
                 {
-                    abbreviation = (string)Reader["abbreviation"];
+                    meetName = meetNames[int.Parse(Reader["meet_name_id"].ToString())];
                 }
-                new Tables.Conference (id, (string)Reader["name"], abbreviation);
+                date = new Date((DateTime)Reader["date"]);
+                if(Reader["venue_id"] is DBNull)
+                {
+                    venue = null;
+                }
+                else
+                {
+                    venue = venues[int.Parse(Reader["venue_id"].ToString())];
+                }
+                if(Reader["mens_race_id"] is DBNull)
+                {
+                    mensRace = null;
+                }
+                else
+                {
+                    mensRace = races[int.Parse(Reader["mens_race_id"].ToString())];
+                }
+                if(Reader["womens_race_id"] is DBNull)
+                {
+                    womensRace = null;
+                }
+                else
+                {
+                    womensRace = races[int.Parse(Reader["womens_race_id"].ToString())];
+                }
+                meets.Add(id,
+                    new Meet(meetName, date, venue, mensRace, womensRace));
             }
-            Reader.Close ();
+            Reader.Close();
+            return meets;
         }
         
-        override public void ReadMeetNames ()
+        override public IDictionary<int, string> ReadMeetNames ()
         {
-            Tables.MeetName.Clear();
+            IDictionary<int, string> meetNames = new Dictionary<int, string>();
             int id;
-            Command.CommandText = "SELECT * FROM meets";
+            Command.CommandText = "SELECT * FROM meet_names";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse(Reader["id"].ToString());
-                new Tables.MeetName (id, (string)Reader["name"]);
+                meetNames.Add(id, (string)Reader["name"]);
             }
             Reader.Close ();
+            return meetNames;
         }
 
-        override public void ReadPerformances ()
+        override public IDictionary<int, Performance> ReadPerformances (
+            IDictionary<int, Race> races, IDictionary<int, Runner> runners)
         {
-            Tables.Performance.Clear();
-            int id, runnerId, raceId;
+            IDictionary<int, Performance> performances =
+                new Dictionary<int, Performance>();
+            int id;
+            Race race;
+            Runner runner;
+            Time time;
             Command.CommandText = "SELECT * FROM results";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse(Reader["id"].ToString());
-                runnerId = int.Parse(Reader["runner_id"].ToString());
-                raceId = int.Parse(Reader["race_id"].ToString());
-                new Tables.Performance ((int)id, runnerId,
-                        raceId, new Model.Time((double)Reader["time"]));
+                runner = runners[int.Parse(Reader["runner_id"].ToString())];
+                race = races[int.Parse(Reader["race_id"].ToString())];
+                time = new Time((double)Reader["time"]);
+                performances.Add(id, new Performance(runner, race, time));
             }
             Reader.Close ();
+            return performances;
         }
 
-        override public void ReadRaces ()
+        override public IDictionary<int, Race> ReadRaces ()
         {
-            Tables.Race.Clear();
-            int id;
-            int? meetId, venueId;
+            IDictionary<int, Race> races = new Dictionary<int, Race>();
+            int id, distance;
             Command.CommandText = "SELECT * FROM races";
             Reader = Command.ExecuteReader ();
-            while (Reader.Read ()) {
+            while (Reader.Read ())
+            {
                 id = int.Parse(Reader["id"].ToString());
-                if (Reader["meet_id"] is DBNull)
-                {
-                    meetId = null;
-                }
-                else
-                {
-                    meetId = new int?(int.Parse(Reader["meet_id"].ToString()));
-                }
-                if (Reader["venue_id"] is DBNull)
-                {
-                    venueId = null;
-                }
-                else
-                {
-                    venueId = new int?(int.Parse(Reader["venue_id"].ToString()));
-                }
-                new Tables.Race (id, meetId, new Model.Date((DateTime)Reader["date"]),
-                    venueId, Model.Gender.FromString ((string)Reader["gender"]),
-                    (int)Reader["distance"]);
+                distance = int.Parse(Reader["distance"].ToString());
+                races.Add(id, new Race(null, distance));
             }
             Reader.Close ();
+            return races;
         }
 
-        override public void ReadRunners ()
+        override public IDictionary<int, Runner> ReadRunners ()
         {
-            Tables.Runner.Clear ();
+            IDictionary<int, Runner> runners = new Dictionary<int, Runner>();
+            Gender gender;
             int id;
             int? year;
-            string[] nicknames;
+            IList<string> nicknames;
+            string givenName, surname;
             Command.CommandText = "SELECT * FROM runners";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ()) {
                 id = int.Parse (Reader["id"].ToString ());
-                if (Reader["nicknames"] is DBNull)
+                gender = Gender.FromString(Reader["gender"].ToString());
+                givenName = (string)Reader["given_name"];
+                surname = (string)Reader["surname"];
+                nicknames = new List<string>();
+                if (!(Reader["nicknames"] is DBNull))
                 {
-                    nicknames = null;
-                }
-                else
-                {
-                    nicknames = ((string)Reader["nicknames"]).Split (',');
-                    foreach (string nickname in nicknames)
+                    foreach(string nickname
+                        in ((string)Reader["nicknames"]).Split(','))
                     {
-                        nickname.Trim ();
+                        nickname.Trim();
+                        nicknames.Add(nickname);
                     }
                 }
                 if (Reader["year"] is DBNull)
@@ -172,35 +222,35 @@ namespace XCAnalyze.Io.Sql
                 {
                     year = new Nullable<int>(int.Parse(Reader["year"].ToString()));
                 }
-                new Tables.Runner ((int)id, (string)Reader["surname"],
-                    (string)Reader["given_name"], nicknames,
-                    Model.Gender.FromString ((string)Reader["gender"]), year);
+                runners.Add(id,
+                    new Runner(surname, givenName, nicknames, gender, year));
             }
             Reader.Close ();
+            return runners;
         }
 
-        override public void ReadSchools ()
+        override public IDictionary<int, School> ReadSchools (
+            IDictionary<int, string> conferences)
         {
-            Tables.School.Clear ();
+            IDictionary<int, School> schools = new Dictionary<int, School>();
             int id;
-            int? conferenceId;
-            string[] nicknames;
-            string type;
+            bool nameFirst;
+            IList<string> nicknames;
+            string conference, name, type;
             Command.CommandText = "SELECT * FROM schools";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse (Reader["id"].ToString ());
-                if (Reader["nicknames"] is DBNull)
+                name = (string)Reader["name"];
+                nameFirst = (bool)Reader["name_first"];
+                nicknames = new List<string>();
+                if (!(Reader["nicknames"] is DBNull))
                 {
-                    nicknames = null;
-                }
-                else
-                {
-                    nicknames = ((string)Reader["nicknames"]).Split (',');
-                    foreach (string nickname in nicknames)
+                    foreach(string nickname
+                        in ((string)Reader["nicknames"]).Split(','))
                     {
-                        nickname.Trim ();
+                        nicknames.Add(nickname.Trim());
                     }
                 }
                 if (Reader["type"] is DBNull)
@@ -213,49 +263,35 @@ namespace XCAnalyze.Io.Sql
                 }
                 if (Reader["conference_id"] is DBNull)
                 {
-                    conferenceId = null;
+                    conference = null;
                 }
                 else
                 {
-                    conferenceId = int.Parse (Reader["conference_id"].ToString ());
+                    conference = conferences[int.Parse (Reader["conference_id"].ToString ())];
                 }
-                new Tables.School (id, (string)Reader["name"], nicknames, type,
-                    (bool)Reader["name_first"], conferenceId);
+                schools.Add(id, new School(name, type, nameFirst, nicknames, conference));
             }
             Reader.Close ();
+            return schools;
         }
 
-        override public void ReadVenues ()
+        override public IDictionary<int, Venue> ReadVenues ()
         {
-            Tables.Venue.Clear();
+            IDictionary<int, Venue> venues = new Dictionary<int, Venue>();
             int id;
-            int? elevation;
-            string name;
+            string name, city, state;
             Command.CommandText = "SELECT * FROM venues";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
             {
                 id = int.Parse(Reader["id"].ToString());
-                if (Reader["name"] is DBNull)
-                {
-                    name = null;
-                }
-                else
-                {
-                    name = (string)Reader["name"];
-                }
-                if (Reader["elevation"] is DBNull)
-                {
-                    elevation = null;
-                }
-                else
-                {
-                    elevation = (int)Reader["elevation"];
-                }
-                new Tables.Venue (id, name, (string)Reader["city"],
-                    (string)Reader["state"], elevation);
+                name = (Reader["name"] is DBNull) ? null : (string)Reader["name"];       
+                city = (string)Reader["city"];    
+                state = (string)Reader["state"];             
+                venues.Add(id, new Venue(name, city, state));
             }
             Reader.Close ();
+            return venues;
         }
     }
     

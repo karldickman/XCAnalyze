@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
@@ -16,8 +17,9 @@ namespace XCAnalyze.Io.Sql
         /// order: tables later in the list have foreign keys referencing tables
         /// earlier in the list.
         /// </summary>
-        public static readonly string[] TABLES = {"conferences", "runners",
-        "schools", "affiliations", "meets", "venues", "races", "results"};        
+        public static readonly string[] TABLES = {"runners", "conferences",
+            "schools", "affiliations", "meet_names", "races", "venues", "meets",
+            "results"};      
         
         /// <summary>
         /// The views that should be in the database.
@@ -146,114 +148,37 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         public void Write (Model.XcData data)
         {
-            Tables.XcData sqlData = null;
-            if (data is Tables.XcData)
-            {
-                sqlData = (Tables.XcData)data;
-            }
-            if (sqlData != null)
-            {
-                WriteConferences (sqlData.SqlConferences);
-            }
-            else
-            {
-                WriteConferences (data.Conferences);
-            }
+            WriteConferences (data.Conferences);
             WriteRunners (data.Runners);
-            WriteSchools (data.Schools);
-            WriteAffiliations (data.Affiliations);
-            if (sqlData != null)
-            {
-                WriteMeetNames (sqlData.SqlMeetNames);
-            }
-            else
-            {
-                WriteMeetNames (data.MeetNames);
-            }
-            WriteVenues (data.Venues);
+            WriteSchools (data.Schools, data.Conferences);
+            WriteAffiliations (data.Affiliations, data.Runners, data.Schools);
+            WriteMeetNames (data.MeetNames);
             WriteRaces (data.Races);
-            WritePerformances (data.Performances);
+            WriteVenues (data.Venues);
+            WriteMeets (data.Meets, data.MeetNames, data.Races, data.Venues);
+            WritePerformances (data.Performances, data.Races, data.Runners);
         }
-               
-        /// <summary>
-        /// Write the list of affiliations to the database.
-        /// </summary>
-        /// <param name="affiliations">
-        /// The <see cref="IList<Model.Affiliation>"/> to write.
-        /// </param>
-        abstract public void WriteAffiliations(IList<Affiliation> affiliations);           
 
-        /// <summary>
-        /// Write the list of conferences to the database.
-        /// <param name="conferences">
-        /// The <see cref="IList<Tables.Conferences>"/> to write.
-        /// </param>
-        /// </summary>
-        abstract public void WriteConferences(
-            IList<Tables.Conference> conferences);           
+        abstract public void WriteAffiliations(IList<Affiliation> affiliations,
+            IList<Runner> runnerIds, IList<School> schoolIds);                 
                 
-        /// <summary>
-        /// Write the list of conferences to the database.
-        /// <param name="conferences">
-        /// The <see cref="IList<string>"/> to write.
-        /// </param>
-        /// </summary>
         abstract public void WriteConferences(IList<string> conferences);
                 
-        /// <summary>
-        /// Write a list of meets to the database.
-        /// </summary>
-        /// <param name="meets">
-        /// The <see cref="IList<Meet>"/> to write.
-        /// </param>
-        abstract public void WriteMeetNames(IList<Tables.MeetName> meetNames);
-                
-        /// <summary>
-        /// Write a list of meets to the database.
-        /// </summary>
-        /// <param name="meets">
-        /// The <see cref="IList<System.String>"/> to write.
-        /// </param>
         abstract public void WriteMeetNames(IList<string> meetNames);
-         
-        /// <summary>
-        /// Write a list of performances to the database.
-        /// </summary>
-        /// <param name="performances">
-        /// The <see cref="IList<Model.Performance>"/> to write.
-        /// </param>
-        abstract public void WritePerformances(IList<Performance> performances);
         
-        /// <summary>
-        /// Write a list of races to the database.
-        /// </summary>
-        /// <param name="races">
-        /// The <see cref="IList<Model.Race>"/> to write.
-        /// </param>        
+        abstract public void WriteMeets(IList<Meet> meets,
+            IList<string> meetNames, IList<Race> races, IList<Venue> venues);
+        
+        abstract public void WritePerformances(IList<Performance> performances,
+            IList<Race> races, IList<Runner> runners);
+        
         abstract public void WriteRaces(IList<Race> races);
                 
-        /// <summary>
-        /// Write the list of runners to the database.
-        /// </summary>
-        /// <param name="runners">
-        /// The <see cref="IList<Model.Runner>"/> to write.
-        /// </param>
         abstract public void WriteRunners(IList<Runner> runners);
                 
-        /// <summary>
-        /// Write a list of schools to the database.
-        /// </summary>
-        /// <param name="schools">
-        /// The <see cref="IList<Model.School>"/> to write.
-        /// </param>
-        abstract public void WriteSchools(IList<School> schools);
+        abstract public void WriteSchools(IList<School> schoolIds,
+            IList<string> conferences);
                 
-        /// <summary>
-        /// Write a list of venues to the database.
-        /// </summary>
-        /// <param name="venues">
-        /// The <see cref="IList<System.String[]>"/> to write.
-        /// </param>
         abstract public void WriteVenues(IList<Venue> venues);
     }
 }

@@ -2,16 +2,16 @@ DROP TABLE IF EXISTS conferences;
 CREATE TABLE conferences
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    name VARCHAR(100),
+    name VARCHAR(100) NOT NULL,
     abbreviation VARCHAR(10),
     PRIMARY KEY (id)
 ) TYPE = INNODB;
 
-DROP TABLE IF EXISTS meets;
-CREATE TABLE meets
+DROP TABLE IF EXISTS meet_names;
+CREATE TABLE meet_names
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    name VARCHAR(150),
+    name VARCHAR(150) NOT NULL,
     PRIMARY KEY (id)
 ) TYPE = INNODB;
 
@@ -19,8 +19,8 @@ DROP TABLE IF EXISTS runners;
 CREATE TABLE runners
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    surname VARCHAR(100),
-    given_name VARCHAR(100),
+    surname VARCHAR(100) NOT NULL,
+    given_name VARCHAR(100) NOT NULL,
     nicknames VARCHAR(200),
     gender ENUM('M', 'F') NOT NULL,
     `year` YEAR,
@@ -31,10 +31,10 @@ DROP TABLE IF EXISTS schools;
 CREATE TABLE schools
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    name VARCHAR(150),
-    nicknames VARCHAR(100),
+    name VARCHAR(150) NOT NULL,
     `type` VARCHAR(100),
-    name_first BOOLEAN,
+    name_first BOOLEAN NOT NULL,
+    nicknames VARCHAR(100),
     conference_id INT UNSIGNED,
     PRIMARY KEY (id),
     FOREIGN KEY (conference_id) REFERENCES conferences (id)
@@ -44,46 +44,56 @@ DROP TABLE IF EXISTS affiliations;
 CREATE TABLE affiliations
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    runner_id INT UNSIGNED,
-    school_id INT UNSIGNED,
-    `year` YEAR,
+    runner_id INT UNSIGNED NOT NULL,
+    school_id INT UNSIGNED NOT NULL,
+    `year` YEAR NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (runner_id) REFERENCES runners (id),
     FOREIGN KEY (school_id) REFERENCES schools (id)
 ) TYPE = INNODB;    
+
+DROP TABLE IF EXISTS races;
+CREATE TABLE races
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    distance INT NOT NULL,
+    PRIMARY KEY (id)
+) TYPE = INNODB;
 
 DROP TABLE IF EXISTS venues;
 CREATE TABLE venues
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(150),
-    city VARCHAR(100),
-    state VARCHAR(100),
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
     elevation INT,
     PRIMARY KEY (id)
 ) TYPE = INNODB;
 
-DROP TABLE IF EXISTS races;
-CREATE TABLE races
+DROP TABLE IF EXISTS meets;
+CREATE TABLE meets
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    meet_id INT UNSIGNED,
+    meet_name_id INT UNSIGNED,
+    `date` DATE NOT NULL,
     venue_id INT UNSIGNED,
-    `date` DATE,
-    gender ENUM('M', 'F') NOT NULL,
-    distance INT,
+    mens_race_id INT UNSIGNED,
+    womens_race_id INT UNSIGNED,
     PRIMARY KEY (id),
-    FOREIGN KEY (meet_id) REFERENCES meets (id),
-    FOREIGN KEY (venue_id) REFERENCES venues (id)
+    FOREIGN KEY (meet_name_id) REFERENCES meet_names (id),
+    FOREIGN KEY (venue_id) REFERENCES venues (id),
+    FOREIGN KEY (mens_race_id) REFERENCES races (id),
+    FOREIGN KEY (womens_race_id) REFERENCES races (id)
 ) TYPE = INNODB;
 
 DROP TABLE IF EXISTS results;
 CREATE TABLE results
 (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    runner_id INT UNSIGNED,
-    race_id INT UNSIGNED,
-    `time` DOUBLE,
+    runner_id INT UNSIGNED NOT NULL,
+    race_id INT UNSIGNED NOT NULL,
+    `time` DOUBLE NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (runner_id) REFERENCES runners (id),
     FOREIGN KEY (race_id) REFERENCES races (id)

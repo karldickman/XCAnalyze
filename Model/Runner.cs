@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -11,13 +12,13 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The runner's gender.
         /// </summary>
-        virtual public Gender Gender { get; protected internal set; }
+        public Gender Gender { get; protected internal set; }
 
         /// <summary>
         /// The runner's given name.
         /// </summary>
-        virtual public string GivenName { get; protected internal set; }
-
+        public string GivenName { get; protected internal set; }
+        
         /// <summary>
         /// The runner's full name.
         /// </summary>
@@ -25,26 +26,31 @@ namespace XCAnalyze.Model
         {
             get { return GivenName + " " + Surname; }
         }
+        
+        /// <summary>
+        /// The nicknames or alternate names of the runner.
+        /// </summary>
+        public IList<string> Nicknames { get; protected internal set; }
 
         /// <summary>
         /// The performances this runner has achieved.
         /// </summary>
-        virtual public IList<Performance> Performances { get; protected internal set; }
+        public IList<Performance> Performances { get; protected internal set; }
 
         /// <summary>
         /// The affiliations of the runner over their career.
         /// </summary>
-        virtual public IDictionary<int, Affiliation> Schools { get; protected internal set; }
+        public IDictionary<int, Affiliation> Schools { get; protected internal set; }
 
         /// <summary>
         /// The runner's surname.
         /// </summary>
-        virtual public string Surname { get; protected internal set; }
+        public string Surname { get; protected internal set; }
 
         /// <summary>
         /// The runner's original graduation year.
         /// </summary>
-        virtual public int? Year { get; protected internal set; }
+        public int? Year { get; protected internal set; }
         
         /// <summary>
         /// Create a new runner.
@@ -63,9 +69,32 @@ namespace XCAnalyze.Model
         /// </param>
         public Runner (string surname, string givenName, Gender gender,
             int? year)
-            : this(surname, givenName, gender, year,
-                new Dictionary<int, Affiliation> (), new List<Performance>()) {}
+            : this(surname, givenName, new List<string>(), gender, year) {}
             
+        /// <summary>
+        /// Create a new runner.
+        /// </summary>
+        /// <param name="surname">
+        /// The runner's surname.
+        /// </param>
+        /// <param name="givenName">
+        /// The runner's given name.
+        /// </param>
+        /// <param name="nicknames">
+        /// A <see cref="IList<System.String>"/> of a runners nicknames or
+        /// alternative names.
+        /// </param>
+        /// <param name="gender">
+        /// The runner's gender.
+        /// </param>
+        /// <param name="year">
+        /// The year in which the runner was initially scheduled to graduate.
+        /// </param>
+        public Runner(string surname, string givenName, IList<string> nicknames,
+            Gender gender, int? year)
+        : this(surname, givenName, nicknames, gender, year,
+                new Dictionary<int, Affiliation>(), new List<Performance>()) {}
+        
         /// <summary>
         /// Create a new runner.
         /// </summary>
@@ -91,9 +120,43 @@ namespace XCAnalyze.Model
         public Runner (string surname, string givenName, Gender gender,
             int? year, IDictionary<int, Affiliation> schools,
             IList<Performance> performances)
+            : this(surname, givenName, new List<string>(), gender, year,
+                schools, performances) {}
+              
+        /// <summary>
+        /// Create a new runner.
+        /// </summary>
+        /// <param name="surname">
+        /// The runner's surname.
+        /// </param>
+        /// <param name="givenName">
+        /// The runner's given name.
+        /// </param>
+        /// <param name="nicknames">
+        /// A <see cref="IList<System.String>"/> of a runners nicknames or
+        /// alternative names.
+        /// </param>
+        /// <param name="gender">
+        /// The runner's gender.
+        /// </param>
+        /// <param name="year">
+        /// The year in which the runner was initially scheduled to graduate.
+        /// </param>
+        /// <param name="schools">
+        /// A <see cref="IDictionary<System.Int32, Affiliation>"/> of
+        /// school affiliations.
+        /// </param>
+        /// <param name="performances">
+        /// The <see cref="IList<Performance>"/> the runner owns.
+        /// </param>
+        public Runner (string surname, string givenName,
+            IList<string> nicknames, Gender gender, int? year,
+            IDictionary<int, Affiliation> schools,
+            IList<Performance> performances)
         {
             Surname = surname;
             GivenName = givenName;
+            Nicknames = nicknames;
             Gender = gender;
             Year = year;
             Schools = schools;
@@ -142,23 +205,22 @@ namespace XCAnalyze.Model
             {
                 return comparison;
             }
-            if (Year != null && other.Year != null)
+            comparison = NullableComparer.Compare (Year, other.Year, 1);
+            if (comparison != 0)
             {
-                comparison = Year.Value.CompareTo (other.Year.Value);
-                if (comparison != 0) 
-                {
-                    return comparison;
-                }
+                return comparison;
             }
             return Gender.CompareTo (other.Gender);
         }
 
         override public bool Equals (object other)
         {
-            if (this == other) {
+            if (this == other)
+            {
                 return true;
             }
-            if (other is Runner) {
+            if (other is Runner)
+            {
                 return 0 == CompareTo ((Runner)other);
             }
             return false;
@@ -185,5 +247,17 @@ namespace XCAnalyze.Model
         {
             return Name + " (" + Year + ")";
         }    
+    }
+    
+    [TestFixture]
+    public class TestRunner
+    {
+        [Test]
+        public void TestEquals ()
+        {
+            Runner zim1 = new Runner ("Zimmerman", "Elizabeth", Gender.FEMALE, 2007);
+            Runner zim2 = new Runner ("Zimmerman", "Elizabeth", Gender.FEMALE, null);
+            Assert.IsFalse (zim1.Equals (zim2));
+        }
     }
 }

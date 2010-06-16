@@ -2,23 +2,23 @@ DROP TABLE IF EXISTS conferences;
 CREATE TABLE conferences
 (
     id INTEGER PRIMARY KEY,
-    name VARCHAR(100),
+    name VARCHAR(100) NOT NULL,
     abbreviation VARCHAR(10)
 );
 
-DROP TABLE IF EXISTS meets;
-CREATE TABLE meets
+DROP TABLE IF EXISTS meet_names;
+CREATE TABLE meet_names
 (
     id INTEGER PRIMARY KEY,
-    name VARCHAR(150)
+    name VARCHAR(150) NOT NULL
 );
 
 DROP TABLE IF EXISTS runners;
 CREATE TABLE runners
 (
     id INTEGER PRIMARY KEY,
-    surname VARCHAR(100),
-    given_name VARCHAR(100),
+    surname VARCHAR(100) NOT NULL,
+    given_name VARCHAR(100) NOT NULL,
     nicknames VARCHAR(200),
     gender VARCHAR(1) NOT NULL,
     `year` YEAR
@@ -28,10 +28,10 @@ DROP TABLE IF EXISTS schools;
 CREATE TABLE schools
 (
     id INTEGER PRIMARY KEY,
-    name VARCHAR(150),
-    nicknames VARCHAR(100),
+    name VARCHAR(150) NOT NULL,
     `type` VARCHAR(100),
-    name_first BOOLEAN,
+    name_first BOOLEAN NOT NULL,
+    nicknames VARCHAR(100),
     conference_id INT UNSIGNED,
     FOREIGN KEY (conference_id) REFERENCES conferences (id)
 );
@@ -40,43 +40,52 @@ DROP TABLE IF EXISTS affiliations;
 CREATE TABLE affiliations
 (
     id INTEGER PRIMARY KEY,
-    runner_id INT UNSIGNED,
-    school_id INT UNSIGNED,
-    `year` YEAR,
+    runner_id INT UNSIGNED NOT NULL,
+    school_id INT UNSIGNED NOT NULL,
+    `year` YEAR NOT NULL,
     FOREIGN KEY (runner_id) REFERENCES runners (id),
     FOREIGN KEY (school_id) REFERENCES schools (id)
 );    
+
+DROP TABLE IF EXISTS races;
+CREATE TABLE races
+(
+    id INTEGER PRIMARY KEY,
+    distance INT NOT NULL
+);
 
 DROP TABLE IF EXISTS venues;
 CREATE TABLE venues
 (
     id INTEGER PRIMARY KEY,
     name VARCHAR(150),
-    city VARCHAR(100),
-    state VARCHAR(100),
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
     elevation INT
 );
 
-DROP TABLE IF EXISTS races;
-CREATE TABLE races
+DROP TABLE IF EXISTS meets;
+CREATE TABLE meets
 (
     id INTEGER PRIMARY KEY,
-    meet_id INT UNSIGNED,
+    meet_name_id INT UNSIGNED,
+    `date` DATE NOT NULL,
     venue_id INT UNSIGNED,
-    `date` DATE,
-    gender VARCHAR(1) NOT NULL,
-    distance INT,
-    FOREIGN KEY (meet_id) REFERENCES meets (id),
-    FOREIGN KEY (venue_id) REFERENCES venues (id)
+    mens_race_id INT UNSIGNED,
+    womens_race_id INT UNSIGNED,
+    FOREIGN KEY (meet_name_id) REFERENCES meet_names (id),
+    FOREIGN KEY (venue_id) REFERENCES venues (id),
+    FOREIGN KEY (mens_race_id) REFERENCES races (id),
+    FOREIGN KEY (womens_race_id) REFERENCES races (id)
 );
 
 DROP TABLE IF EXISTS results;
 CREATE TABLE results
 (
     id INTEGER PRIMARY KEY,
-    runner_id INT UNSIGNED,
-    race_id INT UNSIGNED,
-    `time` DOUBLE,
+    runner_id INT UNSIGNED NOT NULL,
+    race_id INT UNSIGNED NOT NULL,
+    `time` DOUBLE NOT NULL,
     FOREIGN KEY (runner_id) REFERENCES runners (id),
     FOREIGN KEY (race_id) REFERENCES races (id)
 );

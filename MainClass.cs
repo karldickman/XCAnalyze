@@ -5,7 +5,7 @@ using XCAnalyze.Model;
 
 namespace XCAnalyze
 {
-    public class XCAnalyze
+    public class MainClass
     {
         public static void Main (string[] args)
         {
