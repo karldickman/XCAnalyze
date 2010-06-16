@@ -66,7 +66,7 @@ namespace XCAnalyze.Io.Sql
             string database, IDbCommand command)
         : base(connection, database, command) {}
         
-        override protected internal BaseDatabaseReader CreateReader()
+        override protected internal AbstractDatabaseReader CreateReader()
         {
             return new DatabaseReader(Connection, Command, Database);
         }
@@ -104,12 +104,12 @@ namespace XCAnalyze.Io.Sql
                     Writer.Connection.ConnectionString), TEST_DATABASE);
         }
         
-        override protected internal BaseDatabaseReader CreateExampleReader()
+        override protected internal AbstractDatabaseReader CreateExampleReader()
         {
             return new SqliteDatabaseReader(SupportFiles.GetPath(EXAMPLE_DATABASE + ".db"));
         }
         
-        override protected internal BaseDatabaseWriter CreateWriter()
+        override protected internal AbstractDatabaseWriter CreateWriter()
         {
             return new SqliteDatabaseWriter(TEST_DATABASE);
         }

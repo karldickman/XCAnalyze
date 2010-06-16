@@ -9,8 +9,7 @@ namespace XCAnalyze.Io.Sql
     /// <summary>
     /// The interface that all database writers must conform to.
     /// </summary>
-    abstract public class BaseDatabaseWriter
-        : IWriter<Model.XcData>, IDisposable
+    abstract public class AbstractDatabaseWriter : AbstractWriter
     {
         /// <summary>
         /// The tables that should be in the database.  These are in dependency
@@ -45,7 +44,7 @@ namespace XCAnalyze.Io.Sql
         /// The <see cref="DatabaseReader" /> used to read things back out of
         /// the database.
         /// </summary>
-        protected internal BaseDatabaseReader Reader { get; set; }
+        protected internal AbstractDatabaseReader Reader { get; set; }
         
         /// <summary>
         /// The <see cref="IDataReader"/> used to read responses from the
@@ -62,7 +61,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database to which this writer writes.
         /// </param>
-        public BaseDatabaseWriter (IDbConnection connection, string database)
+        public AbstractDatabaseWriter (IDbConnection connection, string database)
         {
             Connection = connection;
             Database = database;
@@ -82,7 +81,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="command">
         /// The <see cref="IDbCommand"/> to use.
         /// </param>
-        protected internal BaseDatabaseWriter (IDbConnection connection,
+        protected internal AbstractDatabaseWriter (IDbConnection connection,
             string database, IDbCommand command)
         {
             Connection = connection;
@@ -102,9 +101,9 @@ namespace XCAnalyze.Io.Sql
         /// A <see cref="BaseDatabaseReader"/> connected to the current
         /// database.
         /// </returns>
-        abstract protected internal BaseDatabaseReader CreateReader();
+        abstract protected internal AbstractDatabaseReader CreateReader();
         
-        public void Dispose ()
+        override public void Dispose ()
         {
             if (ResultsReader != null)
             {
@@ -139,46 +138,5 @@ namespace XCAnalyze.Io.Sql
         /// The <see cref="IDbConnection"/> to open.
         /// </param>
         abstract protected internal void Open();
-        
-        /// <summary>
-        /// Write data to the database.
-        /// </summary>
-        /// <param name="data">
-        /// The <see cref="Data"/> to be written.
-        /// </param>
-        public void Write (Model.XcData data)
-        {
-            WriteConferences (data.Conferences);
-            WriteRunners (data.Runners);
-            WriteSchools (data.Schools, data.Conferences);
-            WriteAffiliations (data.Affiliations, data.Runners, data.Schools);
-            WriteMeetNames (data.MeetNames);
-            WriteRaces (data.Races);
-            WriteVenues (data.Venues);
-            WriteMeets (data.Meets, data.MeetNames, data.Races, data.Venues);
-            WritePerformances (data.Performances, data.Races, data.Runners);
-        }
-
-        abstract public void WriteAffiliations(IList<Affiliation> affiliations,
-            IList<Runner> runnerIds, IList<School> schoolIds);                 
-                
-        abstract public void WriteConferences(IList<string> conferences);
-                
-        abstract public void WriteMeetNames(IList<string> meetNames);
-        
-        abstract public void WriteMeets(IList<Meet> meets,
-            IList<string> meetNames, IList<Race> races, IList<Venue> venues);
-        
-        abstract public void WritePerformances(IList<Performance> performances,
-            IList<Race> races, IList<Runner> runners);
-        
-        abstract public void WriteRaces(IList<Race> races);
-                
-        abstract public void WriteRunners(IList<Runner> runners);
-                
-        abstract public void WriteSchools(IList<School> schoolIds,
-            IList<string> conferences);
-                
-        abstract public void WriteVenues(IList<Venue> venues);
     }
 }

@@ -148,7 +148,7 @@ namespace XCAnalyze.Io.Sql
                     "; Database=" + database + "; Password=" + password +
                     "; Pooling=" + pooling + ";"), database) {}
         
-        override protected internal BaseDatabaseReader CreateReader()
+        override protected internal AbstractDatabaseReader CreateReader()
         {
             return new MySqlDatabaseReader(Connection, Command, Database);
         }
@@ -182,12 +182,12 @@ namespace XCAnalyze.Io.Sql
             Reader = new MySqlDatabaseReader (TEST_DATABASE, TEST_ACCOUNT);
         }  
         
-        override protected internal BaseDatabaseReader CreateExampleReader()
+        override protected internal AbstractDatabaseReader CreateExampleReader()
         {
             return new MySqlDatabaseReader(EXAMPLE_DATABASE, TEST_ACCOUNT);
         }
         
-        override protected internal BaseDatabaseWriter CreateWriter()
+        override protected internal AbstractDatabaseWriter CreateWriter()
         {
             return new MySqlDatabaseWriter(TEST_DATABASE, TEST_ACCOUNT);
         }

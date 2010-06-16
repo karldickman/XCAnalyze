@@ -10,7 +10,7 @@ namespace XCAnalyze.Io.Sql
     /// A <see cref="IReader"/> that reads all the required data for the model out of a
     /// database.
     /// </summary>
-    public class DatabaseReader : BaseDatabaseReader
+    public class DatabaseReader : AbstractDatabaseReader
     {
         /// <summary>
         /// Create a new reader.
@@ -299,7 +299,7 @@ namespace XCAnalyze.Io.Sql
     {
         public const string EXAMPLE_DATABASE = "xca_example";
         
-        protected internal BaseDatabaseReader Reader { get; set; }
+        protected internal AbstractDatabaseReader Reader { get; set; }
         
         abstract public void SetUp();
         
