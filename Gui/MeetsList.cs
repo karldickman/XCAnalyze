@@ -32,9 +32,9 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The meet that is currently selected.
         /// </summary>
-        protected internal MeetSelection MeetSelection { get; set; }
+        protected internal IDataSelection<Meet> MeetSelection { get; set; }
         
-        protected internal MeetsView (MeetSelection selection)
+        protected internal MeetsView (IDataSelection<Meet> selection)
         {
             MeetSelection = selection;
             AppendColumn("Name", new CellRendererText(), "text", 1);
@@ -42,7 +42,7 @@ namespace XCAnalyze.Gui
             RowActivated += HandleRowActivated;
         }
         
-        public MeetsView (MeetSelection selection, ListStore model)
+        public MeetsView (IDataSelection<Meet> selection, ListStore model)
             : this(selection)
         {
             Model = model;
@@ -53,7 +53,7 @@ namespace XCAnalyze.Gui
             TreeIter iter = new TreeIter ();
             if (Model.GetIter (out iter, args.Path))
             {
-                MeetSelection.Selected = (Meet)Model.GetValue (iter, 0);
+                MeetSelection.Select ((Meet)Model.GetValue(iter, 0));
             }
         }
     }
@@ -74,7 +74,7 @@ namespace XCAnalyze.Gui
         /// <param name="meets">
         /// The <see cref="IList<Meet>"/> to display.
         /// </param>
-        public MeetsList (MeetSelection selection, IList<Meet> meets)
+        public MeetsList (IDataSelection<Meet> selection, IList<Meet> meets)
         {
             ListStore model = new MeetsListStore (meets);
             View = new MeetsView (selection, model);

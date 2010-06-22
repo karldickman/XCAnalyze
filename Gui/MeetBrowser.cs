@@ -24,43 +24,15 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// An object that keeps track of the currently selected meet.
         /// </summary>
-        protected internal MeetSelection MeetSelection { get; set; }
+        protected internal IDataSelection<Meet> MeetSelection { get; set; }
         
         public MeetBrowser (IList<Meet> meets)
         {
-            MeetSelection = new MeetSelection ();
+            MeetSelection = new DataSelection<Meet> ();
             Browser = new MeetsList (MeetSelection, meets);
-            Detail = new MeetDetail (meets[0]);
+            Detail = new MeetDetail (MeetSelection);
             Add (Browser);
             Add (Detail);
-            MeetSelection.MeetSelector selector =
-                new MeetSelection.MeetSelector (SelectMeet);
-            MeetSelection.SelectionChanged += selector;
-        }
-        
-        /// <summary>
-        /// Select a particular meet to be shown in the detail view.
-        /// </summary>
-        /// <param name="meet">
-        /// The <see cref="Meet"/> to show.
-        /// </param>
-        public void SelectMeet (Meet meet)
-        {
-            Remove (Detail);
-            Detail = new MeetDetail (meet);
-            Add (Detail);
-            UsePreferredSize ();
-            ShowAll ();
-        }
-        
-        /// <summary>
-        /// Set the size request to its ideal value.
-        /// </summary>
-        public void UsePreferredSize ()
-        {
-            //Defer to children
-            Browser.UsePreferredSize ();
-            Detail.UsePreferredSize ();
         }
     }
 }

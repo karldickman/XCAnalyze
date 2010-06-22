@@ -151,6 +151,15 @@ namespace XCAnalyze.Model
             return ("" + Date + Name + Venue).GetHashCode();
         }
         
+        public Race Race (Gender gender)
+        {
+            if (gender.IsMale) 
+            {
+                return MensRace;
+            }
+            return WomensRace;
+        }
+        
         override public string ToString()
         {
             return Name + " (" + Date + ")";

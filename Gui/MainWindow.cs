@@ -26,15 +26,6 @@ namespace XCAnalyze.Gui
         {
             Meets = new MeetBrowser(data.Meets);
             Add(Meets);
-            UsePreferredSize ();
-        }
-        
-        /// <summary>
-        /// Set the size request to its ideal value.
-        /// </summary>
-        public void UsePreferredSize ()
-        {
-            Meets.UsePreferredSize ();//Defer to child
         }
     }
 }
