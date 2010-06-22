@@ -21,16 +21,10 @@ namespace XCAnalyze.Gui
         /// </summary>
         protected internal MeetDetail Detail { get; set; }
         
-        /// <summary>
-        /// An object that keeps track of the currently selected meet.
-        /// </summary>
-        protected internal IDataSelection<Meet> MeetSelection { get; set; }
-        
-        public MeetBrowser (IList<Meet> meets)
+        public MeetBrowser (IDataSelection<Meet> meetSelection, IList<Meet> meets)
         {
-            MeetSelection = new DataSelection<Meet> ();
-            Browser = new MeetsList (MeetSelection, meets);
-            Detail = new MeetDetail (MeetSelection);
+            Browser = new MeetsList (meetSelection, meets);
+            Detail = new MeetDetail (meetSelection);
             Add (Browser);
             Add (Detail);
         }
