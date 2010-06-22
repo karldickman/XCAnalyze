@@ -10,7 +10,7 @@ namespace XCAnalyze.Io.Sql
     /// A <see cref="IReader"/> that reads all the required data for the model out of a
     /// database.
     /// </summary>
-    public class DatabaseReader : AbstractDatabaseReader
+    public class Reader : AbstractReader
     {
         /// <summary>
         /// Create a new reader.
@@ -21,7 +21,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
-        public DatabaseReader (IDbConnection connection, string database)
+        public Reader (IDbConnection connection, string database)
         : base(connection, database) {}
         
         /// <summary>
@@ -36,7 +36,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
-        public DatabaseReader(IDbConnection connection, IDbCommand command,
+        public Reader(IDbConnection connection, IDbCommand command,
             string database) : base(connection, command, database) {}
         
         override public IDictionary<int, Affiliation> ReadAffiliations (
@@ -299,7 +299,7 @@ namespace XCAnalyze.Io.Sql
     {
         public const string EXAMPLE_DATABASE = "xca_example";
         
-        protected internal AbstractDatabaseReader Reader { get; set; }
+        protected internal AbstractReader Reader { get; set; }
         
         abstract public void SetUp();
         

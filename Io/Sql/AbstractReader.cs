@@ -9,7 +9,7 @@ namespace XCAnalyze.Io.Sql
     /// <summary>
     /// The interface which all database readers must implement.
     /// </summary>
-    abstract public class AbstractDatabaseReader : AbstractReader
+    abstract public class AbstractReader : AbstractXcDataReader
     {
         /// <summary>
         /// Has this instance been disposed of yet?
@@ -36,7 +36,7 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         protected internal IDataReader Reader { get; set; }
         
-        protected internal AbstractDatabaseReader()
+        protected internal AbstractReader()
         {
             disposed = false;
         }
@@ -50,7 +50,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
-        public AbstractDatabaseReader (IDbConnection connection, string database)
+        public AbstractReader (IDbConnection connection, string database)
         : this()
         {
             Connection = connection;
@@ -71,7 +71,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
-        public AbstractDatabaseReader (IDbConnection connection, IDbCommand command,
+        public AbstractReader (IDbConnection connection, IDbCommand command,
             string database)
         : this()
         {

@@ -269,17 +269,17 @@ namespace XCAnalyze.Model
         {
             string[] meetNames = new string[] { "LC Invite", "Chuck Bowles" };
             IList<Meet> meets = new List<Meet> ();
-            meets.Add (new Meet (meetNames[0], new Date (2006, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[0], new Date (2007, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[0], new Date (2008, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[0], new Date (2009, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[0], new Date (2010, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[1], new Date (2006, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[1], new Date (2007, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[1], new Date (2008, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[1], new Date (2009, 9, 5), null, null, null));
-            meets.Add (new Meet (meetNames[1], new Date (2010, 9, 5), null, null, null));
-            meets.Add (new Meet (null, new Date (2012, 9, 27), null, null, null));
+            meets.Add (new Meet (meetNames[0], new Date (2006, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[0], new Date (2007, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[0], new Date (2008, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[0], new Date (2009, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[0], new Date (2010, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[1], new Date (2006, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[1], new Date (2007, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[1], new Date (2008, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[1], new Date (2009, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (meetNames[1], new Date (2010, 9, 5), null, new Race (null, 8000), null));
+            meets.Add (new Meet (null, new Date (2012, 9, 27), null, new Race(null, 8000), null));
             IList<string> actual = XcData.MeetNamesList (meets);
             Assert.AreEqual (meetNames.Length, actual.Count);
             foreach (string meetName in meetNames)

@@ -35,7 +35,7 @@ namespace XCAnalyze.Io {
     /// The <see cref="IReader"/> for the default file format of XCAnalyze, .xca
     /// files.
     /// </summary>
-    public class XcaReader : SqliteDatabaseReader
+    public class XcaReader : SqliteReader
     {
         public XcaReader(string fileName) : base(fileName) {}
     }
@@ -44,7 +44,7 @@ namespace XCAnalyze.Io {
     /// The <see cref="IWriter"/> for the default file format of XCAnalyze, .xca
     /// files.
     /// </summary>
-    public class XcaWriter : SqliteDatabaseWriter
+    public class XcaWriter : SqliteWriter
     {
         public XcaWriter(string fileName) : base(fileName) {}
     }

@@ -12,7 +12,7 @@ namespace XCAnalyze.Io.Sql
     /// <summary>
     /// A writer to write all the data in the model to a database.
     /// </summary>
-    abstract public class DatabaseWriter : AbstractDatabaseWriter
+    abstract public class Writer : AbstractWriter
     {
         /// <summary>
         /// The creation script for the database.
@@ -41,10 +41,10 @@ namespace XCAnalyze.Io.Sql
         /// </summary>
         abstract public string GET_TABLES_COMMAND { get; }
         
-        public DatabaseWriter (IDbConnection connection, string database)
+        public Writer(IDbConnection connection, string database)
             : base(connection, database) {}
         
-        public DatabaseWriter(IDbConnection connection, string database,
+        public Writer(IDbConnection connection, string database,
             IDbCommand command) : base(connection, database, command) {}
         
         override public IList<string> CreationScript()
@@ -364,7 +364,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// The reader for the database.
         /// </summary>
-        protected internal AbstractDatabaseReader Reader { get; set; }
+        protected internal AbstractReader Reader { get; set; }
         
         /// <summary>
         /// A sample list of runners.
@@ -384,7 +384,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// The writer for the database.
         /// </summary>
-        protected internal AbstractDatabaseWriter Writer { get; set; }
+        protected internal AbstractWriter Writer { get; set; }
         
         [SetUp]
         virtual public void SetUp()
@@ -491,9 +491,9 @@ namespace XCAnalyze.Io.Sql
             Reader.Dispose ();
         }
         
-        abstract protected internal AbstractDatabaseReader CreateExampleReader();
+        abstract protected internal AbstractReader CreateExampleReader();
         
-        abstract protected internal AbstractDatabaseWriter CreateWriter();
+        abstract protected internal AbstractWriter CreateWriter();
 
         protected internal void RepeatTest<T> (TestMethod<T> Test, T original)
         {
@@ -535,7 +535,7 @@ namespace XCAnalyze.Io.Sql
         [Test]
         public void TestWriteExample ()
         {
-            AbstractDatabaseReader exampleReader = CreateExampleReader ();
+            AbstractReader exampleReader = CreateExampleReader ();
             XcData expected = exampleReader.Read ();
             Writer.Write (expected);
             XcData actual = Reader.Read ();

@@ -10,7 +10,7 @@ namespace XCAnalyze.Io.Sql
     /// <summary>
     /// A <see cref="IWriter"/> to write the model to a MySQL database.
     /// </summary>
-    public class MySqlDatabaseWriter : DatabaseWriter
+    public class MySqlWriter : Writer
     {
         override public string CREATION_SCRIPT_EXTENSION
         {
@@ -36,7 +36,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="command">
         /// The <see cref="IDbCommand"/> to use.
         /// </param>
-        public MySqlDatabaseWriter(IDbConnection connection, string database,
+        public MySqlWriter(IDbConnection connection, string database,
             IDbCommand command) : base(connection, database, command) {}
         
         /// <summary>
@@ -48,7 +48,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database.
         /// </param>
-        public MySqlDatabaseWriter(IDbConnection connection, string database)
+        public MySqlWriter(IDbConnection connection, string database)
         : base(connection, database) {}
                 
         /// <summary>
@@ -60,7 +60,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public MySqlDatabaseWriter (string database, string user)
+        public MySqlWriter (string database, string user)
         : this ("localhost", database, user) {}
            
         /// <summary>
@@ -75,7 +75,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public MySqlDatabaseWriter (string host, string database, string user)
+        public MySqlWriter (string host, string database, string user)
         : this (host, database, user, user) {}
                
         /// <summary>
@@ -93,7 +93,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="password">
         /// The user's password.
         /// </param>
-        public MySqlDatabaseWriter (string host, string database, string user,
+        public MySqlWriter (string host, string database, string user,
             string password) : this (host, database, user, password, 3306) {}  
                 
         /// <summary>
@@ -115,7 +115,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="port">
         /// The port number on which the server is listening.
         /// </param>
-        public MySqlDatabaseWriter (string host, string database, string user,
+        public MySqlWriter (string host, string database, string user,
             string password, int port)
             : this(host, database, user, password, port, false) {}
         
@@ -141,16 +141,16 @@ namespace XCAnalyze.Io.Sql
         /// <param name="pooling">
         /// Should pooling be turned on or off.
         /// </param>
-        public MySqlDatabaseWriter (string host, string database, string user,
+        public MySqlWriter (string host, string database, string user,
             string password, int port, bool pooling)
             : this(new MySqlConnection (
                     "Server=" + host + "; User ID=" + user +
                     "; Database=" + database + "; Password=" + password +
                     "; Pooling=" + pooling + ";"), database) {}
         
-        override protected internal AbstractDatabaseReader CreateReader()
+        override protected internal AbstractReader CreateReader()
         {
-            return new MySqlDatabaseReader(Connection, Command, Database);
+            return new MySqlReader(Connection, Command, Database);
         }
         
         override protected internal void Open ()
@@ -179,17 +179,17 @@ namespace XCAnalyze.Io.Sql
         {
             base.SetUp();
             Writer = CreateWriter();
-            Reader = new MySqlDatabaseReader (TEST_DATABASE, TEST_ACCOUNT);
+            Reader = new MySqlReader (TEST_DATABASE, TEST_ACCOUNT);
         }  
         
-        override protected internal AbstractDatabaseReader CreateExampleReader()
+        override protected internal AbstractReader CreateExampleReader()
         {
-            return new MySqlDatabaseReader(EXAMPLE_DATABASE, TEST_ACCOUNT);
+            return new MySqlReader(EXAMPLE_DATABASE, TEST_ACCOUNT);
         }
         
-        override protected internal AbstractDatabaseWriter CreateWriter()
+        override protected internal AbstractWriter CreateWriter()
         {
-            return new MySqlDatabaseWriter(TEST_DATABASE, TEST_ACCOUNT);
+            return new MySqlWriter(TEST_DATABASE, TEST_ACCOUNT);
         }
         
         override protected internal void SetUpPartial ()
@@ -198,7 +198,7 @@ namespace XCAnalyze.Io.Sql
             Writer.Dispose();
             Writer.Connection.Open();
             command = Writer.Connection.CreateCommand();
-            Writer = new MySqlDatabaseWriter (Writer.Connection, Writer.Database, command);
+            Writer = new MySqlWriter (Writer.Connection, Writer.Database, command);
             command.CommandText = "DROP DATABASE " + TEST_DATABASE;
             command.ExecuteNonQuery();
             command.CommandText = "CREATE DATABASE " + TEST_DATABASE;
@@ -210,9 +210,9 @@ namespace XCAnalyze.Io.Sql
         [TearDown]
         override public void TearDown()
         {
-            for(int i = DatabaseWriter.TABLES.Length - 1; i >= 0; i--)
+            for(int i = Sql.Writer.TABLES.Length - 1; i >= 0; i--)
             {
-                Writer.Command.CommandText = "DELETE FROM " + DatabaseWriter.TABLES[i];
+                Writer.Command.CommandText = "DELETE FROM " + Sql.Writer.TABLES[i];
                 Writer.Command.ExecuteNonQuery();
             }
             base.TearDown();

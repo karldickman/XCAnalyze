@@ -10,7 +10,7 @@ namespace XCAnalyze.Io.Sql
     /// <summary>
     /// A <see cref="IWriter"/> used to write the model to an SQLite database.
     /// </summary>
-    public class SqliteDatabaseWriter : DatabaseWriter
+    public class SqliteWriter : Writer
     {
         override public string CREATION_SCRIPT_EXTENSION
         {
@@ -33,7 +33,7 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// Create a new SqliteDatabaseWriter using an in-memory database.
         /// </summary>
-        public SqliteDatabaseWriter () : this(":memory:") {}
+        public SqliteWriter () : this(":memory:") {}
 
         /// <summary>
         /// Create a new SqliteDatabaseWriter using a specific database file.
@@ -41,7 +41,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="fileName">
         /// The name of the file to connect to.
         /// </param>
-        public SqliteDatabaseWriter (string fileName) 
+        public SqliteWriter (string fileName) 
             : this(new SqliteConnection ("Data Source=" + fileName), fileName) {}
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="connection">
         /// The <see cref="IDbConnection"/> to use.
         /// </param>
-        public SqliteDatabaseWriter (IDbConnection connection,
+        public SqliteWriter (IDbConnection connection,
             string database) : base(connection, database) {}
             
         /// <summary>
@@ -62,13 +62,13 @@ namespace XCAnalyze.Io.Sql
         /// <param name="oepn">
         /// Should the database be opened.
         /// </param>
-        protected internal SqliteDatabaseWriter(IDbConnection connection,
+        protected internal SqliteWriter(IDbConnection connection,
             string database, IDbCommand command)
         : base(connection, database, command) {}
         
-        override protected internal AbstractDatabaseReader CreateReader()
+        override protected internal AbstractReader CreateReader()
         {
-            return new DatabaseReader(Connection, Command, Database);
+            return new Reader(Connection, Command, Database);
         }
         
         override protected internal void Open()
@@ -100,18 +100,18 @@ namespace XCAnalyze.Io.Sql
         {
             base.SetUp();
             Writer = CreateWriter();
-            Reader = new DatabaseReader (new SqliteConnection (
+            Reader = new Reader (new SqliteConnection (
                     Writer.Connection.ConnectionString), TEST_DATABASE);
         }
         
-        override protected internal AbstractDatabaseReader CreateExampleReader()
+        override protected internal AbstractReader CreateExampleReader()
         {
-            return new SqliteDatabaseReader(SupportFiles.GetPath(EXAMPLE_DATABASE + ".db"));
+            return new SqliteReader(SupportFiles.GetPath(EXAMPLE_DATABASE + ".db"));
         }
         
-        override protected internal AbstractDatabaseWriter CreateWriter()
+        override protected internal AbstractWriter CreateWriter()
         {
-            return new SqliteDatabaseWriter(TEST_DATABASE);
+            return new SqliteWriter(TEST_DATABASE);
         }
         
         override protected internal void SetUpPartial ()
@@ -121,7 +121,7 @@ namespace XCAnalyze.Io.Sql
                 "Data Source=" + TEST_DATABASE);
             connection.Open();
             IDbCommand command = connection.CreateCommand();
-            Writer = new SqliteDatabaseWriter(connection, TEST_DATABASE, command);
+            Writer = new SqliteWriter(connection, TEST_DATABASE, command);
         }
 
         [TearDown]

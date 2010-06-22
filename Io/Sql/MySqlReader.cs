@@ -10,7 +10,7 @@ namespace XCAnalyze.Io.Sql
     /// <summary>
     /// A <see cref="IReader"/> to write all data in the model to a MySQL database.
     /// </summary>
-    public class MySqlDatabaseReader : DatabaseReader
+    public class MySqlReader : Reader
     { 
         /// <summary>
         /// Create a new reader.
@@ -21,7 +21,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
-        protected internal MySqlDatabaseReader(IDbConnection connection,
+        protected internal MySqlReader(IDbConnection connection,
             string database) : base(connection, database) {}
         
         /// <summary>
@@ -36,7 +36,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
-        public MySqlDatabaseReader(IDbConnection connection,
+        public MySqlReader(IDbConnection connection,
             IDbCommand command, string database)
         : base(connection, command, database) {}
         
@@ -49,7 +49,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public MySqlDatabaseReader (string database, string user)
+        public MySqlReader (string database, string user)
             : this("localhost", database, user) {}
         
         /// <summary>
@@ -64,7 +64,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public MySqlDatabaseReader (string host, string database, string user)
+        public MySqlReader (string host, string database, string user)
             : this(host, database, user, user) {}
         
         /// <summary>
@@ -82,7 +82,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="password">
         /// The user's password.
         /// </param>
-        public MySqlDatabaseReader (string host, string database, string user,
+        public MySqlReader (string host, string database, string user,
             string password) : this (host, database, user, password, 3306) {}
         
         /// <summary>
@@ -103,7 +103,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="port">
         /// The port number the server is listening on.
         /// </param>
-        public MySqlDatabaseReader (string host, string database, string user,
+        public MySqlReader (string host, string database, string user,
             string password, int port)
             : this(host, database, user, password, port, false) {}
 
@@ -128,7 +128,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="pooling">
         /// Should pooling be turned on or off.
         /// </param>
-        public MySqlDatabaseReader (string host, string database, string user,
+        public MySqlReader (string host, string database, string user,
             string password, int port, bool pooling)
             : this(new MySqlConnection(
                     "Server=" + host + "; Database=" + database +
@@ -142,14 +142,14 @@ namespace XCAnalyze.Io.Sql
         public const string EXAMPLE_DATABASE = "xca_example";
         
         protected internal IDbConnection Connection { get; set; }
-        protected internal DatabaseReader Reader { get; set; }
+        protected internal Reader Reader { get; set; }
 
         [SetUp]
         public void SetUp ()
         {
             string connectionString = "Server=localhost; Database=" + EXAMPLE_DATABASE + "; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
             Connection = new MySqlConnection (connectionString);
-            Reader = new DatabaseReader (Connection, EXAMPLE_DATABASE);
+            Reader = new Reader (Connection, EXAMPLE_DATABASE);
         }
         
         [TearDown]

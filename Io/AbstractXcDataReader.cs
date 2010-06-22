@@ -4,7 +4,7 @@ using XCAnalyze.Model;
 
 namespace XCAnalyze.Io
 {
-    abstract public class AbstractReader : IReader<XcData>
+    abstract public class AbstractXcDataReader : IReader<XcData>
     {
         abstract public void Dispose();
         

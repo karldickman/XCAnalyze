@@ -4,7 +4,7 @@ using XCAnalyze.Model;
 
 namespace XCAnalyze.Io
 {
-    abstract public class AbstractWriter : IWriter<XcData>
+    abstract public class AbstractXcDataWriter : IWriter<XcData>
     {
         abstract public void Dispose();
         

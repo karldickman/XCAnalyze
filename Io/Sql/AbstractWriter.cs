@@ -8,7 +8,7 @@ namespace XCAnalyze.Io.Sql
     /// <summary>
     /// The interface that all database writers must conform to.
     /// </summary>
-    abstract public class AbstractDatabaseWriter : AbstractWriter
+    abstract public class AbstractWriter : AbstractXcDataWriter
     {
         /// <summary>
         /// The tables that should be in the database.  These are in dependency
@@ -43,7 +43,7 @@ namespace XCAnalyze.Io.Sql
         /// The <see cref="DatabaseReader" /> used to read things back out of
         /// the database.
         /// </summary>
-        protected internal AbstractDatabaseReader Reader { get; set; }
+        protected internal AbstractReader Reader { get; set; }
         
         /// <summary>
         /// The <see cref="IDataReader"/> used to read responses from the
@@ -60,7 +60,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database to which this writer writes.
         /// </param>
-        public AbstractDatabaseWriter (IDbConnection connection, string database)
+        public AbstractWriter (IDbConnection connection, string database)
         {
             Connection = connection;
             Database = database;
@@ -80,7 +80,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="command">
         /// The <see cref="IDbCommand"/> to use.
         /// </param>
-        protected internal AbstractDatabaseWriter (IDbConnection connection,
+        protected internal AbstractWriter (IDbConnection connection,
             string database, IDbCommand command)
         {
             Connection = connection;
@@ -100,7 +100,7 @@ namespace XCAnalyze.Io.Sql
         /// A <see cref="BaseDatabaseReader"/> connected to the current
         /// database.
         /// </returns>
-        abstract protected internal AbstractDatabaseReader CreateReader();
+        abstract protected internal AbstractReader CreateReader();
         
         override public void Dispose ()
         {

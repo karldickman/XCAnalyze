@@ -5,12 +5,12 @@ using System.Data;
 
 namespace XCAnalyze.Io.Sql
 {
-    public class SqliteDatabaseReader : DatabaseReader
+    public class SqliteReader : Reader
     {
         /// <summary>
         /// Create a new reader using an in-memory database.
         /// </summary>
-        public SqliteDatabaseReader () : this(":memory:") {}
+        public SqliteReader () : this(":memory:") {}
 
         /// <summary>
         /// Create a new reader that reads from a file.
@@ -18,7 +18,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="fileName">
         /// The name of the file from which to read.
         /// </param>
-        public SqliteDatabaseReader (string fileName)
+        public SqliteReader (string fileName)
             : this(new SqliteConnection ("Data Source=" + fileName), fileName) {}
         
         /// <summary>
@@ -30,7 +30,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
-        public SqliteDatabaseReader (IDbConnection connection, string database)
+        public SqliteReader (IDbConnection connection, string database)
             : base(connection, database) {}
     }
     
@@ -40,7 +40,7 @@ namespace XCAnalyze.Io.Sql
         [SetUp]
         override public void SetUp ()
         {
-            Reader = new SqliteDatabaseReader(SupportFiles.GetPath (EXAMPLE_DATABASE + ".db"));
+            Reader = new SqliteReader(SupportFiles.GetPath (EXAMPLE_DATABASE + ".db"));
         }
     }
 }
