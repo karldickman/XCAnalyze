@@ -11,11 +11,15 @@ namespace XCAnalyze.Gui
     public class MeetsListStore : ListStore
     {
         public MeetsListStore (IList<Meet> meets)
-            : base(typeof(Meet), typeof(string))
+            : base(typeof(Meet), typeof(string), typeof(string), typeof(Venue),
+                typeof(int), typeof(int))
         {
+            meets = new List<Meet> (meets);
+            ((List<Meet>)meets).Sort ();
             foreach (Meet meet in meets)
             {
-                AppendValues (meet, meet.Name);
+                AppendValues (meet, meet.Name, meet.Date.ToString (),
+                    meet.Venue, meet.MensDistance, meet.WomensDistance);
             }
         }
     }
@@ -34,6 +38,7 @@ namespace XCAnalyze.Gui
         {
             MeetSelection = selection;
             AppendColumn("Name", new CellRendererText(), "text", 1);
+            AppendColumn("Date", new CellRendererText(), "text", 2);
             RowActivated += HandleRowActivated;
         }
         

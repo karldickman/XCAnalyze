@@ -17,7 +17,17 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The distance of the men's race.
         /// </summary>
-        public int MensDistance { get { return MensRace.Distance; } }
+        public int? MensDistance
+        {
+            get
+            {
+                if (MensRace == null)
+                {
+                    return null;
+                }
+                return MensRace.Distance;
+            }
+        }
         
         /// <summary>
         /// This meet's men's race.
@@ -39,7 +49,17 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The length of the women's race.
         /// </summary>
-        public int WomensDistance { get { return WomensRace.Distance; } }
+        public int? WomensDistance
+        {
+            get
+            {
+                if (WomensRace == null)
+                {
+                    return null;
+                }
+                return WomensRace.Distance;
+            }
+        }
         
         /// <summary>
         /// This meet's women's race.
@@ -92,7 +112,8 @@ namespace XCAnalyze.Model
         }
         
         /// <summary>
-        /// Meets are compared first by date, then by name.
+        /// Meets are compared first by date, then by name.  If both are the
+        /// same, then the venue is assumed to be the same as well.
         /// </summary>
         /// <param name="other">
         /// The <see cref="Meet"/> with which to compare.
