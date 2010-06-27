@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Gtk;
 
+using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui
@@ -15,7 +16,7 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The list of meets contained in this store.
         /// </summary>
-        protected List<Meet> Meets { get; set; }
+        protected IXList<Meet> Meets { get; set; }
         
         public MeetsListStore (IDataSelection<Meet> meetSelection)
         : base(typeof(Meet),//The meet itself
@@ -28,6 +29,45 @@ namespace XCAnalyze.Gui
             meetSelection.ContentReplaced += OnContentReplaced;
             meetSelection.ItemsAdded += OnItemsAdded;
             meetSelection.ItemsDeleted += OnItemsDeleted;
+        }
+        
+        /// <summary>
+        /// A comparer used to sort meets in this list store.
+        /// </summary>
+        public class MeetComparer : IComparer<Meet>
+        {
+            #region IComparer[Meet] implementation
+            /// <summary>
+            /// Meets are compared first by date, then by name.  If both are
+            /// identical, then it is the same meet.
+            /// </summary>
+            public int Compare (Meet first, Meet second)
+            {
+                int comparison;
+                if (first == second)
+                {
+                    return 0;
+                }
+                comparison = first.Date.CompareTo (second.Date);
+                if (comparison != 0)
+                {
+                    return comparison;
+                }
+                if (first.Name == second.Name)
+                {
+                    return 0;
+                }
+                if (first.Name == null)
+                {
+                    return 1;
+                }
+                if (second.Name == null)
+                {
+                    return 0;
+                }
+                return first.Name.CompareTo (second.Name);
+            }
+            #endregion
         }
         
         /// <summary>
@@ -50,8 +90,8 @@ namespace XCAnalyze.Gui
             ContentModifiedArgs<Meet> arguments)
         {
             Clear ();
-            Meets = new List<Meet> (arguments.Items);
-            Meets.Sort ();
+            Meets = new XList<Meet> (arguments.Items);
+            Meets.Sort (new MeetComparer());
             foreach (Meet meet in Meets)
             {
                 AppendMeet (meet);
