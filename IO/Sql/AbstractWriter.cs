@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+
 using XCAnalyze.Model;
 
-namespace XCAnalyze.Io.Sql
+namespace XCAnalyze.IO.Sql
 {
     /// <summary>
     /// The interface that all database writers must conform to.

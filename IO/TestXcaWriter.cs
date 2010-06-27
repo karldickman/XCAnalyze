@@ -1,77 +1,13 @@
-using NUnit.Framework;
 using System;
 using System.IO;
+
+using NUnit.Framework;
+
 using XCAnalyze.Model;
-using XCAnalyze.Io.Sql;
+using XCAnalyze.IO.Sql;
 
-namespace XCAnalyze.Io {
-
-    /// <summary>
-    /// An interface for classes that read data.
-    /// </summary>
-	public interface IReader<T> : IDisposable
-    {        
-        /// <summary>
-        /// Read the source.
-        /// </summary>
-		T Read();
-	}
-	
-    /// <summary>
-    /// An interfaces for classes that write data.
-    /// </summary>
-	public interface IWriter<T> : IDisposable
-    {        
-        /// <summary>
-        /// Write a value to the target.
-        /// </summary>
-        /// <param name="toWrite">
-        /// The value to be written.
-        /// </param>
-		void Write(T toWrite);
-	}
-
-    /// <summary>
-    /// The <see cref="IReader"/> for the default file format of XCAnalyze, .xca
-    /// files.
-    /// </summary>
-    public class XcaReader : SqliteReader
-    {
-        public XcaReader(string fileName) : base(fileName) {}
-    }
-    
-    /// <summary>
-    /// The <see cref="IWriter"/> for the default file format of XCAnalyze, .xca
-    /// files.
-    /// </summary>
-    public class XcaWriter : SqliteWriter
-    {
-        public XcaWriter(string fileName) : base(fileName) {}
-    }
-    
-    [TestFixture]
-    public class TestXcaReader
-    {
-        protected internal XcaReader Reader { get; set; }
-        
-        [SetUp]
-        public void SetUp ()
-        {
-            Reader = new XcaReader(SupportFiles.GetPath ("example.xca"));
-        }
-        
-        [TearDown]
-        public void TearDown ()
-        {
-            Reader.Dispose ();
-        }
-        
-        [Test]
-        public void TestRead ()
-        {
-            Reader.Read ();
-        }
-    }
+namespace XCAnalyze.IO
+{
     
     [TestFixture]
     public class TestXcaWriter
@@ -83,13 +19,13 @@ namespace XCAnalyze.Io {
         protected internal XcaReader Reader { get; set; }
         protected internal XcaWriter Writer { get; set; }
                 
-        public static bool AreDataEqual(Model.XcData item1, Model.XcData item2)
+        public static bool AreDataEqual(XcData item1, XcData item2)
         {
             if(item1.Affiliations.Count != item2.Affiliations.Count)
             {
                 return false;
             }
-            foreach(Model.Affiliation affiliation in item1.Affiliations)
+            foreach(Affiliation affiliation in item1.Affiliations)
             {
                 if(!item2.Affiliations.Contains(affiliation))
                 {
@@ -122,7 +58,7 @@ namespace XCAnalyze.Io {
             {
                 return false;
             }
-            foreach(Model.Performance performance in item1.Performances)
+            foreach(Performance performance in item1.Performances)
             {
                 if(!item2.Performances.Contains(performance))
                 {
@@ -133,7 +69,7 @@ namespace XCAnalyze.Io {
             {
                 return false;
             }
-            foreach(Model.Race race in item1.Races)
+            foreach(Race race in item1.Races)
             {
                 if(!item2.Races.Contains(race))
                 {
@@ -144,7 +80,7 @@ namespace XCAnalyze.Io {
             {
                 return false;
             }
-            foreach(Model.Runner runner in item1.Runners)
+            foreach(Runner runner in item1.Runners)
             {
                 if(!item2.Runners.Contains(runner))
                 {
@@ -155,7 +91,7 @@ namespace XCAnalyze.Io {
             {
                 return false;
             }
-            foreach(Model.School school in item1.Schools)
+            foreach(School school in item1.Schools)
             {
                 if(!item2.Schools.Contains(school))
                 {
@@ -166,7 +102,7 @@ namespace XCAnalyze.Io {
             {
                 return false;
             }
-            foreach(Model.Venue venue in item1.Venues)
+            foreach(Venue venue in item1.Venues)
             {
                 if(!item2.Venues.Contains(venue))
                 {

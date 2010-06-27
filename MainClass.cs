@@ -1,6 +1,7 @@
 using System;
+
 using XCAnalyze.Gui;
-using XCAnalyze.Io;
+using XCAnalyze.IO;
 using XCAnalyze.Model;
 
 namespace XCAnalyze
@@ -11,13 +12,15 @@ namespace XCAnalyze
         {
             Gtk.Application.Init ();
             IReader<XcData> reader;
-            reader = new XcaReader (SupportFiles.GetPath ("example.xca"));
-            XcData data = reader.Read ();
-            GlobalData model = new GlobalData ();
-            MainWindow application = new MainWindow (model);            
-            model.Data = data;
-            application.ShowAll ();
-            Gtk.Application.Run ();
+            using (reader = new XcaReader (SupportFiles.GetPath ("example.xca")))
+            {
+                XcData data = reader.Read ();
+                GlobalData model = new GlobalData ();
+                MainWindow application = new MainWindow (model);
+                model.Data = data;
+                application.ShowAll ();
+                Gtk.Application.Run ();
+            }
         }
     }
 }

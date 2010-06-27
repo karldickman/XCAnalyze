@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace XCAnalyze.Collections
 {
-    public interface IXList<T> : System.Collections.Generic.IList<T>
+    public interface IXList<T> : IList<T>
     {
         /// <summary>
         /// Adds the elements of the specified collection to the end of the list.

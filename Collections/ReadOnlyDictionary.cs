@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace XCAnalyze.Collections
@@ -36,23 +37,23 @@ namespace XCAnalyze.Collections
             set { throw new NotSupportedException (); }
         }
         
-        #region System.Collections.Generic.IDictionary<K, T> implementation
-        public void Add (KeyValuePair<K, T> item)
-        {
-            throw new NotSupportedException ();
-        }
-
-        public void Clear ()
-        {
-            throw new NotSupportedException ();
-        }
-        
+        #region IDictionary[K, T] implementation
         /// <summary>
         /// The keys in the dictionary.
         /// </summary>
         public ICollection<K> Keys
         {
             get { return InternalDictionary.Keys; }
+        }
+        
+        public ICollection<T> Values
+        {
+            get { return InternalDictionary.Values; }
+        }
+        
+        public void Add (K key, T value)
+        {
+            throw new NotSupportedException ();
         }
         
         /// <summary>
@@ -63,8 +64,13 @@ namespace XCAnalyze.Collections
         /// </param>
         public bool ContainsKey (K key)
         {
-            return InternalDictionary.ContainsKey(key);
+            return InternalDictionary.ContainsKey (key);
         }
+        
+        public bool Remove (K key)
+        {
+            throw new NotSupportedException ();
+        }        
     
         /// <summary>
         /// Attempt to get a value from the dictionary.
@@ -83,75 +89,47 @@ namespace XCAnalyze.Collections
             return InternalDictionary.TryGetValue (key, out value_);
         }
         #endregion
-        #region ICollection[System.Collections.Generic.KeyValuePair[XCAnalyze.Collections.ReadOnlyDictionary.K,XCAnalyze.Collections.ReadOnlyDictionary.T]] implementation
-
+        #region ICollection[KeyValuePair[K,T]] implementation
+        public int Count
+        {
+            get { return InternalDictionary.Count; }
+        }
         
+        public bool IsReadOnly
+        {
+            get { return true; }
+        }
+        
+        public void Add (KeyValuePair<K, T> item)
+        {
+            throw new NotSupportedException ();
+        }
+        
+        public void Clear ()
+        {
+            throw new NotSupportedException ();
+        }
         
         public bool Contains (KeyValuePair<K, T> item)
         {
-            throw new System.NotImplementedException();
+            return InternalDictionary.Contains (item);
         }
-        
-        
-        public void CopyTo (KeyValuePair<K, T>[] array, int arrayIndex)
+
+        public void CopyTo (KeyValuePair<K, T>[] array, int index)
         {
-            throw new System.NotImplementedException();
-        }
-        
-        
-        public int Count {
-            get {
-                throw new System.NotImplementedException();
-            }
-        }
-        
-        
-        public bool IsReadOnly {
-            get {
-                throw new System.NotImplementedException();
-            }
-        }
-        
+            InternalDictionary.CopyTo (array, index);
+        }        
         
         public bool Remove (KeyValuePair<K, T> item)
         {
-            throw new System.NotImplementedException();
+            throw new NotSupportedException();
         }
-        
-        #endregion
-        #region IDictionary[XCAnalyze.Collections.ReadOnlyDictionary.K,XCAnalyze.Collections.ReadOnlyDictionary.T] implementation
-        public void Add (K key, T value)
-        {
-            throw new System.NotImplementedException ();
-        }
-        
-
-        
-
-        
-        
-        public bool Remove (K key)
-        {
-            throw new System.NotImplementedException();
-        }
-        
-        
-
-        
-        
-        public ICollection<T> Values {
-            get {
-                throw new System.NotImplementedException();
-            }
-        }
-        
         #endregion
         #region IEnumerable implementation
-        public System.Collections.IEnumerator GetEnumerator ()
+        public IEnumerator GetEnumerator ()
         {
-            throw new System.NotImplementedException();
-        }
-        
+            return InternalDictionary.GetEnumerator ();
+        }        
         #endregion
     }
 }

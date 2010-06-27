@@ -1,5 +1,7 @@
-using Gtk;
 using System;
+
+using Gtk;
+
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui

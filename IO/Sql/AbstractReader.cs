@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using XCAnalyze.Model;
 
-namespace XCAnalyze.Io.Sql
+namespace XCAnalyze.IO.Sql
 {
     /// <summary>
     /// The interface which all database readers must implement.

@@ -6,11 +6,16 @@ namespace XCAnalyze.Collections
 {
     public class XHashSet<T> : HashSet<T>, ISet<T>
     {
-        #region XCAnalyze.Collections.ISet<T> implementation
         public XHashSet() : base() {}
-
+        
         public XHashSet(IEnumerable<T> items) : base(items) {}
         
+        public XHashSet(IEqualityComparer<T> comparer) : base(comparer) {}
+        
+        public XHashSet(IEnumerable<T> items, IEqualityComparer<T> comparer)
+        : base(items, comparer) {}
+        
+        #region XCAnalyze.Collections.ISet[T] implementation        
         public ReadOnlyCollection<T> AsReadOnly ()
         {
             return new ReadOnlyCollection<T> (new List<T>(this));

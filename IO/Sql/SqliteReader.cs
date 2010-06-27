@@ -1,9 +1,9 @@
-using Mono.Data.Sqlite;
-using NUnit.Framework;
 using System;
 using System.Data;
 
-namespace XCAnalyze.Io.Sql
+using Mono.Data.Sqlite;
+
+namespace XCAnalyze.IO.Sql
 {
     public class SqliteReader : Reader
     {
@@ -32,15 +32,5 @@ namespace XCAnalyze.Io.Sql
         /// </param>
         public SqliteReader (IDbConnection connection, string database)
             : base(connection, database) {}
-    }
-    
-    [TestFixture]
-    public class TestSqliteDatabaseReader : TestDatabaseReader
-    {        
-        [SetUp]
-        override public void SetUp ()
-        {
-            Reader = new SqliteReader(SupportFiles.GetPath (EXAMPLE_DATABASE + ".db"));
-        }
     }
 }

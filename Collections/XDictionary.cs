@@ -24,9 +24,11 @@ namespace XCAnalyze.Collections
         protected XDictionary(SerializationInfo info, StreamingContext context)
         : base(info, context) {}
     
+        #region IXDictionary[K,T] implementation
         public ReadOnlyDictionary<K, T> AsReadOnly ()
         {
             return new ReadOnlyDictionary<K, T> (this);
         }
+        #endregion
     }
 }

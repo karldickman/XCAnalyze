@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
-namespace XCAnalyze.Io
+namespace XCAnalyze.IO
 {
     abstract public class AbstractXcDataReader : IReader<XcData>
     {

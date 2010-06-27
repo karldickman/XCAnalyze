@@ -1,6 +1,8 @@
-using Gtk;
 using System;
 using System.Collections.Generic;
+
+using Gtk;
+
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui

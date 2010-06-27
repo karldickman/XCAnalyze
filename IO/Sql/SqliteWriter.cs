@@ -1,11 +1,10 @@
-using Mono.Data.Sqlite;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 
-namespace XCAnalyze.Io.Sql
+using Mono.Data.Sqlite;
+
+namespace XCAnalyze.IO.Sql
 {
     /// <summary>
     /// A <see cref="IWriter"/> used to write the model to an SQLite database.
@@ -89,46 +88,6 @@ namespace XCAnalyze.Io.Sql
                 Command.ExecuteNonQuery();
             }
             InitializeDatabase();
-        }
-    }
-    
-    [TestFixture]
-    public class TestSqliteDatabaseWriter : TestDatabaseWriter
-    {
-        [SetUp]
-        override public void SetUp ()
-        {
-            base.SetUp();
-            Writer = CreateWriter();
-            Reader = new Reader (new SqliteConnection (
-                    Writer.Connection.ConnectionString), TEST_DATABASE);
-        }
-        
-        override protected internal AbstractReader CreateExampleReader()
-        {
-            return new SqliteReader(SupportFiles.GetPath(EXAMPLE_DATABASE + ".db"));
-        }
-        
-        override protected internal AbstractWriter CreateWriter()
-        {
-            return new SqliteWriter(TEST_DATABASE);
-        }
-        
-        override protected internal void SetUpPartial ()
-        {
-            File.Delete(TEST_DATABASE);
-            IDbConnection connection = new SqliteConnection(
-                "Data Source=" + TEST_DATABASE);
-            connection.Open();
-            IDbCommand command = connection.CreateCommand();
-            Writer = new SqliteWriter(connection, TEST_DATABASE, command);
-        }
-
-        [TearDown]
-        override public void TearDown ()
-        {
-            base.TearDown();
-            File.Delete (TEST_DATABASE);
         }
     }
 }

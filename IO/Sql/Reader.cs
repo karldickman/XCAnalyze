@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,7 +5,7 @@ using System.Data;
 using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
-namespace XCAnalyze.Io.Sql
+namespace XCAnalyze.IO.Sql
 {    
     /// <summary>
     /// A <see cref="IReader"/> that reads all the required data for the model out of a
@@ -296,27 +295,6 @@ namespace XCAnalyze.Io.Sql
             }
             Reader.Close ();
             return venues;
-        }
-    }
-    
-    abstract public class TestDatabaseReader
-    {
-        public const string EXAMPLE_DATABASE = "xca_example";
-        
-        protected internal AbstractReader Reader { get; set; }
-        
-        abstract public void SetUp();
-        
-        [TearDown]
-        public void TearDown ()
-        {
-            Reader.Dispose ();
-        }
-        
-        [Test]
-        virtual public void TestRead ()
-        {
-            Reader.Read ();
         }
     }
 }
