@@ -13,8 +13,9 @@ namespace XCAnalyze
             IReader<XcData> reader;
             reader = new XcaReader (SupportFiles.GetPath ("example.xca"));
             XcData data = reader.Read ();
-            GlobalData model = new GlobalData (data);
-            MainWindow application = new MainWindow (model);
+            GlobalData model = new GlobalData ();
+            MainWindow application = new MainWindow (model);            
+            model.Data = data;
             application.ShowAll ();
             Gtk.Application.Run ();
         }

@@ -7,25 +7,34 @@ using XCAnalyze.Model;
 namespace XCAnalyze.Gui
 {    
     /// <summary>
-    /// A way to browse the meets in the database.
+    /// Provides a way to browse all the meets currently loaded.
     /// </summary>
     public class MeetBrowser : HPaned
     {
         /// <summary>
-        /// The list of meets.
+        /// The pane where the list of meets is shown.
         /// </summary>
-        protected internal MeetsList Browser { get; set; }
+        protected Widget Browser { get; set; }
         
         /// <summary>
-        /// A detailed display of meet info.
+        /// The browser pane should be scrollable.
         /// </summary>
-        protected internal MeetDetail Detail { get; set; }
+        protected ScrolledWindow BrowserWindow { get; set; }
         
-        public MeetBrowser (IDataSelection<Meet> meetSelection, IList<Meet> meets)
+        /// <summary>
+        /// The pane where detailed information about the selected meet is
+        /// shown.
+        /// </summary>
+        protected Widget Detail { get; set; }
+
+        public MeetBrowser (IDataSelection<Meet> meetSelection)
         {
-            Browser = new MeetsList (meetSelection, meets);
+            BrowserWindow = new ScrolledWindow ();
+            Add (BrowserWindow);
+            MeetsListStore listStore = new MeetsListStore (meetSelection);
+            Browser = new MeetsList (meetSelection, listStore);
+            BrowserWindow.Add (Browser);
             Detail = new MeetDetail (meetSelection);
-            Add (Browser);
             Add (Detail);
         }
     }

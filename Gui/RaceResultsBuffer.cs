@@ -34,13 +34,17 @@ namespace XCAnalyze.Gui
             selection.SelectionChanged += OnSelectionChanged;
         }
         
-        public void OnSelectionChanged (object sender, EventArgs arguments)
+        public void OnSelectionChanged (object sender,
+            SelectionChangedArgs<Race> arguments)
         {
-            Race race = ((SelectionChangedArgs<Race>)arguments).Selected;
-            race.Score ();
-            Text = "\n" + String.Join ("\n",
+            Race race = arguments.Selected;
+            if (race != null)
+            {
+                race.Score ();
+                Text = "\n" + String.Join ("\n",
                 new List<string> (Formatter.Format (race)).ToArray ());
-            ApplyTag (DefaultTag, StartIter, EndIter);
+                ApplyTag (DefaultTag, StartIter, EndIter);
+            }
         }
     }
 }

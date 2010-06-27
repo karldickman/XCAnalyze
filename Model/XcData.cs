@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using XCAnalyze.Collections;
+
 namespace XCAnalyze.Model
 {
     /// <summary>
@@ -13,47 +15,47 @@ namespace XCAnalyze.Model
         /// <summary>
         /// All the runner-school affiliations.
         /// </summary>
-        public IList<Affiliation> Affiliations { get; protected internal set; }
+        public IXList<Affiliation> Affiliations { get; protected set; }
         
         /// <summary>
         /// All the athletic conferences.
         /// </summary>
-        public IList<string> Conferences { get; protected internal set; }
+        public IXList<string> Conferences { get; protected set; }
         
         /// <summary>
         /// The names of all meets that have occurred.
         /// </summary>
-        public IList<string> MeetNames { get; protected internal set; }
+        public IXList<string> MeetNames { get; protected set; }
         
         /// <summary>
         /// All the meets that have occurred.
         /// </summary>
-        public IList<Meet> Meets { get; protected internal set; }
+        public IXList<Meet> Meets { get; protected set; }
         
         /// <summary>
         /// All the performances that have been run.
         /// </summary>
-        public IList<Performance> Performances { get; protected internal set; }
+        public IXList<Performance> Performances { get; protected set; }
         
         /// <summary>
         /// All the races that have occurred.
         /// </summary>
-        public IList<Race> Races { get; protected internal set; }
+        public IXList<Race> Races { get; protected set; }
         
         /// <summary>
         /// All the runners.
         /// </summary>
-        public IList<Runner> Runners { get; protected internal set; }
+        public IXList<Runner> Runners { get; protected set; }
         
         /// <summary>
         /// All the schools.
         /// </summary>
-        public IList<School> Schools { get; protected internal set; }
+        public IXList<School> Schools { get; protected set; }
         
         /// <summary>
         /// All the venues at which races have been run.
         /// </summary>
-        public IList<Venue> Venues { get; protected internal set; }
+        public IXList<Venue> Venues { get; protected set; }
                 
         /// <summary>
         /// Create a new description of the model.
@@ -77,19 +79,19 @@ namespace XCAnalyze.Model
         /// A <see cref="IList<Venue>"/> of all venues where meets have been
         /// held.
         /// </param>
-        public XcData (IList<Affiliation> affiliations, IList<Meet> meets,
-            IList<Performance> performances, IList<Runner> runners,
-            IList<School> schools)
+        public XcData (IXList<Affiliation> affiliations, IXList<Meet> meets,
+            IXList<Performance> performances, IXList<Runner> runners,
+            IXList<School> schools)
         {
             Affiliations = affiliations;
             Conferences = ConferencesList (schools);
             MeetNames = MeetNamesList (meets);
             Meets = meets;
             Performances = performances;
-            Races = new List<Race> ();
+            Races = new XList<Race> ();
             Runners = runners;
             Schools = schools;
-            Venues = new List<Venue> ();
+            Venues = new XList<Venue> ();
             //Compile the list of races and venues
             foreach (Meet meet in meets)
             {
@@ -126,10 +128,10 @@ namespace XCAnalyze.Model
         /// <returns>
         /// The conferences that were found.
         /// </returns>
-        public static IList<string> ConferencesList (
+        public static IXList<string> ConferencesList (
             IList<School> schools)
         {
-            return new List<string> ((from school in schools
+            return new XList<string> ((from school in schools
                 where school.Conference != null
                 orderby school.Conference
                 select school.Conference).Distinct ());
@@ -144,12 +146,39 @@ namespace XCAnalyze.Model
         /// <returns>
         /// The meet names that were found.
         /// </returns>
-        public static IList<string> MeetNamesList (IList<Meet> meets)
+        public static IXList<string> MeetNamesList (IList<Meet> meets)
         {
-            return new List<string> ((from meet in meets
+            return new XList<string> ((from meet in meets
                 where meet.Name != null
                 orderby meet.Name
                 select meet.Name).Distinct ());
+        }
+        
+        /// <summary>
+        /// Add a meet.
+        /// </summary>
+        /// <param name="meet">
+        /// The <see cref="Meet"/> to add.
+        /// </param>
+        public void Add (Meet meet)
+        {
+            Meets.Add (meet);
+            Races.Add (meet.MensRace);
+            Races.Add (meet.WomensRace);
+        }
+        
+        /// <summary>
+        /// Add a bunch of meets.
+        /// </summary>
+        /// <param name="meets">
+        /// The <see cref="IEnumerable<Meet>"/> to add.
+        /// </param>
+        public void Add (IEnumerable<Meet> meets)
+        {
+            foreach(Meet meet in meets)
+            {
+                Add(meet);
+            }
         }
         
         /// <summary>
@@ -212,6 +241,45 @@ namespace XCAnalyze.Model
             Performance performance = new Performance (runner, race, time);
             Performances.Add (performance);
             RegisterPerformance (performance);
+        }
+        
+        /// <summary>
+        /// Remove a meet.
+        /// </summary>
+        /// <param name="meet">
+        /// The <see cref="Meet"/> to remove.
+        /// </param>
+        public void Remove (Meet meet)
+        {
+            Remove (meet.MensRace);
+            Remove (meet.WomensRace);
+            Meets.Remove (meet);
+        }
+        
+        /// <summary>
+        /// Remove a meet.
+        /// </summary>
+        /// <param name="meet">
+        /// A <see cref="IEnumerable<Meet>"/>
+        /// </param>
+        public void Remove (IEnumerable<Meet> meets)
+        {
+            foreach (Meet meet in meets)
+            {
+                Remove (meet);
+            }
+        }
+        
+        /// <summary>
+        /// Remove a race.
+        /// </summary>
+        /// <param name="race">
+        /// The <see cref="Race"/> to remove.
+        /// </param>
+        public void Remove (Race race)
+        {
+            Performances.RemoveAll (performance => performance.Race == race);
+            Races.Remove (race);
         }
 
         /// <summary>

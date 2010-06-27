@@ -6,58 +6,131 @@ using XCAnalyze.Model;
 namespace XCAnalyze.Gui
 {
     /// <summary>
-    /// The signature of callbacks for a SelectionChanged event.
+    /// The interface that any interface handling selection of items from a list
+    /// of data must implement.
     /// </summary>
-    public delegate void Selector<T>(object sender,
-        SelectionChangedArgs<T> arguments);
-    
-    /// <summary>
-    /// The arguments passed by a SelectionChanged event.
-    /// </summary>
-    public class SelectionChangedArgs<T> : EventArgs
-    {
-        /// <summary>
-        /// The item currently selected.
-        /// </summary>
-        public T Selected { get; protected internal set; }
-        
-        public SelectionChangedArgs (T selected)
-        {
-            Selected = selected;
-        }
-    }
-    
     public interface IDataSelection<T>
-    {
+    {        
+        /// <summary>
+        /// The event that occurs when the content changes.
+        /// </summary>
+        event ContentModifier<T> ContentReplaced;
+        
+        /// <summary>
+        /// The event that occurs when items are added.
+        /// </summary>
+        event ContentModifier<T> ItemsAdded;
+        
+        /// <summary>
+        /// The event that occurs when items are deleted.
+        /// </summary>
+        event ContentModifier<T> ItemsDeleted;
+        
+        /// <summary>
+        /// The event that occurs when the selected item changes.
+        /// </summary>
         event Selector<T> SelectionChanged;
-        T Selected { get; }
+        
+        /// <summary>
+        /// Add one item.
+        /// </summary>
+        /// <param name="item">
+        /// The item to add.
+        /// </param>
+        void Add(T item);
+        
+        /// <summary>
+        /// Add a bunch of items.
+        /// </summary>
+        /// <param name="items">
+        /// The items to add.
+        /// </param>
+        void Add(IList<T> items);
+        
+        /// <summary>
+        /// Delete one item.
+        /// </summary>
+        /// <param name="item">
+        /// The item to delete.
+        /// </param>
+        void Delete(T item);
+        
+        /// <summary>
+        /// Delete a bunch of items.
+        /// </summary>
+        /// <param name="items">
+        /// The items to delete.
+        /// </param>
+        void Delete(IList<T> items);
+        
+        /// <summary>
+        /// Choose an item to be selected.
+        /// </summary>
+        /// <param name="item">
+        /// The item to select.
+        /// </param>
         void Select(T item);
     }
     
     public class DataSelection<T> : IDataSelection<T>
     {
+        #region IDataSelection[XCAnalyze.Gui.DataSelection.T] implementation
+        public event ContentModifier<T> ContentReplaced;
+        
+        public event ContentModifier<T> ItemsAdded;
+        
+        public event ContentModifier<T> ItemsDeleted;
+        
         public event Selector<T> SelectionChanged;
         
-        public T Selected { get; protected internal set; }
+        public void Add (T item)
+        {
+            IList<T> items = new List<T> ();
+            items.Add (item);
+            Add (items);
+        }
+        
+        public void Add (IList<T> items)
+        {
+            if (ItemsAdded != null)
+            {
+                ItemsAdded (this, new ContentModifiedArgs<T> (items));
+            }
+        }
+        
+        public void Delete (T item)
+        {
+            IList<T> items = new List<T> ();
+            items.Add (item);
+            Delete (items);
+        }
+        
+        public void Delete (IList<T> items)
+        {
+            if (ItemsDeleted != null) 
+            {
+                ItemsDeleted (this, new ContentModifiedArgs<T> (items));
+            }
+        }
         
         public void Select (T item)
         {
-            Selected = item;
             if (SelectionChanged != null)
             {
                 SelectionChanged (this, new SelectionChangedArgs<T> (item));
             }
-        }           
+        }        
+        #endregion
     }
     
     [TestFixture]
     public class TestDataSelection
     {
-        protected internal bool HandlerCalled { get; set; }
-        protected internal IDataSelection<Meet> CurrentMeet { get; set; }
-        protected internal IList<Meet> Meets { get; set; }
-        protected internal Meet Selected { get; set; } 
-        protected internal IDataSelection<Meet> Sender { get; set; }
+        protected bool HandlerCalled { get; set; }
+        protected IDataSelection<Meet> CurrentMeet { get; set; }
+        protected IList<Meet> Meets { get; set; }
+        protected Meet Selected { get; set; } 
+        protected IDataSelection<Meet> Sender { get; set; }
         
         [SetUp]
         public void SetUp ()
@@ -75,7 +148,7 @@ namespace XCAnalyze.Gui
         public void TestSelect ()
         {
             Assert.That (!HandlerCalled);
-            Assert.IsNull (CurrentMeet.Selected);
+            //Assert.IsNull (CurrentMeet.Selected);
             foreach (int i in new int[] { 2, 0, 1 })
             {
                 CurrentMeet.Select (Meets[i]);

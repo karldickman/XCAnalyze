@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+
+using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
@@ -329,12 +331,12 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// A sample list of affiliations.
         /// </summary>
-        protected internal IList<Affiliation> Affiliations { get; set; }
+        protected internal IXList<Affiliation> Affiliations { get; set; }
         
         /// <summary>
         /// A sample list of conferences.
         /// </summary>
-        protected internal IList<string> Conferences { get; set; }
+        protected internal IXList<string> Conferences { get; set; }
         
         /// <summary>
         /// A sample global state.
@@ -344,22 +346,22 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// A sample list of meet names.
         /// </summary>
-        protected internal IList<string> MeetNames { get; set; }
+        protected internal IXList<string> MeetNames { get; set; }
         
         /// <summary>
         /// A sample list of meets.
         /// </summary>
-        protected internal IList<Meet> Meets { get; set; }
+        protected internal IXList<Meet> Meets { get; set; }
         
         /// <summary>
         /// A sample list of performances.
         /// </summary>
-        protected internal IList<Performance> Performances { get; set; }
+        protected internal IXList<Performance> Performances { get; set; }
         
         /// <summary>
         /// A sample list of races.
         /// </summary>
-        protected internal IList<Race> Races { get; set; }
+        protected internal IXList<Race> Races { get; set; }
         
         /// <summary>
         /// The reader for the database.
@@ -369,17 +371,17 @@ namespace XCAnalyze.Io.Sql
         /// <summary>
         /// A sample list of runners.
         /// </summary>
-        protected internal IList<Runner> Runners { get; set; }
+        protected internal IXList<Runner> Runners { get; set; }
         
         /// <summary>
         /// A sample list of schools.
         /// </summary>
-        protected internal IList<School> Schools { get; set; }
+        protected internal IXList<School> Schools { get; set; }
         
         /// <summary>
         /// A sample list of venues.
         /// </summary>
-        protected internal IList<Venue> Venues { get; set; }
+        protected internal IXList<Venue> Venues { get; set; }
         
         /// <summary>
         /// The writer for the database.
@@ -394,11 +396,11 @@ namespace XCAnalyze.Io.Sql
             Runner karl, hannah, richie, keith, leo, francis, florian;
             nwc = "Northwest Conference";
             sciac = "Southern California Intercollegiate Athletic Conference";
-            Conferences = new List<string> ();
+            Conferences = new XList<string> ();
             Conferences.Add (nwc);
             Conferences.Add (sciac);
             Conferences.Add ("Southern Collegiate Athletic Conference");
-            Runners = new List<Runner>();
+            Runners = new XList<Runner>();
             karl = new Runner("Dickman", "Karl", Gender.MALE, 2010);
             hannah = new Runner("Palmer", "Hannah", Gender.FEMALE, 2010);
             richie = new Runner("LeDonne", "Richie", Gender.MALE, 2011);
@@ -413,7 +415,7 @@ namespace XCAnalyze.Io.Sql
             Runners.Add(leo);
             Runners.Add(francis);
             Runners.Add(florian);
-            Schools = new List<School>();
+            Schools = new XList<School>();
             Schools.Add(new School("Lewis & Clark", "College", nwc));
             Schools.Add(new School("Willamette", "University", nwc));
             Schools.Add(new School("Puget Sound", "University", false, nwc));
@@ -421,7 +423,7 @@ namespace XCAnalyze.Io.Sql
             Schools.Add(new School("Pomona-Pitzer", null, sciac));
             Schools.Add(new School("California", "Institute of Technology", sciac));
             Schools.Add(new School("California, Santa Cruz", "University", false));
-            Affiliations = new List<Affiliation>();
+            Affiliations = new XList<Affiliation>();
             for(y = 2006; y < 2010; y++)
             {
                 Affiliations.Add(new Affiliation(karl, Schools[0], y));
@@ -448,20 +450,20 @@ namespace XCAnalyze.Io.Sql
             {
                 Affiliations.Add(new Affiliation(florian, Schools[3], y));
             }
-            MeetNames = new List<string>();
+            MeetNames = new XList<string>();
             MeetNames.Add("Lewis & Clark Invitational");
             MeetNames.Add("Charles Bowles Invitational");
             MeetNames.Add("Northwest Conference Championship");
             MeetNames.Add("SCIAC Multi-Duals");
             MeetNames.Add("Sundodger Invitational");
             MeetNames.Add("NCAA West Region Championship");
-            Venues = new List<Venue>();
+            Venues = new XList<Venue>();
             Venues.Add(new Venue("Milo McIver State Park", "Estacada", "OR"));
             Venues.Add(new Venue("Bush Pasture Park", "Salem", "OR"));
             Venues.Add(new Venue("Veteran's Memorial Golf Course", "Walla Walla", "WA"));
             Venues.Add(new Venue("Pomona College Campus", "Claremont", "CA"));
             Venues.Add(new Venue("Lincoln Park", "Seattle", "WA"));
-            Meets = new List<Meet>();
+            Meets = new XList<Meet>();
             Meets.Add(new Meet(MeetNames[0], new Date(2009, 9, 5), Venues[0],
                     new Race(null, 8000), new Race(null, 6000)));
             Meets.Add(new Meet(MeetNames[1], new Date(2009, 10, 1), Venues[1],
@@ -474,7 +476,7 @@ namespace XCAnalyze.Io.Sql
                     new Race(null, 8000), new Race(null, 6000)));
             Meets.Add(new Meet(MeetNames[5], new Date(2008, 11, 15), Venues[1],
                     new Race(null, 8000), new Race(null, 6000)));
-            Performances = new List<Performance>();
+            Performances = new XList<Performance>();
             Performances.Add(new Performance(karl, Meets[4].MensRace, new Time(24*60+55)));
             Performances.Add(new Performance(karl, Meets[1].MensRace, new Time(24*60+44)));
             Performances.Add(new Performance(hannah, Meets[5].WomensRace, new Time(22*60+3)));
@@ -564,7 +566,7 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteAffiliations, Affiliations);
         }
         
-        public IList<Affiliation> WriteAffiliations (
+        public IXList<Affiliation> WriteAffiliations (
             IList<Affiliation> expected)
         {
             Writer.WriteConferences (Conferences);
@@ -577,8 +579,8 @@ namespace XCAnalyze.Io.Sql
             IDictionary<int, School> schoolIds = 
                 new Dictionary<int, School> (Reader.ReadSchools (conferenceIds));
             Writer.WriteAffiliations (expected, Runners, Schools);
-            IList<Affiliation> actual =
-                new List<Affiliation>(
+            IXList<Affiliation> actual =
+                new XList<Affiliation>(
                     Reader.ReadAffiliations (runnerIds, schoolIds).Values);
             Assert.AreEqual (Affiliations.Count, actual.Count);
             foreach (Affiliation affiliation in Affiliations)
@@ -594,11 +596,11 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteConferences, Conferences);
         }
         
-        public IList<string> WriteConferences (IList<string> expected)
+        public IXList<string> WriteConferences (IXList<string> expected)
         {
             Writer.WriteConferences (expected);
-            IList<string> actual =
-                new List<string>(Reader.ReadConferences ().Values);
+            IXList<string> actual =
+                new XList<string>(Reader.ReadConferences ().Values);
             Assert.AreEqual (Conferences.Count, actual.Count);
             foreach (string conference in Conferences) 
             {
@@ -613,7 +615,8 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WritePerformances, Performances);
         }
         
-        public IList<Performance> WritePerformances (IList<Performance> expected)
+        public IXList<Performance> WritePerformances (
+            IXList<Performance> expected)
         {
             Writer.WriteRaces (Races);
             IDictionary<int, Race> raceIds = new Dictionary<int, Race> ();
@@ -624,7 +627,8 @@ namespace XCAnalyze.Io.Sql
             Writer.WriteRunners (Runners);
             IDictionary<int, Runner> runnerIds = Reader.ReadRunners ();
             Writer.WritePerformances (expected, Races, Runners);
-            IList<Performance> actual = new List<Performance> (Reader.ReadPerformances (raceIds, runnerIds).Values);
+            IXList<Performance> actual =
+                new XList<Performance> (Reader.ReadPerformances (raceIds, runnerIds).Values);
             Assert.AreEqual (Performances.Count, actual.Count);
             foreach (Performance performance in Performances)
             {
@@ -639,7 +643,7 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteMeets, Meets);
         }
         
-        public IList<Meet> WriteMeets (IList<Meet> expected)
+        public IXList<Meet> WriteMeets (IXList<Meet> expected)
         {
             Writer.WriteMeetNames (MeetNames);
             IDictionary<int, string> meetNameIds =
@@ -651,8 +655,8 @@ namespace XCAnalyze.Io.Sql
             IDictionary<int, Venue> venueIds =
                 new Dictionary<int, Venue> (Reader.ReadVenues ());
             Writer.WriteMeets (expected, MeetNames, Races, Venues);
-            IList<Meet> actual =
-                new List<Meet> (
+            IXList<Meet> actual =
+                new XList<Meet> (
                     Reader.ReadMeets (meetNameIds, raceIds, venueIds).Values);
             Assert.AreEqual (Meets.Count, actual.Count);
             foreach (Meet meet in Meets)
@@ -668,11 +672,11 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteMeetNames, MeetNames);
         }
         
-        public IList<string> WriteMeetNames (IList<string> expected)
+        public IXList<string> WriteMeetNames (IXList<string> expected)
         {
             Writer.WriteMeetNames (MeetNames);
-            IList<string> actual =
-                new List<string> (Reader.ReadMeetNames().Values);
+            IXList<string> actual =
+                new XList<string> (Reader.ReadMeetNames().Values);
             Assert.AreEqual(MeetNames.Count, actual.Count);
             foreach(string meet in MeetNames)
             {
@@ -687,10 +691,10 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteRaces, Races);
         }
         
-        public IList<Race> WriteRaces (IList<Race> expected)
+        public IXList<Race> WriteRaces (IXList<Race> expected)
         {
             Writer.WriteRaces (expected);
-            IList<Race> actual = new List<Race> (Reader.ReadRaces ().Values);
+            IXList<Race> actual = new XList<Race> (Reader.ReadRaces ().Values);
             Assert.AreEqual (Races.Count, actual.Count);
             foreach (Race race in Races)
             {
@@ -717,11 +721,11 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteRunners, Runners);
         }
         
-        public IList<Runner> WriteRunners (IList<Runner> runners)
+        public IXList<Runner> WriteRunners (IXList<Runner> runners)
         {
             Writer.WriteRunners (Runners);
-            IList<Runner> actual =
-                new List<Runner> (Reader.ReadRunners ().Values);
+            IXList<Runner> actual =
+                new XList<Runner> (Reader.ReadRunners ().Values);
             Assert.AreEqual (Runners.Count, actual.Count);
             foreach (Runner runner in Runners)
             {
@@ -736,14 +740,14 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteSchools, Schools);
         }
         
-        public IList<School> WriteSchools (IList<School> expected)
+        public IXList<School> WriteSchools (IXList<School> expected)
         {
             Writer.WriteConferences (Conferences);
             IDictionary<int, string> conferenceIds =
                 new Dictionary<int, string> (Reader.ReadConferences ());
             Writer.WriteSchools (expected, Conferences);
-            IList<School> actual =
-                new List<School>(Reader.ReadSchools (conferenceIds).Values);
+            IXList<School> actual =
+                new XList<School>(Reader.ReadSchools (conferenceIds).Values);
             Assert.AreEqual (Schools.Count, actual.Count);
             foreach (School school in Schools)
             {
@@ -766,10 +770,11 @@ namespace XCAnalyze.Io.Sql
             RepeatTest(WriteVenues, Venues);
         }
         
-        public IList<Venue> WriteVenues (IList<Venue> Venues)
+        public IXList<Venue> WriteVenues (IXList<Venue> Venues)
         {
             Writer.WriteVenues (Venues);
-            IList<Venue> actual = new List<Venue>(Reader.ReadVenues ().Values);
+            IXList<Venue> actual =
+                new XList<Venue>(Reader.ReadVenues ().Values);
             Assert.AreEqual (Venues.Count, actual.Count);
             foreach (Venue venue in actual)
             {

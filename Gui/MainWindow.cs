@@ -30,7 +30,7 @@ namespace XCAnalyze.Gui
         public MainWindow (GlobalData model) : this()
         {
             Model = model;
-            Meets = new MeetBrowser (Model, Model.Data.Meets);
+            Meets = new MeetBrowser (Model);
             Add(Meets);
         }
     }

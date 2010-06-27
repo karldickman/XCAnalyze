@@ -11,7 +11,7 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The value used internally to represent the date.
         /// </summary>
-        protected internal DateTime Date_ { get; set; }
+        protected DateTime Date_ { get; set; }
         
         public int Day
         {
@@ -76,7 +76,17 @@ namespace XCAnalyze.Model
         
         override public string ToString ()
         {
-            return Year + "/" + Month + "/" + Day;
+            string result = Year + "/";
+            if(Month < 10)
+            {
+                result += 0;
+            }
+            result += Month + "/";
+            if(Day < 10)
+            {
+                result += 0;
+            }
+            return result + Day;
         }
     }
 }

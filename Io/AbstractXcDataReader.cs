@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+
+using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Io
@@ -29,13 +31,13 @@ namespace XCAnalyze.Io
                 venueIds);
             IDictionary<int, Performance> performanceIds = ReadPerformances (
                 raceIds, runnerIds);
-            IList<Affiliation> affiliations =
-                new List<Affiliation> (affiliationIds.Values);
-            IList<Meet> meets = new List<Meet> (meetIds.Values);
-            IList<Performance> performances =
-                new List<Performance> (performanceIds.Values);
-            IList<Runner> runners = new List<Runner> (runnerIds.Values);
-            IList<School> schools = new List<School> (schoolIds.Values);
+            IXList<Affiliation> affiliations =
+                new XList<Affiliation> (affiliationIds.Values);
+            IXList<Meet> meets = new XList<Meet> (meetIds.Values);
+            IXList<Performance> performances =
+                new XList<Performance> (performanceIds.Values);
+            IXList<Runner> runners = new XList<Runner> (runnerIds.Values);
+            IXList<School> schools = new XList<School> (schoolIds.Values);
             return new XcData (affiliations, meets, performances, runners,
                 schools);
         }
