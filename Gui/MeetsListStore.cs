@@ -76,11 +76,25 @@ namespace XCAnalyze.Gui
         /// <param name="meet">
         /// The <see cref="Meet"/> to append.
         /// </param>
-        protected void AppendMeet (Meet meet)
+        protected void Append (Meet meet)
         {
             AppendValues (meet, meet.Name,
                 string.Format("{0:yyyy/MM/dd}", meet.Date),
                 meet.Location, meet.MensDistance, meet.WomensDistance);
+        }
+        
+        /// <summary>
+        /// Add a bunch of meets.
+        /// </summary>
+        /// <param name="meets">
+        /// The <see cref="IEnumerable<Meet>"/> to add.
+        /// </param>
+        protected void Append(IEnumerable<Meet> meets)
+        {
+            foreach (Meet meet in meets) 
+            {
+                Append (meet);
+            }
         }
         
         /// <summary>
@@ -91,11 +105,8 @@ namespace XCAnalyze.Gui
         {
             Clear ();
             Meets = new XList<Meet> (arguments.Items);
-            Meets.Sort (new MeetComparer());
-            foreach (Meet meet in Meets)
-            {
-                AppendMeet (meet);
-            }
+            Meets.Sort (new MeetComparer ());
+            Append (Meets);
         }
         
         /// <summary>
@@ -107,10 +118,7 @@ namespace XCAnalyze.Gui
             Clear ();
             Meets.AddRange (arguments.Items);
             Meets.Sort ();
-            foreach (Meet meet in arguments.Items)
-            {
-                AppendMeet (meet);
-            }
+            Append (Meets);
         }
         
         protected void OnItemsDeleted (object sender,
@@ -119,10 +127,7 @@ namespace XCAnalyze.Gui
             Clear ();
             IList<Meet> meets = new List<Meet> (arguments.Items);
             Meets.RemoveAll (meet => meets.Contains (meet));
-            foreach (Meet meet in Meets)
-            {
-                AppendMeet (meet);
-            }
+            Append (meets);
         }
     }
 }

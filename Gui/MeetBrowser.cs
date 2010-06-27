@@ -19,7 +19,7 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The browser pane should be scrollable.
         /// </summary>
-        protected ScrolledWindow BrowserWindow { get; set; }
+        protected Container BrowserWindow { get; set; }
         
         /// <summary>
         /// The pane where detailed information about the selected meet is
