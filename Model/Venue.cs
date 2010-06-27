@@ -2,23 +2,11 @@ using System;
 
 namespace XCAnalyze.Model
 {
-    public class Venue : IComparable<Venue>
+    /// <summary>
+    /// Describes a venue at which races can be held.
+    /// </summary>
+    public class Venue
     {
-        /// <summary>
-        /// The city in which the venue is.
-        /// </summary>
-        public string City { get; protected internal set; }
-        
-        /// <summary>
-        /// The name of the venue.
-        /// </summary>
-        public string Name { get; protected internal set; }
-        
-        /// <summary>
-        /// The state where the venue is.
-        /// </summary>
-        public string State { get; protected internal set; }
-        
         /// <summary>
         /// Create a new venue.
         /// </summary>
@@ -33,36 +21,33 @@ namespace XCAnalyze.Model
         /// </param>
         public Venue (string name, string city, string state)
         {
+            if (city == null)
+            {
+                throw new ArgumentNullException ("No venue has a null city.");
+            }
+            if (state == null)
+            {
+                throw new ArgumentNullException ("No venue has a null sate.");
+            }
             Name = name;
             City = city;
             State = state;
         }
         
         /// <summary>
-        /// Venues are compared first by state, then by city, then by name.
+        /// The city in which the venue is.
         /// </summary>
-        /// <param name="other">
-        /// The <see cref="Venue"/> with which to compare.
-        /// </param>
-        public int CompareTo (Venue other)
-        {
-            int comparison;
-            if (this == other) 
-            {
-                return 0;
-            }
-            comparison = State.CompareTo (other.State);
-            if (comparison != 0)
-            {
-                return comparison;
-            }
-            comparison = City.CompareTo (other.City);
-            if (comparison != 0)
-            {
-                return comparison;
-            }
-            return ObjectComparer<string>.Compare (Name, other.Name, -1);
-        }  
+        public string City { get; protected set; }
+        
+        /// <summary>
+        /// The name of the venue.
+        /// </summary>
+        public string Name { get; protected set; }
+        
+        /// <summary>
+        /// The state where the venue is.
+        /// </summary>
+        public string State { get; protected set; }
         
         override public bool Equals (object other)
         {
@@ -72,10 +57,22 @@ namespace XCAnalyze.Model
             }
             if(other is Venue)
             {
-                return 0 == CompareTo((Venue)other);
+                return Equals((Venue)other);
             }
             return false;
         }
+        
+        /// <summary>
+        /// Venues are compared first by state, then by city, then by name.
+        /// </summary>
+        /// <param name="other">
+        /// The <see cref="Venue"/> with which to compare.
+        /// </param>
+        protected bool Equals (Venue other)
+        {
+            return State.Equals (other.State) && City.Equals (other.City) &&
+                (Name == other.Name || Name != null && Name.Equals (other.Name));
+        }  
         
         override public int GetHashCode ()
         {

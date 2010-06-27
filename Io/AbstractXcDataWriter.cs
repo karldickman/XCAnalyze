@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+
+using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Io
@@ -14,7 +16,7 @@ namespace XCAnalyze.Io
         /// <param name="data">
         /// The <see cref="Data"/> to be written.
         /// </param>
-        public void Write (Model.XcData data)
+        public void Write (XcData data)
         {
             WriteConferences (data.Conferences);
             WriteRunners (data.Runners);

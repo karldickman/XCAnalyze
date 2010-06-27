@@ -1,56 +1,22 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+using XCAnalyze.Collections;
 
 namespace XCAnalyze.Model
 {  
     /// <summary>
     /// All the information about a runner.
     /// </summary>
-    public class Runner : IComparable<Runner>
+    public class Runner
     {
-        /// <summary>
-        /// The runner's gender.
-        /// </summary>
-        public Gender Gender { get; protected internal set; }
-
-        /// <summary>
-        /// The runner's given name.
-        /// </summary>
-        public string GivenName { get; protected internal set; }
+        private IXList<string> _nicknames;
         
-        /// <summary>
-        /// The runner's full name.
-        /// </summary>
-        public string Name
-        {
-            get { return GivenName + " " + Surname; }
-        }
+        private IXList<Performance> _performances;
         
-        /// <summary>
-        /// The nicknames or alternate names of the runner.
-        /// </summary>
-        public IList<string> Nicknames { get; protected internal set; }
-
-        /// <summary>
-        /// The performances this runner has achieved.
-        /// </summary>
-        public IList<Performance> Performances { get; protected internal set; }
-
-        /// <summary>
-        /// The affiliations of the runner over their career.
-        /// </summary>
-        public IDictionary<int, Affiliation> Schools { get; protected internal set; }
-
-        /// <summary>
-        /// The runner's surname.
-        /// </summary>
-        public string Surname { get; protected internal set; }
-
-        /// <summary>
-        /// The runner's original graduation year.
-        /// </summary>
-        public int? Year { get; protected internal set; }
+        private IXDictionary<int, Affiliation> _schools;
         
         /// <summary>
         /// Create a new runner.
@@ -69,8 +35,8 @@ namespace XCAnalyze.Model
         /// </param>
         public Runner (string surname, string givenName, Gender gender,
             int? year)
-            : this(surname, givenName, new List<string>(), gender, year) {}
-            
+        : this(surname, givenName, new XList<string> (), gender, year) { }
+
         /// <summary>
         /// Create a new runner.
         /// </summary>
@@ -90,11 +56,13 @@ namespace XCAnalyze.Model
         /// <param name="year">
         /// The year in which the runner was initially scheduled to graduate.
         /// </param>
-        public Runner(string surname, string givenName, IList<string> nicknames,
-            Gender gender, int? year)
+        public Runner (string surname, string givenName,
+            IXList<string> nicknames, Gender gender, int? year)
         : this(surname, givenName, nicknames, gender, year,
-                new Dictionary<int, Affiliation>(), new List<Performance>()) {}
-        
+                new XDictionary<int, Affiliation> (), new XList<Performance> ())
+        {
+        }
+
         /// <summary>
         /// Create a new runner.
         /// </summary>
@@ -118,11 +86,11 @@ namespace XCAnalyze.Model
         /// The <see cref="IList<Performance>"/> the runner owns.
         /// </param>
         public Runner (string surname, string givenName, Gender gender,
-            int? year, IDictionary<int, Affiliation> schools,
-            IList<Performance> performances)
-            : this(surname, givenName, new List<string>(), gender, year,
-                schools, performances) {}
-              
+            int? year, IXDictionary<int, Affiliation> schools,
+            IXList<Performance> performances)
+        : this(surname, givenName, new XList<string> (), gender, year, schools,
+                performances) { }
+
         /// <summary>
         /// Create a new runner.
         /// </summary>
@@ -150,28 +118,80 @@ namespace XCAnalyze.Model
         /// The <see cref="IList<Performance>"/> the runner owns.
         /// </param>
         public Runner (string surname, string givenName,
-            IList<string> nicknames, Gender gender, int? year,
-            IDictionary<int, Affiliation> schools,
-            IList<Performance> performances)
+            IXList<string> nicknames, Gender gender, int? year,
+            IXDictionary<int, Affiliation> schools,
+            IXList<Performance> performances)
         {
             Surname = surname;
             GivenName = givenName;
-            Nicknames = nicknames;
+            _nicknames = nicknames;
             Gender = gender;
             Year = year;
-            Schools = schools;
-            Performances = performances;
+            _schools = schools;
+            _performances = performances;
+        }
+        
+        /// <summary>
+        /// The runner's gender.
+        /// </summary>
+        public Gender Gender { get; protected set; }
+
+        /// <summary>
+        /// The runner's given name.
+        /// </summary>
+        public string GivenName { get; protected set; }
+        
+        /// <summary>
+        /// The runner's full name.
+        /// </summary>
+        public string Name
+        {
+            get { return GivenName + " " + Surname; }
+        }
+        
+        /// <summary>
+        /// The nicknames or alternate names of the runner.
+        /// </summary>
+        public IList<string> Nicknames
+        {
+            get { return _nicknames.AsReadOnly (); }
         }
 
+        /// <summary>
+        /// The performances this runner has achieved.
+        /// </summary>
+        public IList<Performance> Performances
+        {
+            get { return _performances.AsReadOnly (); }
+        }
+
+        /// <summary>
+        /// The affiliations of the runner over their career.
+        /// </summary>
+        public ReadOnlyDictionary<int, Affiliation> Schools
+        {
+            get { return _schools.AsReadOnly (); }
+        }
+
+        /// <summary>
+        /// The runner's surname.
+        /// </summary>
+        public string Surname { get; protected set; }
+
+        /// <summary>
+        /// The runner's original graduation year.
+        /// </summary>
+        public int? Year { get; protected set; }
+        
         /// <summary>
         /// Register a new affiliation for this runner.
         /// </summary>
         /// <param>
         /// The <see cref="Affiliation"/> to register.
         /// </param>
-        public void AddSchool (Affiliation affiliation)
+        public void Add (Affiliation affiliation)
         {
-            Schools.Add (affiliation.Year, affiliation);
+            _schools.Add (affiliation.Year, affiliation);
         }
         
         /// <summary>
@@ -180,39 +200,22 @@ namespace XCAnalyze.Model
         /// <param name="performance">
         /// The <see cref="Performance"/> to register.
         /// </param>
-        public void AddPerformance (Performance performance)
+        public void Add (Performance performance)
         {
-            Performances.Add (performance);
+            _performances.Add (performance);
         }
 
         /// <summary>
-        /// Runners are compared first by surname, then by year, then by gender.
+        /// Delete a performance.
         /// </summary>
-        public int CompareTo (Runner other)
+        /// <param name="performance">
+        /// The <see cref="Performance"/> to delete.
+        /// </param>
+        public void Delete (Performance performance)
         {
-            int comparison;
-            if (this == other)
-            {
-                return 0;
-            }
-            comparison = Surname.CompareTo (other.Surname);
-            if (comparison != 0)
-            {
-                return comparison;
-            }
-            comparison = GivenName.CompareTo (other.GivenName);
-            if (comparison != 0)
-            {
-                return comparison;
-            }
-            comparison = NullableComparer.Compare (Year, other.Year, 1);
-            if (comparison != 0)
-            {
-                return comparison;
-            }
-            return Gender.CompareTo (other.Gender);
+            _performances.Remove (performance);
         }
-
+        
         override public bool Equals (object other)
         {
             if (this == other)
@@ -221,9 +224,17 @@ namespace XCAnalyze.Model
             }
             if (other is Runner)
             {
-                return 0 == CompareTo ((Runner)other);
+                return Equals ((Runner)other);
             }
             return false;
+        }
+        
+        protected bool Equals (Runner other)
+        {
+            return Surname.Equals (other.Surname) &&
+                GivenName.Equals (other.GivenName) &&
+                Year == other.Year &&
+                Gender == other.Gender;
         }
         
         override public int GetHashCode ()

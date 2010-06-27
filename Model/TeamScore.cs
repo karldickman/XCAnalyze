@@ -1,6 +1,9 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+using XCAnalyze.Collections;
 
 namespace XCAnalyze.Model
 {
@@ -9,20 +12,7 @@ namespace XCAnalyze.Model
     /// </summary>
     public class TeamScore : IComparable<TeamScore>
     {
-        /// <summary>
-        /// The school which earned the score.
-        /// </summary>
-        public School School { get; protected internal set; }
-
-        /// <summary>
-        /// The race to which this score belongs.
-        /// </summary>
-        public Race Race { get; protected internal set; }
-
-        /// <summary>
-        /// The runners who were on the team at that particular race.
-        /// </summary>
-        public List<Performance> Runners { get; protected internal set; }
+        private IXList<Performance> _runners;
         
         /// <summary>
         /// Create a new team score.
@@ -33,8 +23,8 @@ namespace XCAnalyze.Model
         /// <param name="school">
         /// The <see cref="School"/> to whome the score belongs.
         /// </param>
-        public TeamScore(Race race, School school)
-        : this(race, school, new List<Performance>()) {}
+        public TeamScore (Race race, School school)
+        : this(race, school, new XList<Performance> ()) { }
 
         /// <summary>
         /// Create a new team score.
@@ -48,12 +38,32 @@ namespace XCAnalyze.Model
         /// <param name="runners">
         /// The <see cref="List<Performance>"/> of runners who were on the team.
         /// </param>
-        protected internal TeamScore (Race race, School school,
-            List<Performance> runners)
+        protected internal TeamScore (Race race, School school, IXList<Performance> runners)
         {
             Race = race;
             School = school;
-            Runners = runners;
+            _runners = runners;
+        }
+        
+        /// <summary>
+        /// The school which earned the score.
+        /// </summary>
+        public School School { get; protected set; }
+
+        /// <summary>
+        /// The race to which this score belongs.
+        /// </summary>
+        public Race Race { get; protected set; }
+
+        /// <summary>
+        /// The runners who were on the team at that particular race.
+        /// </summary>
+        public ReadOnlyCollection<Performance> Runners
+        {
+            get
+            {
+                return _runners.AsReadOnly();
+            }
         }
         
         /// <summary>
@@ -79,6 +89,17 @@ namespace XCAnalyze.Model
         }
         
         /// <summary>
+        /// Add a new runner from the race results.
+        /// </summary>
+        /// <param name="runner">
+        /// The <see cref="Performance"/> to add.
+        /// </param>
+        public void AddRunner (Performance runner)
+        {
+            _runners.Add (runner);
+        }
+        
+        /// <summary>
         /// Team scores are compared first by the numerical score, then by the sixth runner, then by the seventh, then
         /// by the name of the school.
         /// </summary>
@@ -92,10 +113,21 @@ namespace XCAnalyze.Model
             }
             score = Score ();
             otherScore = other.Score ();
-            comparison = NullableComparer.Compare (score, otherScore, 1);
-            if (comparison != 0) 
+            if (score != otherScore)
             {
-                return comparison;
+                if (score == null)
+                {
+                    return 1;
+                }
+                if (otherScore == null)
+                {
+                    return -1;
+                }
+                comparison = score.Value.CompareTo (otherScore.Value);
+                if (comparison != 0) 
+                {
+                    return comparison;
+                }
             }
             comparison = BreakTie (this, other, 6);
             if (comparison != 0)
@@ -107,7 +139,25 @@ namespace XCAnalyze.Model
             {
                 return comparison;
             }
-            return TopFiveAverage().CompareTo (other.TopFiveAverage());
+            return TopFiveAverage ().CompareTo (other.TopFiveAverage ());
+        }
+        
+        override public bool Equals(object other)
+        {
+            if(this == other)
+            {
+                return true;
+            }
+            if(other is TeamScore)
+            {
+                return 0 == CompareTo((TeamScore)other);
+            }
+            return false;
+        }
+        
+        override public int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         /// <summary>
@@ -159,9 +209,9 @@ namespace XCAnalyze.Model
             }
             for (int i = 0; i < number; i++)
             {
-                sum += Runners[i].Time.Seconds;
+                sum += Runners[i].Time;
             }
-            return new Performance(null, Race, new Time(sum / number));
+            return new Performance(null, Race, sum / number);
         }
         
         public override string ToString ()
@@ -177,11 +227,11 @@ namespace XCAnalyze.Model
         public void TestBreakTie ()
         {
             int breakAt = 5;
-            List<Performance>[] performances = new List<Performance>[2] { new List<Performance> (), new List<Performance> () };
+            IXList<Performance>[] performances = new IXList<Performance>[2] { new XList<Performance> (), new XList<Performance> () };
             Performance[] fifthMen = new Performance[2];
             Race race = new Race(null, 8000);
-            fifthMen[0] = new Performance (null, race, new Time(1500));
-            fifthMen[1] = new Performance (null, race, new Time(1600));
+            fifthMen[0] = new Performance (null, race, 1500);
+            fifthMen[1] = new Performance (null, race, 1600);
             fifthMen[0].Points = 5;
             fifthMen[1].Points = 9;
             TeamScore[] scores = new TeamScore[2] { new TeamScore (null, null, performances[0]), new TeamScore (null, null, performances[1]) };

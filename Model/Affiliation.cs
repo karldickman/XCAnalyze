@@ -5,25 +5,8 @@ namespace XCAnalyze.Model
     /// <summary>
     /// Describes in which Year a Runner ran for a particular School.
     /// </summary>
-    public class Affiliation : IComparable<Affiliation>
-    {
-        /// <summary>
-        /// The <see cref="Runner"/> affiliated with a School.
-        /// </summary>
-        public Runner Runner { get; protected internal set; }
-
-        /// <summary>
-        /// The <see cref="School"/> with which a Runner is affiliated.
-        /// </summary>
-        public School School { get; protected internal set; }
-
-        /// <summary>
-        /// The Year in which the Runner was affiliated with the School.
-        /// </summary>
-        public int Year { get; protected internal set; }
-        
-        protected internal Affiliation(int year) : this(null, null, year) {}
-        
+    public class Affiliation
+    {        
         /// <summary>
         /// Create a new affiliation.
         /// </summary>
@@ -42,30 +25,21 @@ namespace XCAnalyze.Model
             School = school;
             Year = year;
         }
+        
+        /// <summary>
+        /// The <see cref="Runner"/> affiliated with a School.
+        /// </summary>
+        public Runner Runner { get; protected set; }
 
         /// <summary>
-        /// Affiliations are compared first by School, then by Runner, then by
-        /// Year.
+        /// The <see cref="School"/> with which a Runner is affiliated.
         /// </summary>
-        public int CompareTo (Affiliation other)
-        {
-            int comparison;
-            if (this == other) 
-            {
-                return 0;
-            }
-            comparison = School.CompareTo (other.School);
-            if (comparison != 0) 
-            {
-                return comparison;
-            }
-            comparison = Runner.CompareTo (other.Runner);
-            if (comparison != 0) 
-            {
-                return comparison;
-            }
-            return Year.CompareTo(other.Year);
-        }
+        public School School { get; protected set; }
+
+        /// <summary>
+        /// The Year in which the Runner was affiliated with the School.
+        /// </summary>
+        public int Year { get; protected set; }
         
         override public bool Equals (object other)
         {
@@ -75,9 +49,15 @@ namespace XCAnalyze.Model
             }
             if (other is Affiliation) 
             {
-                return 0 == CompareTo ((Affiliation)other);
+                return Equals((Affiliation)other);
             }
             return false;
+        }
+        
+        protected bool Equals (Affiliation other)
+        {
+            return School.Equals(other.School) && Runner.Equals(other.Runner) &&
+                    Year == other.Year;
         }
         
         override public int GetHashCode ()

@@ -65,7 +65,7 @@ namespace XCAnalyze.Io.Sql
         /// <param name="value_">
         /// The <see cref="Date"/> to format.
         /// </param>
-        public string Format(Date value_)
+        public string Format(DateTime value_)
         {
             string result = value_.Year + "-";
             if(value_.Month < 10)
@@ -136,17 +136,6 @@ namespace XCAnalyze.Io.Sql
             return Format(String.Join(", ", value_));
         }
         
-        /// <summary>
-        /// Format a particular race time for insertion via an SQL query.
-        /// </summary>
-        /// <param name="time">
-        /// The <see cref="Time"/> to format.
-        /// </param>
-        public string Format (Time time)
-        {
-            return time.Seconds.ToString ();
-        }
-        
         override protected internal void InitializeDatabase ()
         {
             IList<string> creationCommands = CreationScript();
@@ -206,8 +195,9 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
-        override public void WriteConferences(IList<string> conferences)
+        override public void WriteConferences(IList<string> conferenceSet)
         {
+            IList<string> conferences = new List<string>(conferenceSet);
             for(int i = 0; i < conferences.Count; i++)
             {
                 Command.CommandText = "INSERT INTO conferences (id, name) VALUES (" + (i + 1) + ", " + Format(conferences[i]) + ")";
@@ -215,8 +205,9 @@ namespace XCAnalyze.Io.Sql
             }
         }
         
-        override public void WriteMeetNames(IList<string> meetNames)
+        override public void WriteMeetNames(IList<string> meetNameSet)
         {
+            IList<string> meetNames = new List<string>(meetNameSet);
             for(int i = 0; i < meetNames.Count; i++)
             {
                 Command.CommandText = "INSERT INTO meet_names (id, name) VALUES (" + (i + 1) + ", " + Format(meetNames[i]) + ")";
@@ -225,9 +216,10 @@ namespace XCAnalyze.Io.Sql
         }
        
         override public void WriteMeets(IList<Meet> meets,
-            IList<string> meetNames, IList<Race> races, IList<Venue> venues)
+            IList<string> meetNameSet, IList<Race> races, IList<Venue> venues)
         {
             int? meetNameId, venueId, mensRaceId, womensRaceId;
+            IList<string> meetNames = new List<string>(meetNameSet);
             for(int i = 0; i < meets.Count; i++)
             {
                 meetNameId = venueId = mensRaceId = womensRaceId = null;
@@ -235,9 +227,9 @@ namespace XCAnalyze.Io.Sql
                 {
                     meetNameId = meetNames.IndexOf(meets[i].Name) + 1;
                 }
-                if(meets[i].Venue != null)
+                if(meets[i].Location != null)
                 {
-                    venueId = venues.IndexOf(meets[i].Venue) + 1;
+                    venueId = venues.IndexOf(meets[i].Location) + 1;
                 }
                 if(meets[i].MensRace != null)
                 {
@@ -260,7 +252,7 @@ namespace XCAnalyze.Io.Sql
         {
             for(int i = 0; i < performances.Count; i++)
             {                
-                Command.CommandText = "INSERT INTO results (id, runner_id, race_id, time) VALUES (" + (i + 1) + ", " + Format(runners.IndexOf(performances[i].Runner) + 1) + ", " + Format(races.IndexOf(performances[i].Race) + 1) + ", " + Format(performances[i].Time) + ")";
+                Command.CommandText = "INSERT INTO results (id, runner_id, race_id, time) VALUES (" + (i + 1) + ", " + Format(runners.IndexOf(performances[i].Runner) + 1) + ", " + Format(races.IndexOf(performances[i].Race) + 1) + ", " + performances[i].Time + ")";
                 Command.ExecuteNonQuery();
             }
         }
@@ -284,8 +276,9 @@ namespace XCAnalyze.Io.Sql
         }
         
         override public void WriteSchools(IList<School> schools,
-            IList<string> conferences)
+            IList<string> conferenceSet)
         {
+            IList<string> conferences = new List<string>(conferenceSet);
             int? conferenceId;
             foreach(School school in schools)
             {
@@ -464,24 +457,29 @@ namespace XCAnalyze.Io.Sql
             Venues.Add(new Venue("Pomona College Campus", "Claremont", "CA"));
             Venues.Add(new Venue("Lincoln Park", "Seattle", "WA"));
             Meets = new XList<Meet>();
-            Meets.Add(new Meet(MeetNames[0], new Date(2009, 9, 5), Venues[0],
+            Meets.Add(new Meet(MeetNames[0], new DateTime(2009, 9, 5), Venues[0],
                     new Race(null, 8000), new Race(null, 6000)));
-            Meets.Add(new Meet(MeetNames[1], new Date(2009, 10, 1), Venues[1],
+            Meets.Add(new Meet(MeetNames[1], new DateTime(2009, 10, 1), Venues[1],
                     new Race(null, 8000), new Race(null, 5000)));
-            Meets.Add(new Meet(MeetNames[2], new Date(2008, 11, 1), Venues[2],
+            Meets.Add(new Meet(MeetNames[2], new DateTime(2008, 11, 1), Venues[2],
                     new Race(null, 8000), new Race(null, 6000)));
-            Meets.Add(new Meet(MeetNames[3], new Date(2009, 10, 15), Venues[3],
+            Meets.Add(new Meet(MeetNames[3], new DateTime(2009, 10, 15), Venues[3],
                     new Race(null, 8000), new Race(null, 6000)));
-            Meets.Add(new Meet(MeetNames[4], new Date(2009, 9, 14), Venues[4],
+            Meets.Add(new Meet(MeetNames[4], new DateTime(2009, 9, 14), Venues[4],
                     new Race(null, 8000), new Race(null, 6000)));
-            Meets.Add(new Meet(MeetNames[5], new Date(2008, 11, 15), Venues[1],
+            Meets.Add(new Meet(MeetNames[5], new DateTime(2008, 11, 15), Venues[1],
                     new Race(null, 8000), new Race(null, 6000)));
             Performances = new XList<Performance>();
-            Performances.Add(new Performance(karl, Meets[4].MensRace, new Time(24*60+55)));
-            Performances.Add(new Performance(karl, Meets[1].MensRace, new Time(24*60+44)));
-            Performances.Add(new Performance(hannah, Meets[5].WomensRace, new Time(22*60+3)));
+            Performances.Add(new Performance(karl, Meets[4].MensRace, 24*60+55));
+            Performances.Add(new Performance(karl, Meets[1].MensRace, 24*60+44));
+            Performances.Add(new Performance(hannah, Meets[5].WomensRace, 22*60+3));
             GlobalState = new XcData(Affiliations, Meets, Performances, Runners, Schools);
-            Races = GlobalState.Races;
+            Races = new XList<Race>();
+            foreach(Meet meet in Meets)
+            {
+                Races.Add(meet.MensRace);
+                Races.Add(meet.WomensRace);
+            }
         }
         
         abstract protected internal void SetUpPartial();        
@@ -580,7 +578,7 @@ namespace XCAnalyze.Io.Sql
                 new Dictionary<int, School> (Reader.ReadSchools (conferenceIds));
             Writer.WriteAffiliations (expected, Runners, Schools);
             IXList<Affiliation> actual =
-                new XList<Affiliation>(
+                new XList<Affiliation> (
                     Reader.ReadAffiliations (runnerIds, schoolIds).Values);
             Assert.AreEqual (Affiliations.Count, actual.Count);
             foreach (Affiliation affiliation in Affiliations)

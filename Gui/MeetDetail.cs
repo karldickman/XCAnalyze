@@ -57,7 +57,7 @@ namespace XCAnalyze.Gui
         public void OnSelectionChanged (object sender, EventArgs arguments)
         {
             Meet meet = ((SelectionChangedArgs<Meet>)arguments).Selected;
-            Info.Text = meet.Name + "\n" + meet.Date + "\n" + meet.Venue;
+            Info.Text = meet.Name + "\n" + meet.Date + "\n" + meet.Location;
         }
     }
 }

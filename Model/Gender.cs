@@ -7,8 +7,24 @@ namespace XCAnalyze.Model
     /// instance.  This is an example of the doubleton pattern.
     /// (http://thedailywtf.com/articles/the-doubleton-patten.aspx)
 	/// </summary>
-	sealed public class Gender : IComparable<Gender>
-	{        
+	sealed public class Gender
+	{   
+        /// <summary>
+        /// Get a gender instance from a string.  "M" returns the male instance, "F" the female instance.
+        /// </summary>
+        public static Gender FromString (string genderString)
+        {
+            if (genderString == "M")
+            {
+                return MALE;
+            }
+            if (genderString == "F")
+            {
+                return FEMALE;
+            }
+            return null;
+        }
+        
         /// <summary>
         /// The male instance
         /// </summary>
@@ -29,38 +45,11 @@ namespace XCAnalyze.Model
         /// </summary>
         public bool IsFemale { get { return this == FEMALE; } }
 
-		/// <summary>
-		/// Get a gender instance from a string.  "M" returns the male instance, "F" the female instance.
-		/// </summary>
-		public static Gender FromString (string genderString)
-		{
-			if (genderString == "M")
-			{
-				return MALE;
-			}
-			if (genderString == "F")
-			{
-				return FEMALE;
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// Men always go before women.  Sorry ladies.
-		/// </summary>
-		public int CompareTo (Gender other)
-		{
-			if (this == other)
-			{
-				return 0;
-			}
-			if (this == MALE)
-			{
-				return -1;
-			}
-			return 1;
-		}
-
+        public static implicit operator string (Gender gender)
+        {
+            return gender.ToString ();
+        }
+        
 		/// <summary>
 		/// "M" if male, "F" if female.
 		/// </summary>

@@ -5,67 +5,8 @@ namespace XCAnalyze.Model
     /// <summary>
     /// A meet has a mens race and a womens race and occurs at a particular time.
     /// </summary>
-    public class Meet : IComparable<Meet>
+    public class Meet
     {
-        public string City { get { return Venue.City; } }
-       
-        /// <summary>
-        /// The date on which this meet was held.
-        /// </summary>
-        public Date Date { get; protected internal set; }
-        
-        /// <summary>
-        /// The distance of the men's race.
-        /// </summary>
-        public int? MensDistance
-        {
-            get
-            {
-                if (MensRace == null)
-                {
-                    return null;
-                }
-                return MensRace.Distance;
-            }
-        }
-        
-        /// <summary>
-        /// This meet's men's race.
-        /// </summary>
-        public Race MensRace { get; protected internal set; }
-        
-        public string State { get { return Venue.State; } }
-        
-        /// <summary>
-        /// The name of the meet.
-        /// </summary>
-        public string Name { get; protected internal set; }
-        
-        /// <summary>
-        /// The venue whereat this meet was held.
-        /// </summary>
-        public Venue Venue { get; protected internal set; }
-        
-        /// <summary>
-        /// The length of the women's race.
-        /// </summary>
-        public int? WomensDistance
-        {
-            get
-            {
-                if (WomensRace == null)
-                {
-                    return null;
-                }
-                return WomensRace.Distance;
-            }
-        }
-        
-        /// <summary>
-        /// This meet's women's race.
-        /// </summary>
-        public Race WomensRace { get; protected internal set; }
-        
         /// <summary>
         /// Create a new meet.
         /// </summary>
@@ -88,12 +29,12 @@ namespace XCAnalyze.Model
         /// A <see cref="ArgumentNullException"/> is thrown when both men's and
         /// women's races are null.
         /// </exception>
-        public Meet (string name, Date date, Venue venue,
-            Race mensRace, Race womensRace)
+        public Meet (string name, DateTime date, Venue location, Race mensRace,
+            Race womensRace)
         {
             Name = name;
             Date = date;
-            Venue = venue;
+            Location = location;
             MensRace = mensRace;
             WomensRace = womensRace;
             if (mensRace != null)
@@ -104,34 +45,76 @@ namespace XCAnalyze.Model
             {
                 womensRace.Meet = this;
             }
-            if (mensRace == null && womensRace == null)
-            {
+            if (mensRace == null && womensRace == null) {
                 throw new ArgumentNullException (
                     "A meet must have either a men's race or a women's race.");
             }
         }
         
         /// <summary>
-        /// Meets are compared first by date, then by name.  If both are the
-        /// same, then the venue is assumed to be the same as well.
+        /// The city where the meet was held.
         /// </summary>
-        /// <param name="other">
-        /// The <see cref="Meet"/> with which to compare.
-        /// </param>
-        public int CompareTo (Meet other)
+        public string City { get { return Location.City; } }
+       
+        /// <summary>
+        /// The date on which this meet was held.
+        /// </summary>
+        public DateTime Date { get; protected set; }
+        
+        /// <summary>
+        /// The distance of the men's race.
+        /// </summary>
+        public int? MensDistance
         {
-            int comparison;
-            if (this == other)
+            get
             {
-                return 0;
+                if (MensRace == null)
+                {
+                    return null;
+                }
+                return MensRace.Distance;
             }
-            comparison = Date.CompareTo (other.Date);
-            if (comparison != 0) 
-            {
-                return comparison;
-            }
-            return ObjectComparer<string>.Compare(Name, other.Name, 1);
         }
+        
+        /// <summary>
+        /// This meet's men's race.
+        /// </summary>
+        public Race MensRace { get; protected set; }
+        
+        /// <summary>
+        /// The state in which the meet was held.
+        /// </summary>
+        public string State { get { return Location.State; } }
+        
+        /// <summary>
+        /// The name of the meet.
+        /// </summary>
+        public string Name { get; protected set; }
+        
+        /// <summary>
+        /// The venue whereat this meet was held.
+        /// </summary>
+        public Venue Location { get; protected set; }
+        
+        /// <summary>
+        /// The length of the women's race.
+        /// </summary>
+        public int? WomensDistance
+        {
+            get
+            {
+                if (WomensRace == null)
+                {
+                    return null;
+                }
+                return WomensRace.Distance;
+            }
+        }
+        
+        /// <summary>
+        /// This meet's women's race.
+        /// </summary>
+        public Race WomensRace { get; protected set; }
         
         override public bool Equals(object other)
         {
@@ -141,14 +124,30 @@ namespace XCAnalyze.Model
             }
             if(other is Meet)
             {
-                return 0 == CompareTo((Meet)other);
+                return Equals((Meet)other);
             }
             return false;
         }
         
+        /// <summary>
+        /// If two meets have the same date and same name, they are the same
+        /// meet.
+        /// </summary>
+        /// <param name="other">
+        /// The <see cref="Meet"/> with which to compare.
+        /// </param>
+        protected bool Equals (Meet other)
+        {
+            return Date.Year == other.Date.Year &&
+                Date.Month == other.Date.Month &&
+                Date.Day == other.Date.Day &&
+                (Name == other.Name ||
+                    Name != null && Name.Equals(other.Name));
+        }
+        
         override public int GetHashCode()
         {
-            return ("" + Date + Name + Venue).GetHashCode();
+            return ("" + Date + Name + Location).GetHashCode();
         }
         
         public Race Race (Gender gender)
@@ -158,11 +157,6 @@ namespace XCAnalyze.Model
                 return MensRace;
             }
             return WomensRace;
-        }
-        
-        override public string ToString()
-        {
-            return Name + " (" + Date + ")";
         }
     }
 }

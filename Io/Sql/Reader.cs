@@ -2,6 +2,8 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
+
+using XCAnalyze.Collections;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Io.Sql
@@ -86,7 +88,7 @@ namespace XCAnalyze.Io.Sql
         {
             IDictionary<int, Meet> meets = new Dictionary<int, Meet>();
             int id;
-            Date date;
+            DateTime date;
             Race mensRace, womensRace;
             string meetName;
             Venue venue;
@@ -103,7 +105,7 @@ namespace XCAnalyze.Io.Sql
                 {
                     meetName = meetNames[int.Parse(Reader["meet_name_id"].ToString())];
                 }
-                date = new Date((DateTime)Reader["date"]);
+                date = (DateTime)Reader["date"];
                 if(Reader["venue_id"] is DBNull)
                 {
                     venue = null;
@@ -158,7 +160,7 @@ namespace XCAnalyze.Io.Sql
             int id;
             Race race;
             Runner runner;
-            Time time;
+            double time;
             Command.CommandText = "SELECT * FROM results";
             Reader = Command.ExecuteReader ();
             while (Reader.Read ())
@@ -166,7 +168,7 @@ namespace XCAnalyze.Io.Sql
                 id = int.Parse(Reader["id"].ToString());
                 runner = runners[int.Parse(Reader["runner_id"].ToString())];
                 race = races[int.Parse(Reader["race_id"].ToString())];
-                time = new Time((double)Reader["time"]);
+                time = (double)Reader["time"];
                 performances.Add(id, new Performance(runner, race, time));
             }
             Reader.Close ();
@@ -195,7 +197,7 @@ namespace XCAnalyze.Io.Sql
             Gender gender;
             int id;
             int? year;
-            IList<string> nicknames;
+            IXList<string> nicknames;
             string givenName, surname;
             Command.CommandText = "SELECT * FROM runners";
             Reader = Command.ExecuteReader ();
@@ -204,7 +206,7 @@ namespace XCAnalyze.Io.Sql
                 gender = Gender.FromString(Reader["gender"].ToString());
                 givenName = (string)Reader["given_name"];
                 surname = (string)Reader["surname"];
-                nicknames = new List<string>();
+                nicknames = new XList<string>();
                 if (!(Reader["nicknames"] is DBNull))
                 {
                     foreach(string nickname
@@ -235,7 +237,7 @@ namespace XCAnalyze.Io.Sql
             IDictionary<int, School> schools = new Dictionary<int, School>();
             int id;
             bool nameFirst;
-            IList<string> nicknames;
+            IXList<string> nicknames;
             string conference, name, type;
             Command.CommandText = "SELECT * FROM schools";
             Reader = Command.ExecuteReader ();
@@ -244,7 +246,7 @@ namespace XCAnalyze.Io.Sql
                 id = int.Parse (Reader["id"].ToString ());
                 name = (string)Reader["name"];
                 nameFirst = (bool)Reader["name_first"];
-                nicknames = new List<string>();
+                nicknames = new XList<string>();
                 if (!(Reader["nicknames"] is DBNull))
                 {
                     foreach(string nickname
@@ -267,9 +269,11 @@ namespace XCAnalyze.Io.Sql
                 }
                 else
                 {
-                    conference = conferences[int.Parse (Reader["conference_id"].ToString ())];
+                    conference = conferences[int.Parse (
+                        Reader["conference_id"].ToString ())];
                 }
-                schools.Add(id, new School(name, type, nameFirst, nicknames, conference));
+                schools.Add(id, new School(name, type, nameFirst, nicknames,
+                        conference));
             }
             Reader.Close ();
             return schools;

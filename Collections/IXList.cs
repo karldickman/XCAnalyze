@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace XCAnalyze.Collections
 {
@@ -12,6 +13,11 @@ namespace XCAnalyze.Collections
         /// The items to remove.
         /// </param>
         void AddRange(IEnumerable<T> items);
+        
+        /// <summary>
+        /// Returns a read-only wrapper to the current List.
+        /// </summary>
+        ReadOnlyCollection<T> AsReadOnly();
         
         /// <summary>
         /// Removes the all the elements that match the conditions defined by

@@ -8,6 +8,25 @@ namespace XCAnalyze.Model
     public class Performance : IComparable<Performance>
     {
         /// <summary>
+        /// Create a new performance.
+        /// </summary>
+        /// <param name="runner">
+        /// The <see cref="Runner"/> who owns the performance.
+        /// </param>
+        /// <param name="race">
+        /// The <see cref="Race"/> at which the performance was ran.
+        /// </param>
+        /// <param name="time">
+        /// The <see cref="Time"/> in which teh race was run.
+        /// </param>
+        public Performance (Runner runner, Race race, double time)
+        {
+            Runner = runner;
+            Race = race;
+            Time = time;
+        }
+        
+        /// <summary>
         /// The number of points the runner earned in the race for this performance.
         /// </summary>
         public int? Points { get; protected internal set; }
@@ -15,17 +34,17 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The race whereat the time was run.
         /// </summary>
-        public Race Race { get; protected internal set; }
+        public Race Race { get; protected set; }
 
         /// <summary>
         /// The runner who ran the time.
         /// </summary>
-        public Runner Runner { get; protected internal set; }
+        public Runner Runner { get; protected set; }
 
         /// <summary>
         /// The time that was run.
         /// </summary>
-        public Time Time { get; protected internal set; }
+        public double Time { get; protected set; }
         
         /// <summary>
         /// The length of the race whereat the time was run.
@@ -41,27 +60,8 @@ namespace XCAnalyze.Model
         public School School
         {
             get { return Runner.School(Race.Meet.Date.Year); }
-        }
+        }       
         
-        /// <summary>
-        /// Create a new performance.
-        /// </summary>
-        /// <param name="runner">
-        /// The <see cref="Runner"/> who owns the performance.
-        /// </param>
-        /// <param name="race">
-        /// The <see cref="Race"/> at which the performance was ran.
-        /// </param>
-        /// <param name="time">
-        /// The <see cref="Time"/> in which teh race was run.
-        /// </param>
-        public Performance (Runner runner, Race race, Time time)
-        {
-            Runner = runner;
-            Race = race;
-            Time = time;
-        }
-
         /// <summary>
         /// A faster pace is a better performance, and comes before a slower
         /// pace.  If the paces are the same, the longer race is considered the
@@ -105,7 +105,7 @@ namespace XCAnalyze.Model
         /// </summary>
         public double Pace ()
         {
-            return Time.Seconds / Distance * 60;
+            return Time / Distance * 60;
         }
         
         override public string ToString()

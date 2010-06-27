@@ -37,8 +37,9 @@ namespace XCAnalyze.Gui
         /// </param>
         protected void AppendMeet (Meet meet)
         {
-            AppendValues (meet, meet.Name, meet.Date.ToString (), meet.Venue,
-                meet.MensDistance, meet.WomensDistance);
+            AppendValues (meet, meet.Name,
+                string.Format("{0:yyyy/MM/dd}", meet.Date),
+                meet.Location, meet.MensDistance, meet.WomensDistance);
         }
         
         /// <summary>

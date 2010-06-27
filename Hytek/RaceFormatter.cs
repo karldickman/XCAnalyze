@@ -65,7 +65,7 @@ namespace XCAnalyze.Hytek
             {
                 lines.Add (StringFormatting.Centered (race.Name, width));
                 lines.Add (StringFormatting.Centered (race.Date.ToString (), width));
-                lines.Add (StringFormatting.Centered (race.Venue, width));
+                lines.Add (StringFormatting.Centered (race.Location, width));
                 lines.Add ("");
             }
             lines.AddRange(resultsLines);

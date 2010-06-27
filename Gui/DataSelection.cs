@@ -136,9 +136,9 @@ namespace XCAnalyze.Gui
         public void SetUp ()
         {
             Meets = new List<Meet> ();
-            Meets.Add (new Meet ("Lewis & Clark Invitational", new Date (2010, 9, 27), null, new Race (null, 8000), new Race (null, 6000)));
-            Meets.Add (new Meet ("Pacific Lutheran Invitational", new Date (2010, 10, 23), null, new Race (null, 8000), new Race (null, 6000)));
-            Meets.Add (new Meet ("NWC Championship", new Date (2010, 11, 1), null, new Race (null, 8000), new Race (null, 6000)));
+            Meets.Add (new Meet ("Lewis & Clark Invitational", new DateTime (2010, 9, 27), null, new Race (null, 8000), new Race (null, 6000)));
+            Meets.Add (new Meet ("Pacific Lutheran Invitational", new DateTime (2010, 10, 23), null, new Race (null, 8000), new Race (null, 6000)));
+            Meets.Add (new Meet ("NWC Championship", new DateTime (2010, 11, 1), null, new Race (null, 8000), new Race (null, 6000)));
             HandlerCalled = false;
             CurrentMeet = new DataSelection<Meet> ();
             CurrentMeet.SelectionChanged += Handler;

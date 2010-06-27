@@ -1,80 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+using XCAnalyze.Collections;
 
 namespace XCAnalyze.Model
 {    
     /// <summary>
     /// An instance of a meet.
     /// </summary>
-    public class Race : IComparable<Race>
-    {        
-        public Date Date
-        {
-            get
-            {
-                return Meet.Date;
-            }
-            
-            protected internal set
-            {
-                Meet.Date = value;
-            }
-        }
+    public class Race
+    {
+        private IXList<Performance> _results;
         
-        /// <summary>
-        /// The length of the race.
-        /// </summary>
-        public int Distance { get; protected internal set; }
-
-        /// <summary>
-        /// Was it a men's race or a women's race?
-        /// </summary>
-        public Gender Gender
-        {
-            get
-            {
-                if(this == Meet.MensRace)
-                {
-                    return Gender.MALE;
-                }
-                return Gender.FEMALE;
-            }
-            
-            protected internal set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
-        /// The meet of which this race is a part.
-        /// </summary>
-        public Meet Meet { get; protected internal set; }
-        
-        public string Name
-        {
-            get
-            {
-                return Meet.Name;
-            }
-            
-            protected internal set
-            {
-                Meet.Name = value;
-            }
-        }
-
-        /// <summary>
-        /// The results of the meet.
-        /// </summary>
-        public List<Performance> Results { get; protected internal set; }
-
-        /// <summary>
-        /// The team scores of the meet.
-        /// </summary>
-        public IList<TeamScore> Scores { get; protected internal set; }
-        
-        public Venue Venue { get { return Meet.Venue; } }
+        private IXList<TeamScore> _scores;
         
         /// <summary>
         /// Create a new race.
@@ -85,9 +24,9 @@ namespace XCAnalyze.Model
         /// <param name="distance">
         /// The length of the race.
         /// </param>
-        public Race(Meet meet, int distance)
-        : this(meet, distance, new List<Performance>()) {}
-        
+        public Race (Meet meet, int distance)
+        : this(meet, distance, new XList<Performance> ()) { }
+
         /// <summary>
         /// Create a new race.
         /// </summary>
@@ -100,9 +39,9 @@ namespace XCAnalyze.Model
         /// <param name="results">
         /// The <see cref="List<Performance>"/> of results.
         /// </param>       
-        public Race(Meet meet, int distance, List<Performance> results)
-            : this(meet, distance, results, false) {}
-        
+        public Race (Meet meet, int distance, XList<Performance> results)
+        : this(meet, distance, results, false) { }
+
         /// <summary>
         /// Create a new race.
         /// </summary>
@@ -118,18 +57,79 @@ namespace XCAnalyze.Model
         /// <param name="scoreMeet">
         /// Should this meet be scored right away or not?
         /// </param>
-        public Race (Meet meet, int distance, List<Performance> results,
+        public Race (Meet meet, int distance, XList<Performance> results,
             bool scoreMeet)
         {
             Distance = distance;
             Meet = meet;
-            Results = results;
-            Results.Sort ();
-            if (scoreMeet)
-            {
+            _results = results;
+            _results.Sort ();
+            if (scoreMeet) {
                 Score ();
             }
         }
+        
+        /// <summary>
+        /// The date on which this race was held.
+        /// </summary>
+        public DateTime Date
+        {
+            get { return Meet.Date; }
+        }
+        
+        /// <summary>
+        /// The length of the race.
+        /// </summary>
+        public int Distance { get; protected set; }
+
+        /// <summary>
+        /// Was it a men's race or a women's race?
+        /// </summary>
+        public Gender Gender
+        {
+            get
+            {
+                if(this == Meet.MensRace)
+                {
+                    return Gender.MALE;
+                }
+                return Gender.FEMALE;
+            }
+        }
+
+        /// <summary>
+        /// The meet of which this race is a part.
+        /// </summary>
+        public Meet Meet { get; protected internal set; }
+        
+        /// <summary>
+        /// The name of the meet of which this race is a part.
+        /// </summary>
+        public string Name
+        {
+            get { return Meet.Name; }
+        }
+
+        /// <summary>
+        /// The results of the meet.
+        /// </summary>
+        public IList<Performance> Results
+        {
+            get { return _results.AsReadOnly (); }
+        }
+
+        /// <summary>
+        /// The team scores of the meet.
+        /// </summary>
+        public IList<TeamScore> Scores
+        {
+            get { return _scores.AsReadOnly (); }
+        }
+        
+        /// <summary>
+        /// The location of the race.
+        /// </summary>
+        public Venue Location { get { return Meet.Location; } }
         
         /// <summary>
         /// Add a new result to the race.
@@ -137,32 +137,21 @@ namespace XCAnalyze.Model
         /// <param name="result">
         /// The <see cref="Performance"/> to add.
         /// </param>
-        public void AddResult (Performance result)
+        public void Add (Performance result)
         {
-            Results.Add (result);
-            Results.Sort ();
+            _results.Add (result);
+            _results.Sort ();
         }
         
         /// <summary>
-        /// Races are compared first by meet, then by distance (in descending
-        /// order).
+        /// Delete one of the race results.
         /// </summary>
-        /// <param name="other">
-        /// The <see cref="Race"/> with which to comare.
+        /// <param name="result">
+        /// The <see cref="Performance"/> to delete.
         /// </param>
-        public int CompareTo (Race other)
+        public void Delete (Performance result)
         {
-            int comparison;
-            if (this == other) 
-            {
-                return 0;
-            }
-            comparison = Meet.CompareTo(other.Meet);
-            if (comparison != 0) 
-            {
-                return comparison;
-            }
-            return -Distance.CompareTo (other.Distance);
+            _results.Remove (result);
         }
         
         override public bool Equals(object other)
@@ -173,9 +162,14 @@ namespace XCAnalyze.Model
             }
             if(other is Race)
             {
-                return 0 == CompareTo((Race)other);
+                return Equals((Race)other);
             }
             return false;
+        }
+        
+        protected bool Equals (Race other)
+        {
+            return Meet.Equals(other.Meet) && Gender == other.Gender;
         }
         
         override public int GetHashCode ()
@@ -191,7 +185,7 @@ namespace XCAnalyze.Model
             Dictionary<School, TeamScore> scores;
             if (Results.Count == 0)
             {
-                Scores = new List<TeamScore> ();
+                _scores = new XList<TeamScore> ();
                 return;
             }
             scores = new Dictionary<School, TeamScore> ();
@@ -205,7 +199,7 @@ namespace XCAnalyze.Model
                     {
                         scores[result.School] = new TeamScore (this, result.School);
                     }
-                    scores[result.School].Runners.Add (result);
+                    scores[result.School].AddRunner (result);
                 }
             }
             //Tag runners on teams with fewer than five as scoreless
@@ -259,13 +253,13 @@ namespace XCAnalyze.Model
                 }
             }
             //Create the final list
-            List<TeamScore> scoreList = new List<TeamScore> ();
+            IXList<TeamScore> scoreList = new XList<TeamScore> ();
             foreach (TeamScore score in scores.Values) 
             {
                 scoreList.Add (score);
             }
             scoreList.Sort ();
-            Scores = scoreList;
+            _scores = scoreList;
         }
         
         override public string ToString()
