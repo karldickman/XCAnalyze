@@ -11,23 +11,39 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// Some information about the race.
         /// </summary>
-        protected internal Label Info { get; set; }
+        protected Label Info { get; set; }
         
         /// <summary>
         /// The widget used to display the mens race.
         /// </summary>
-        protected internal Container MensRace { get; set; }
+        protected Container MensRace { get; set; }
+        
+        /// <summary>
+        /// The container that holds the two races.
+        /// </summary>
+        protected Container RaceContainer { get; set; }
         
         /// <summary>
         /// The widget used to display the womens race.
         /// </summary>
-        protected internal Container WomensRace { get; set; }
+        protected Container WomensRace { get; set; }
         
-        protected internal MeetDetail()
+        protected MeetDetail ()
         {
             Spacing = 20;
-            Info = new Label();
+            //Create the heading label
+            Info = new Label ();
+            Add (Info);
             Info.Justify = Justification.Center;
+            //Create container for races
+            RaceContainer = new VPaned ();
+            Add (RaceContainer);
+            //Create mens race container
+            MensRace = new ScrolledWindow ();
+            RaceContainer.Add (MensRace);
+            //Create womens race container
+            WomensRace = new ScrolledWindow ();
+            RaceContainer.Add (WomensRace);
         }
         
         /// <summary>
@@ -46,14 +62,8 @@ namespace XCAnalyze.Gui
             RaceResultsBuffer mensBuffer = new RaceResultsBuffer (mensRaceModel);
             RaceResultsBuffer womensBuffer =
                 new RaceResultsBuffer (womensRaceModel);
-            TextView mensTextView = new TextView (mensBuffer);
-            TextView womensTextView = new TextView (womensBuffer);
-            MensRace = new ScrolledWindow ();
-            WomensRace = new ScrolledWindow ();
-            MensRace.Add (mensTextView);
-            WomensRace.Add (womensTextView);
-            Add (MensRace);
-            Add (WomensRace);
+            MensRace.Add (new TextView(mensBuffer));
+            WomensRace.Add (new TextView(womensBuffer));
         }
         
         public void OnSelectionChanged (object sender, EventArgs arguments)
