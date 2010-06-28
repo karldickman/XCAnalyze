@@ -14,26 +14,21 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The browser for the meets.
         /// </summary>
-        protected internal Widget Meets { get; set; }
+        protected Widget Meets { get; set; }
         
         /// <summary>
         /// The data used by this application.
         /// </summary>
-        protected internal GlobalData Model { get; set; }
-        
-        protected internal MainWindow() : base("XCAnalyze v 0.0") {}
+        protected GlobalData Model { get; set; }
         
         /// <summary>
-        /// Create a new application to work with a particular piece of data.
+        /// Create a new main window for the application.
         /// </summary>
-        /// <param name="data">
-        /// The <see cref="GlobalState"/> with which to work.
-        /// </param>
-        public MainWindow (GlobalData model) : this()
+        public MainWindow () : base("XCAnalyze")
         {
-            Model = model;
+            Model = new GlobalData ();
             Meets = new MeetBrowser (Model);
-            Add(Meets);
+            Add (Meets);
         }
     }
 }
