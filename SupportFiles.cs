@@ -5,7 +5,13 @@ using System.IO;
 namespace XCAnalyze
 {
     public class SupportFiles
-    {
+    {        
+        /// <summary>
+        /// The user's home directory.
+        /// </summary>
+        public static readonly string HOME_DIR =
+            Environment.GetEnvironmentVariable("HOME");
+            
         /// <summary>
         /// The directory where XCAnalyze is installed.
         /// </summary>
@@ -31,6 +37,7 @@ namespace XCAnalyze
             Files.Add ("xca_create.mysql", SUPPORT_DIR);
             Files.Add ("xca_example.db", SUPPORT_DIR);
             Files.Add ("example.xca", SUPPORT_DIR);
+            Files.Add (".xcanalyze_session", HOME_DIR); 
         }
         
         /// <summary>

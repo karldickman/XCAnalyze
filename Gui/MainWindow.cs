@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 using Gtk;
 
@@ -47,6 +48,15 @@ namespace XCAnalyze.Gui
             //Create the meet browser
             Meets = new MeetBrowser (Model);
             Content.Add (Meets);
+            string sessionFile = SupportFiles.GetPath(".xcanalyze_session");
+            if(File.Exists(sessionFile))
+            {
+                string fileName = File.ReadAllText(sessionFile);
+                using(XcaReader reader = new XcaReader(fileName))
+                {
+                    Model.Data = reader.Read();
+                }
+            }
         }
         
         /// <summary>
@@ -84,6 +94,8 @@ namespace XCAnalyze.Gui
                 using (XcaReader reader = new XcaReader (fileName)) 
                 {
                     Model.Data = reader.Read ();
+                    File.WriteAllText (SupportFiles.GetPath
+                        (".xcanalyze_session"), fileName);
                 }
             }
             dialog.Destroy ();
