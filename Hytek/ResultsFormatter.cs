@@ -66,7 +66,7 @@ namespace XCAnalyze.Hytek
                 {
                     valueRow[n++] = results[i].School.Name;
                 }
-                valueRow[n++] = results[i].Time.ToString ();
+                valueRow[n++] = FormatTime(results[i].Time);
                 valueRow[n++] = results[i].Points.ToString ();
                 values.Add (valueRow);
             }

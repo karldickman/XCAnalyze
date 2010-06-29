@@ -60,12 +60,14 @@ namespace XCAnalyze.Hytek
                 }
                 values.Add (valueRow);
                 valueRow = new object[Header.Count];
-                valueRow[1] = "  Top 5 Avg: " + scores[i].TopFiveAverage ().Time;
+                valueRow[1] = "  Top 5 Avg: ";
+                valueRow[1] += FormatTime (scores[i].TopFiveAverage ().Time);
                 values.Add (valueRow);
                 if (scores[i].Runners.Count > 5)
                 {
                     valueRow = new object[Header.Count];
-                    valueRow[1] = "  Top 7 Avg: " + scores[i].TopSevenAverage ().Time;
+                    valueRow[1] = "  Top 7 Avg: ";
+                    valueRow[1] += FormatTime(scores[i].TopSevenAverage ().Time);
                     values.Add (valueRow);
                 }
             }

@@ -19,19 +19,20 @@ namespace XCAnalyze.Gui
         
         public MeetsList (IDataSelection<Meet> selection, ListStore model)
         {
+            WidthRequest = Screen.Width / 5;
             MeetSelection = selection;
-            AppendColumn("Name", new CellRendererText(), "text", 1);
-            AppendColumn("Date", new CellRendererText(), "text", 2);
+            AppendColumn ("Name", new CellRendererText (), "text", 1);
+            AppendColumn ("Date", new CellRendererText (), "text", 2);
             RowActivated += OnRowActivated;
             Model = model;
         }
         
-        public void OnRowActivated (object sender, RowActivatedArgs arguments)
+        protected void OnRowActivated (object sender, RowActivatedArgs arguments)
         {
             TreeIter iter = new TreeIter ();
             if (Model.GetIter (out iter, arguments.Path))
             {
-                MeetSelection.Select ((Meet)Model.GetValue(iter, 0));
+                MeetSelection.Select ((Meet)Model.GetValue (iter, 0));
             }
         }
     }

@@ -19,13 +19,15 @@ namespace XCAnalyze.Gui
         {
             Title = "XCAnalyze";
             SetPosition (WindowPosition.Center);
+            SetSizeRequest(Screen.Width / 2, (Screen.Height * 3) / 4);
+            AllowShrink = true;
             Model = new GlobalData ();
             //Create the content container
             Content = new VBox ();
             Add (Content);
             //Create the main menu
             MainMenu = new MenuBar ();
-            Content.Add (MainMenu);
+            Content.PackStart (MainMenu, false, false, 0);
             MenuItem fileItem = new MenuItem ("File");
             MainMenu.Append (fileItem);
             //Create file menu
@@ -50,7 +52,7 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The container wherein all the content resides.
         /// </summary>
-        protected Container Content { get; set; }
+        protected Box Content { get; set; }
 
         /// <summary>
         /// The applications main menu.

@@ -30,21 +30,6 @@ namespace XCAnalyze.Hytek
     public class HytekFormatter
     {
         /// <summary>
-        /// The Header of the hytek table.
-        /// </summary>
-        protected internal IList<string> Header { get; set; }
-
-        /// <summary>
-        /// The title of the table.
-        /// </summary>
-        protected internal string Title { get; set; }
-
-        /// <summary>
-        /// The table formatter used internally.
-        /// </summary>
-        protected internal LabeledTableFormatter TableFormatter { get; set; }
-        
-        /// <summary>
         /// Create a formatter that produces tables without titles.
         /// </summary>
         /// <param name="header">
@@ -65,8 +50,28 @@ namespace XCAnalyze.Hytek
         {
             Title = title;
             Header = header;
-            TableFormatter = new LabeledTableFormatter ('\0', ' ', '\0', '=',
-                '\0', '=', '\0', '=');
+            TableFormatter = new LabeledTableFormatter ('\0', ' ', '\0', '=', '\0', '=', '\0', '=');
+        }
+        
+        /// <summary>
+        /// The Header of the hytek table.
+        /// </summary>
+        protected internal IList<string> Header { get; set; }
+
+        /// <summary>
+        /// The title of the table.
+        /// </summary>
+        protected internal string Title { get; set; }
+
+        /// <summary>
+        /// The table formatter used internally.
+        /// </summary>
+        protected internal LabeledTableFormatter TableFormatter { get; set; }
+        
+        public static string FormatTime(double time)
+        {
+            int minutes = (int)(time / 60);
+            return string.Format("{0}:{1:00.00}", minutes, time - minutes*60);
         }
         
         /// <summary>

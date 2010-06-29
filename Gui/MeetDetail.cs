@@ -21,7 +21,7 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The container that holds the two races.
         /// </summary>
-        protected Container RaceContainer { get; set; }
+        protected Box RaceContainer { get; set; }
         
         /// <summary>
         /// The widget used to display the womens race.
@@ -30,14 +30,14 @@ namespace XCAnalyze.Gui
         
         protected MeetDetail ()
         {
-            Spacing = 20;
             //Create the heading label
             Info = new Label ();
-            Add (Info);
+            PackStart (Info, false, false, 10);
             Info.Justify = Justification.Center;
             //Create container for races
-            RaceContainer = new VPaned ();
+            RaceContainer = new VBox ();
             Add (RaceContainer);
+            RaceContainer.Spacing = 20;
             //Create mens race container
             MensRace = new ScrolledWindow ();
             RaceContainer.Add (MensRace);
@@ -69,7 +69,8 @@ namespace XCAnalyze.Gui
         public void OnSelectionChanged (object sender, EventArgs arguments)
         {
             Meet meet = ((SelectionChangedArgs<Meet>)arguments).Selected;
-            Info.Text = meet.Name + "\n" + meet.Date + "\n" + meet.Location;
+            Info.Text = string.Format("{0}\n{1:yyyy/MM/dd}\n{2}", meet.Name,
+                meet.Date, meet.Location);
         }
     }
 }
