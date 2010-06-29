@@ -15,8 +15,10 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// Create a new main window for the application.
         /// </summary>
-        public MainWindow () : base("XCAnalyze")
+        public MainWindow () : base(WindowType.Toplevel)
         {
+            Title = "XCAnalyze";
+            SetPosition (WindowPosition.Center);
             Model = new GlobalData ();
             //Create the content container
             Content = new VBox ();
