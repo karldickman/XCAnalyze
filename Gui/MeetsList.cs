@@ -19,7 +19,6 @@ namespace XCAnalyze.Gui
         
         public MeetsList (IDataSelection<Meet> selection, ListStore model)
         {
-            WidthRequest = Screen.Width / 5;
             MeetSelection = selection;
             AppendColumn ("Name", new CellRendererText (), "text", 1);
             AppendColumn ("Date", new CellRendererText (), "text", 2);

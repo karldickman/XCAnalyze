@@ -12,7 +12,7 @@ namespace XCAnalyze.Gui
     /// The main window of the application.
     /// </summary>
     public class MainWindow : Window
-    {       
+    {
         /// <summary>
         /// Create a new main window for the application.
         /// </summary>
@@ -20,7 +20,7 @@ namespace XCAnalyze.Gui
         {
             Title = "XCAnalyze";
             SetPosition (WindowPosition.Center);
-            SetSizeRequest(Screen.Width / 2, (Screen.Height * 3) / 4);
+            SetSizeRequest(-1, (Screen.Height * 3) / 4);
             AllowShrink = true;
             Model = new GlobalData ();
             //Create the content container

@@ -15,18 +15,18 @@ namespace XCAnalyze.Gui
         /// The pane where the list of meets is shown.
         /// </summary>
         protected Widget Browser { get; set; }
-        
+
         /// <summary>
         /// The browser pane should be scrollable.
         /// </summary>
         protected Container BrowserWindow { get; set; }
-        
+
         /// <summary>
         /// The pane where detailed information about the selected meet is
         /// shown.
         /// </summary>
         protected Widget Detail { get; set; }
-
+ 
         public MeetBrowser (IDataSelection<Meet> meetSelection)
         {
             BrowserWindow = new ScrolledWindow ();
@@ -34,8 +34,19 @@ namespace XCAnalyze.Gui
             MeetsListStore listStore = new MeetsListStore (meetSelection);
             Browser = new MeetsList (meetSelection, listStore);
             BrowserWindow.Add (Browser);
+            Browser.SizeRequested += OnBrowserSizeRequested;
             Detail = new MeetDetail (meetSelection);
             Add (Detail);
+        }
+        
+        protected void OnBrowserSizeRequested (object sender,
+            SizeRequestedArgs arguments)
+        {
+            int width = arguments.Requisition.Width + 15;
+            if (width < Screen.Width / 2)
+            {
+                BrowserWindow.SetSizeRequest(width, BrowserWindow.HeightRequest);
+            }
         }
     }
 }
