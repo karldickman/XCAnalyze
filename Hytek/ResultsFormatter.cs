@@ -85,9 +85,11 @@ namespace XCAnalyze.Hytek
         /// <returns>
         /// A <see cref="IList<System.String>"/> of lines in the table.
         /// </returns>
-        public IList<string> Format (int distance, IList<Performance> results)
+        public IList<string> Format (Gender gender, int distance,
+            IList<Performance> results)
         {
-            Title = distance + " m run CC";
+            Title = gender.IsMale ? "Men's " : "Women's ";
+            Title += distance + " m run CC";
             return Format (results);
         }
     }

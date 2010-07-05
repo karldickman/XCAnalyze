@@ -58,8 +58,8 @@ namespace XCAnalyze.Hytek
         /// </returns>
         public IList<string> Format (Race race, bool showHeader)
         {
-            IList<string> resultsLines = ResultsFormatter.Format (race.Distance,
-                race.Results);
+            IList<string> resultsLines = ResultsFormatter.Format (race.Gender,
+                race.Distance,race.Results);
             List<string> lines = new List<string> ();
             int width = resultsLines[0].Length;
             if (showHeader)
