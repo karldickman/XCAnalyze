@@ -24,6 +24,16 @@ CREATE TABLE runners
     `year` YEAR
 );
 
+DROP TABLE IF EXISTS runner_nicknames;
+CREATE TABLE runner_nicknames
+(
+    id INTEGER PRIMARY KEY,
+    nickname VARCHAR(100) NOT NULL,
+    runner_id INT UNSIGNED NOT NULL,
+    FOREIGN KEY (runner_id) REFERENCES runners (id)
+);
+
+
 DROP TABLE IF EXISTS schools;
 CREATE TABLE schools
 (
@@ -34,6 +44,15 @@ CREATE TABLE schools
     nicknames VARCHAR(100),
     conference_id INT UNSIGNED,
     FOREIGN KEY (conference_id) REFERENCES conferences (id)
+);
+
+DROP TABLE IF EXISTS school_nicknames;
+CREATE TABLE school_nicknames
+(
+    id INTEGER PRIMARY KEY,
+    nickname VARCHAR(100) NOT NULL,
+    school_id INT UNSIGNED NOT NULL,
+    FOREIGN KEY (school_id) REFERENCES schools (id)
 );
 
 DROP TABLE IF EXISTS affiliations;

@@ -196,7 +196,6 @@ namespace XCAnalyze.IO.Sql
             Gender gender;
             int id;
             int? year;
-            IXList<string> nicknames;
             string givenName, surname;
             Command.CommandText = "SELECT * FROM runners";
             Reader = Command.ExecuteReader ();
@@ -205,16 +204,6 @@ namespace XCAnalyze.IO.Sql
                 gender = Gender.FromString(Reader["gender"].ToString());
                 givenName = (string)Reader["given_name"];
                 surname = (string)Reader["surname"];
-                nicknames = new XList<string>();
-                if (!(Reader["nicknames"] is DBNull))
-                {
-                    foreach(string nickname
-                        in ((string)Reader["nicknames"]).Split(','))
-                    {
-                        nickname.Trim();
-                        nicknames.Add(nickname);
-                    }
-                }
                 if (Reader["year"] is DBNull)
                 {
                     year = null;
@@ -224,7 +213,7 @@ namespace XCAnalyze.IO.Sql
                     year = new Nullable<int>(int.Parse(Reader["year"].ToString()));
                 }
                 runners.Add(id,
-                    new Runner(surname, givenName, nicknames, gender, year));
+                    new Runner(surname, givenName, gender, year));
             }
             Reader.Close ();
             return runners;
@@ -236,7 +225,6 @@ namespace XCAnalyze.IO.Sql
             IDictionary<int, School> schools = new Dictionary<int, School>();
             int id;
             bool nameFirst;
-            IXList<string> nicknames;
             string conference, name, type;
             Command.CommandText = "SELECT * FROM schools";
             Reader = Command.ExecuteReader ();
@@ -245,15 +233,6 @@ namespace XCAnalyze.IO.Sql
                 id = int.Parse (Reader["id"].ToString ());
                 name = (string)Reader["name"];
                 nameFirst = (bool)Reader["name_first"];
-                nicknames = new XList<string>();
-                if (!(Reader["nicknames"] is DBNull))
-                {
-                    foreach(string nickname
-                        in ((string)Reader["nicknames"]).Split(','))
-                    {
-                        nicknames.Add(nickname.Trim());
-                    }
-                }
                 if (Reader["type"] is DBNull)
                 {
                     type = null;
@@ -271,8 +250,7 @@ namespace XCAnalyze.IO.Sql
                     conference = conferences[int.Parse (
                         Reader["conference_id"].ToString ())];
                 }
-                schools.Add(id, new School(name, type, nameFirst, nicknames,
-                        conference));
+                schools.Add(id, new School(name, type, nameFirst, conference));
             }
             Reader.Close ();
             return schools;

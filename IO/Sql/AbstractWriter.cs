@@ -16,9 +16,9 @@ namespace XCAnalyze.IO.Sql
         /// order: tables later in the list have foreign keys referencing tables
         /// earlier in the list.
         /// </summary>
-        public static readonly string[] TABLES = {"runners", "conferences",
-            "schools", "affiliations", "meet_names", "races", "venues", "meets",
-            "results"};      
+        public static readonly string[] TABLES = {"runners", "runner_nicknames",
+            "conferences", "schools", "school_nicknames", "affiliations",
+            "meet_names", "races", "venues", "meets", "results"};      
         
         /// <summary>
         /// The views that should be in the database.

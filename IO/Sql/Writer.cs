@@ -39,7 +39,7 @@ namespace XCAnalyze.IO.Sql
         abstract public string GET_TABLES_COMMAND { get; }
         
         public Writer(IDbConnection connection, string database)
-            : base(connection, database) {}
+        : base(connection, database) {}
         
         public Writer(IDbConnection connection, string database,
             IDbCommand command) : base(connection, database, command) {}

@@ -21,10 +21,19 @@ CREATE TABLE runners
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     surname VARCHAR(100) NOT NULL,
     given_name VARCHAR(100) NOT NULL,
-    nicknames VARCHAR(200),
     gender ENUM('M', 'F') NOT NULL,
     `year` YEAR,
     PRIMARY KEY (id)
+) TYPE = INNODB;
+
+DROP TABLE IF EXISTS runner_nicknames;
+CREATE TABLE runner_nicknames
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    nickname VARCHAR(100) NOT NULL,
+    runner_id INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (runner_id) REFERENCES runners (id)
 ) TYPE = INNODB;
 
 DROP TABLE IF EXISTS schools;
@@ -34,10 +43,19 @@ CREATE TABLE schools
     name VARCHAR(150) NOT NULL,
     `type` VARCHAR(100),
     name_first BOOLEAN NOT NULL,
-    nicknames VARCHAR(100),
     conference_id INT UNSIGNED,
     PRIMARY KEY (id),
     FOREIGN KEY (conference_id) REFERENCES conferences (id)
+) TYPE = INNODB;
+
+DROP TABLE IF EXISTS school_nicknames;
+CREATE TABLE school_nicknames
+(
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    nickname VARCHAR(100) NOT NULL,
+    school_id INT UNSIGNED NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (school_id) REFERENCES schools (id)
 ) TYPE = INNODB;
 
 DROP TABLE IF EXISTS affiliations;
