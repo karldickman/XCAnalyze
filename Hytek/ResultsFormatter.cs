@@ -57,7 +57,7 @@ namespace XCAnalyze.Hytek
                 int n = 0;
                 valueRow[n++] = (i + 1).ToString ();
                 valueRow[n++] = results[i].Runner.Name;
-                valueRow[n++] = results[i].Runner.Year.ToString ();
+                valueRow[n++] = results[i].Runner.EnrollmentYear.ToString ();
                 if (results[i].School == null)
                 {
                     valueRow[n++] = "";
@@ -66,8 +66,16 @@ namespace XCAnalyze.Hytek
                 {
                     valueRow[n++] = results[i].School.Name;
                 }
-                valueRow[n++] = FormatTime(results[i].Time);
-                valueRow[n++] = results[i].Points.ToString ();
+                if (results[i].Time != null)
+                {
+                    valueRow[n++] = FormatTime (results[i].Time.Value);
+                    valueRow[n++] = results[i].Points.ToString ();
+                }
+                else
+                {
+                    valueRow[n++] = "DNF";
+                    valueRow[n++] = "";
+                }
                 values.Add (valueRow);
             }
             return base.Format (values, alignments);

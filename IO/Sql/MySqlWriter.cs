@@ -10,34 +10,37 @@ namespace XCAnalyze.IO.Sql
     /// <summary>
     /// A <see cref="IWriter"/> to write the model to a MySQL database.
     /// </summary>
-    public class MySqlWriter : Writer
+    public partial class MySqlWriter : Writer
     {
-        override public string CREATION_SCRIPT_EXTENSION
-        {
-            get { return "mysql"; }
-        }
-        
-        override public string GET_TABLES_COLUMN
-        {
-            get { return "Tables_in_" + Database; }
-        }
-        
-        override public string GET_TABLES_COMMAND
-        {
-            get { return "SHOW TABLES"; }
-        }
-        
+        #region Constructors
+
         /// <summary>
-        /// Create a new database writer.
+        /// Create an open <see cref="MySqlConnection" /> with the specified parameters.
         /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to use.
+        /// <param name="host">
+        /// The name of the server where the database is hosted.
         /// </param>
-        /// <param name="command">
-        /// The <see cref="IDbCommand"/> to use.
+        /// <param name="user">
+        /// The user account to be used.
         /// </param>
-        public MySqlWriter(IDbConnection connection, string database,
-            IDbCommand command) : base(connection, database, command) {}
+        /// <param name="database">
+        /// The name of the database on the server.
+        /// </param>
+        /// <param name="password">
+        /// The user's password.
+        /// </param>
+        /// <param name="pooling">
+        /// Should connection pooling be used?
+        /// </param>
+        /// <param name="port">
+        /// The TCP port to use when communicating with the database.
+        /// </param>
+        protected static IDbConnection CreateConnection(string host, string user, string database, string password, int port, bool pooling)
+        {
+            IDbConnection connection = new MySqlConnection(String.Format("Server={0}; User ID={1}; Database={2}; Password={3}; Pooling={4}; Port={5}", host, user, database, password, pooling, port));
+            connection.Open();
+            return connection;
+        }
         
         /// <summary>
         /// Create a new database writer.
@@ -48,9 +51,10 @@ namespace XCAnalyze.IO.Sql
         /// <param name="database">
         /// The name of the database.
         /// </param>
-        public MySqlWriter(IDbConnection connection, string database)
-        : base(connection, database) {}
-                
+        public MySqlWriter(IDbConnection connection, string database) : base(connection, database)
+        {
+        }
+
         /// <summary>
         /// Create a new writer connected to a local database.
         /// </summary>
@@ -60,24 +64,13 @@ namespace XCAnalyze.IO.Sql
         /// <param name="user">
         /// The name of the user.
         /// </param>
-        public MySqlWriter (string database, string user)
-        : this ("localhost", database, user) {}
-           
-        /// <summary>
-        /// Create a new writer.
-        /// </summary>
-        /// <param name="host">
-        /// The host of the database.
+        /// <param name="pasword">
+        /// The user's password.
         /// </param>
-        /// <param name="database">
-        /// The name of the database to connect to.
-        /// </param>
-        /// <param name="user">
-        /// The name of the user.
-        /// </param>
-        public MySqlWriter (string host, string database, string user)
-        : this (host, database, user, user) {}
-               
+        public MySqlWriter(string database, string user, string password) : this("localhost", database, user, password)
+        {
+        }
+
         /// <summary>
         /// Create a new writer connected to a password-protected database.
         /// </summary>
@@ -93,9 +86,10 @@ namespace XCAnalyze.IO.Sql
         /// <param name="password">
         /// The user's password.
         /// </param>
-        public MySqlWriter (string host, string database, string user,
-            string password) : this (host, database, user, password, 3306) {}  
-                
+        public MySqlWriter(string host, string database, string user, string password) : this(host, database, user, password, 3306)
+        {
+        }
+
         /// <summary>
         /// Create a new writer connected to a password-protected database on a
         /// server listening at a particular port.
@@ -115,10 +109,10 @@ namespace XCAnalyze.IO.Sql
         /// <param name="port">
         /// The port number on which the server is listening.
         /// </param>
-        public MySqlWriter (string host, string database, string user,
-            string password, int port)
-            : this(host, database, user, password, port, false) {}
-        
+        public MySqlWriter(string host, string database, string user, string password, int port) : this(host, database, user, password, port, false)
+        {
+        }
+
         /// <summary>
         /// Create a new writer connected to a password-protected database on a
         /// server listening at a particular port.
@@ -141,33 +135,26 @@ namespace XCAnalyze.IO.Sql
         /// <param name="pooling">
         /// Should pooling be turned on or off.
         /// </param>
-        public MySqlWriter (string host, string database, string user,
-            string password, int port, bool pooling)
-            : this(new MySqlConnection (
-                    "Server=" + host + "; User ID=" + user +
-                    "; Database=" + database + "; Password=" + password +
-                    "; Pooling=" + pooling + ";"), database) {}
-        
-        override protected internal AbstractReader CreateReader()
+        public MySqlWriter(string host, string database, string user, string password, int port, bool pooling) : this(CreateConnection(host, user, database, password, port, pooling), database)
         {
-            return new MySqlReader(Connection, Command, Database);
+        }
+
+        #endregion
+
+        #region Writer implementation
+
+        protected override string CreationScriptExtension {
+            get { return "mysql"; }
+        }
+
+        protected override string GetTablesColumn {
+            get { return "Tables_in_" + Database; }
+        }
+
+        protected override string GetTablesCommand {
+            get { return "SHOW TABLES"; }
         }
         
-        override protected internal void Open ()
-        {
-            Connection.Open();
-            Command = Connection.CreateCommand();
-            Command.CommandText = "DROP DATABASE " + Database;
-            try
-            {
-                Command.ExecuteNonQuery();
-            }
-            catch(MySqlException) {}
-            Command.CommandText = "CREATE DATABASE " + Database;
-            Command.ExecuteNonQuery();
-            Command.CommandText = "USE " + Database;
-            Command.ExecuteNonQuery();
-            InitializeDatabase();
-        }
+        #endregion
     }
 }

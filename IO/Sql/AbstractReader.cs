@@ -6,37 +6,34 @@ namespace XCAnalyze.IO.Sql
     /// <summary>
     /// The interface which all database readers must implement.
     /// </summary>
-    abstract public class AbstractReader : AbstractXcDataReader
+    abstract public partial class AbstractReader
+    : AbstractXcDataReader, IDisposable
     {
-        /// <summary>
-        /// Has this instance been disposed of yet?
-        /// </summary>
-        private bool disposed;
+        #region Properties
         
         /// <summary>
         /// The command used to query the database.
         /// </summary>
-        protected internal IDbCommand Command { get; set; }
+        protected IDbCommand Command { get; set; }
         
         /// <summary>
         /// The connection to the database.
         /// </summary>
-        protected internal IDbConnection Connection { get; set; }
+        protected IDbConnection Connection { get; set; }
 
         /// <summary>
         /// The name of the database from which this reader reads.
         /// </summary>
-        protected internal string Database { get; set; }
+        protected string Database { get; set; }
         
         /// <summary>
         /// The reader for the resultset.
         /// </summary>
-        protected internal IDataReader Reader { get; set; }
+        protected IDataReader Reader { get; set; }
         
-        protected internal AbstractReader()
-        {
-            disposed = false;
-        }
+        #endregion
+        
+        #region Constructors
         
         /// <summary>
         /// Create a new reader.
@@ -47,52 +44,70 @@ namespace XCAnalyze.IO.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the connection is not open.
+        /// </exception>
         public AbstractReader (IDbConnection connection, string database)
-        : this()
         {
+            if (connection.State != ConnectionState.Open)
+            {
+                throw new ArgumentException ("Argument connection must be open.");
+            }
             Connection = connection;
-            Connection.Open ();
             Command = Connection.CreateCommand ();
             Database = database;
         }
         
+        #endregion
+        
+        #region IDisposable implementation
+        
         /// <summary>
-        /// Create a new reader.
+        /// Dispose of this instance.
         /// </summary>
-        /// <param name="connection">
-        /// The <see cref="IDbConnection"/> to connect to.
-        /// </param>
-        /// <param name="command">
-        /// The <see cref="IDbCommand"/> to use.
-        /// </param>
-        /// <param name="database">
-        /// The name of the database from which this reader should read.
-        /// </param>
-        public AbstractReader (IDbConnection connection, IDbCommand command,
-            string database)
-        : this()
+        void IDisposable.Dispose ()
         {
-            Connection = connection;
-            Command = command;
-            Database = database;
+            Dispose (true);
         }
         
         /// <summary>
         /// Dispose of this instance.
         /// </summary>
-        override public void Dispose ()
+        /// <param name="disposing">
+        /// True if called from the Dispose() method, false if called from the
+        /// deconstructor.
+        /// </param>
+        protected void Dispose (bool disposing)
         {
-            if (!disposed)
+            if (disposing)
             {
-                if (Reader != null)
-                {
-                    Reader.Dispose ();
-                }
-                Command.Dispose ();
-                Connection.Dispose ();
                 GC.SuppressFinalize (this);
-                disposed = true;
             }
+            if (Reader != null)
+            {
+                Reader.Dispose ();
+            }
+            Command.Dispose ();
+            Connection.Dispose ();
         }
+        
+        ~AbstractReader ()
+        {
+            Dispose (false);
+        }
+        
+        #endregion
+        
+        #region Methods
+        
+        /// <summary>
+        /// Close the connection to the database.
+        /// </summary>
+        public void Close ()
+        {
+            ((IDisposable)this).Dispose ();
+        }
+        
+        #endregion
     }
 }

@@ -8,41 +8,43 @@ using NUnit.Framework;
 using XCAnalyze.Model;
 
 namespace XCAnalyze.IO.Sql
-{    
-    [TestFixture]
-    public class TestMySqlReader
+{
+    public partial class MySqlReader
     {
-        public const string EXAMPLE_DATABASE = "xca_example";
-        
-        protected internal IDbConnection Connection { get; set; }
-        protected internal Reader Reader { get; set; }
+        #if DEBUG
+        [TestFixture]
+        public class Test
+        {
+            public const string ExampleDatabase = "xca_example";
 
-        [SetUp]
-        public void SetUp ()
-        {
-            string connectionString = "Server=localhost; Database=" + EXAMPLE_DATABASE + "; User ID=xcanalyze; Password=xcanalyze; Pooling=false;";
-            Connection = new MySqlConnection (connectionString);
-            Reader = new Reader (Connection, EXAMPLE_DATABASE);
-        }
-        
-        [TearDown]
-        public void TearDown ()
-        {
-            Reader.Dispose ();
-        }
+            Reader Reader { get; set; }
 
-        [Test]
-        public void TestRead ()
-        {
-            XcData data = Reader.Read ();
-            Assert.IsNotEmpty ((ICollection)data.Affiliations);
-            Assert.IsNotEmpty ((ICollection)data.Conferences);
-            Assert.IsNotEmpty ((ICollection)data.Meets);
-            Assert.IsNotEmpty ((ICollection)data.Performances);
-            Assert.IsNotEmpty ((ICollection)data.Races);
-            Assert.IsNotEmpty ((ICollection)data.Runners);
-            Assert.IsNotEmpty ((ICollection)data.Schools);
-            Assert.IsNotEmpty ((ICollection)data.Venues);
+            [SetUp]
+            public void SetUp()
+            {
+                Reader = new MySqlReader(ExampleDatabase, "xcanalyze", "xcanalyze");
+            }
+
+            [TearDown]
+            public void TearDown()
+            {
+                Reader.Close();
+            }
+
+            [Test]
+            public void TestRead()
+            {
+                DataContext data = Reader.Read();
+                Assert.IsNotEmpty((ICollection)data.Affiliations);
+                Assert.IsNotEmpty((ICollection)data.Conferences);
+                Assert.IsNotEmpty((ICollection)data.MeetInstances);
+                Assert.IsNotEmpty((ICollection)data.Performances);
+                Assert.IsNotEmpty((ICollection)data.Races);
+                Assert.IsNotEmpty((ICollection)data.Runners);
+                Assert.IsNotEmpty((ICollection)data.Teams);
+                Assert.IsNotEmpty((ICollection)data.Venues);
+            }
         }
+        #endif
     }
 }

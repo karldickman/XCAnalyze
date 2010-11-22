@@ -8,58 +8,70 @@ namespace XCAnalyze.Model
     /// (http://thedailywtf.com/articles/the-doubleton-patten.aspx)
 	/// </summary>
 	sealed public class Gender
-	{   
+	{
+        #region Constants
+                
         /// <summary>
-        /// Get a gender instance from a string.  "M" returns the male instance, "F" the female instance.
+        /// The male instance
+        /// </summary>
+        public static readonly Gender Male = new Gender ();
+        
+        /// <summary>
+        /// The female instance.
+        /// </summary>
+        public static readonly Gender Female = new Gender ();
+        
+        #endregion
+        
+        #region Fields
+                  
+        /// <summary>
+        /// Is this the male instance?
+        /// </summary>>
+        public bool IsMale { get { return this == Male; } }
+
+        /// <summary>
+        /// Is this the female instance.
+        /// </summary>
+        public bool IsFemale { get { return this == Female; } }
+
+        #endregion
+        
+        #region Inherited methods
+                
+        /// <summary>
+        /// "M" if male, "F" if female.
+        /// </summary>
+        override public String ToString ()
+        {
+            if (IsMale)
+            {
+                return "M";
+            }
+            return "F";
+        }
+        
+        #endregion
+        
+        #region Methods
+        
+        /// <summary>
+        /// Get a gender instance from a string.  "M" returns the male instance,
+        /// "F" the female instance.
         /// </summary>
         public static Gender FromString (string genderString)
         {
             if (genderString == "M")
             {
-                return MALE;
+                return Male;
             }
             if (genderString == "F")
             {
-                return FEMALE;
+                return Female;
             }
-            return null;
+            throw new ArgumentException(genderString + " is not a valid gender string.");
         }
         
-        /// <summary>
-        /// The male instance
-        /// </summary>
-		public static readonly Gender MALE = new Gender ();
-        
-        /// <summary>
-        /// The female instance.
-        /// </summary>
-		public static readonly Gender FEMALE = new Gender ();
-          
-        /// <summary>
-        /// Is this the male instance?
-        /// </summary>>
-        public bool IsMale { get { return this == MALE; } }
-
-        /// <summary>
-        /// Is this the female instance.
-        /// </summary>
-        public bool IsFemale { get { return this == FEMALE; } }
-
-        public static implicit operator string (Gender gender)
-        {
-            return gender.ToString ();
-        }
-        
-		/// <summary>
-		/// "M" if male, "F" if female.
-		/// </summary>
-		override public String ToString ()
-		{
-			if (IsMale)
-			{
-				return "M";
-			}
-			return "F";
-		}
+        #endregion
 	}
 }

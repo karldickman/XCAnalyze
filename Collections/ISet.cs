@@ -8,6 +8,14 @@ namespace XCAnalyze.Collections
     public interface ISet<T> : ICollection<T>, IEnumerable<T>, IEnumerable
     {
         /// <summary>
+        /// Add several values to the set.
+        /// </summary>
+        /// <param name="range">
+        /// The <see cref="IEnumerable<T>"/> of values to add.
+        /// </param>
+        void AddRange(IEnumerable<T> range);
+        
+        /// <summary>
         /// A read only wrapper around this collection.
         /// </summary>
         ReadOnlyCollection<T> AsReadOnly();

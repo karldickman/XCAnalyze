@@ -15,9 +15,9 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The meet that is currently selected.
         /// </summary>
-        protected IDataSelection<Meet> MeetSelection { get; set; }
+        protected IDataSelection<MeetInstance> MeetSelection { get; set; }
         
-        public MeetsList (IDataSelection<Meet> selection, ListStore model)
+        public MeetsList (IDataSelection<MeetInstance> selection, ListStore model)
         {
             MeetSelection = selection;
             AppendColumn ("Name", new CellRendererText (), "text", 1);
@@ -31,7 +31,7 @@ namespace XCAnalyze.Gui
             TreeIter iter = new TreeIter ();
             if (Model.GetIter (out iter, arguments.Path))
             {
-                MeetSelection.Select ((Meet)Model.GetValue (iter, 0));
+                MeetSelection.Select ((MeetInstance)Model.GetValue (iter, 0));
             }
         }
     }

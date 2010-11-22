@@ -5,15 +5,7 @@ using System.Collections.ObjectModel;
 namespace XCAnalyze.Collections
 {
     public interface IXList<T> : IList<T>
-    {
-        /// <summary>
-        /// Adds the elements of the specified collection to the end of the list.
-        /// </summary>
-        /// <param name="items">
-        /// The items to remove.
-        /// </param>
-        void AddRange(IEnumerable<T> items);
-        
+    {      
         /// <summary>
         /// Returns a read-only wrapper to the current List.
         /// </summary>

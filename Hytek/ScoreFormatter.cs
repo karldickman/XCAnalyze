@@ -45,7 +45,7 @@ namespace XCAnalyze.Hytek
                 {
                     valueRow.Add (null);
                 }
-                valueRow.Add (scores[i].School.Name);
+                valueRow.Add (scores[i].Team.Name);
                 valueRow.Add (scores[i].Score ());
                 for (int j = 0; j < 7; j++) {
                     if (j < scores[i].Runners.Count)
@@ -61,13 +61,13 @@ namespace XCAnalyze.Hytek
                 values.Add (valueRow);
                 valueRow = new object[Header.Count];
                 valueRow[1] = "  Top 5 Avg: ";
-                valueRow[1] += FormatTime (scores[i].TopFiveAverage ().Time);
+                valueRow[1] += FormatTime (scores[i].TopFiveAverage ().Time.Value);
                 values.Add (valueRow);
                 if (scores[i].Runners.Count > 5)
                 {
                     valueRow = new object[Header.Count];
                     valueRow[1] = "  Top 7 Avg: ";
-                    valueRow[1] += FormatTime(scores[i].TopSevenAverage ().Time);
+                    valueRow[1] += FormatTime(scores[i].TopSevenAverage ().Time.Value);
                     values.Add (valueRow);
                 }
             }

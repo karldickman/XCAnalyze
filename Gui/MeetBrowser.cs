@@ -27,7 +27,7 @@ namespace XCAnalyze.Gui
         /// </summary>
         protected Widget Detail { get; set; }
  
-        public MeetBrowser (IDataSelection<Meet> meetSelection)
+        public MeetBrowser (IDataSelection<MeetInstance> meetSelection)
         {
             BrowserWindow = new ScrolledWindow ();
             Add (BrowserWindow);

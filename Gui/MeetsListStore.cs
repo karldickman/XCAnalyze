@@ -16,10 +16,10 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// The list of meets contained in this store.
         /// </summary>
-        protected IXList<Meet> Meets { get; set; }
+        protected IXList<MeetInstance> Meets { get; set; }
         
-        public MeetsListStore (IDataSelection<Meet> meetSelection)
-        : base(typeof(Meet),//The meet itself
+        public MeetsListStore (IDataSelection<MeetInstance> meetSelection)
+        : base(typeof(MeetInstance),//The meet itself
                 typeof(string),//Name of meet
                 typeof(string),//Date of meet
                 typeof(Venue),//Venue where held
@@ -34,14 +34,14 @@ namespace XCAnalyze.Gui
         /// <summary>
         /// A comparer used to sort meets in this list store.
         /// </summary>
-        public class MeetComparer : IComparer<Meet>
+        public class MeetComparer : IComparer<MeetInstance>
         {
             #region IComparer[Meet] implementation
             /// <summary>
             /// Meets are compared first by date, then by name.  If both are
             /// identical, then it is the same meet.
             /// </summary>
-            public int Compare (Meet first, Meet second)
+            public int Compare (MeetInstance first, MeetInstance second)
             {
                 int comparison;
                 if (first == second)
@@ -76,11 +76,11 @@ namespace XCAnalyze.Gui
         /// <param name="meet">
         /// The <see cref="Meet"/> to append.
         /// </param>
-        protected void Append (Meet meet)
+        protected void Append (MeetInstance meet)
         {
-            AppendValues (meet, meet.Name,
+            /*AppendValues (meet, meet.Name,
                 string.Format("{0:yyyy/MM/dd}", meet.Date),
-                meet.Location, meet.MensDistance, meet.WomensDistance);
+                meet.Venue, meet.MensDistance, meet.WomensDistance);*/
         }
         
         /// <summary>
@@ -89,9 +89,9 @@ namespace XCAnalyze.Gui
         /// <param name="meets">
         /// The <see cref="IEnumerable<Meet>"/> to add.
         /// </param>
-        protected void Append(IEnumerable<Meet> meets)
+        protected void Append(IEnumerable<MeetInstance> meets)
         {
-            foreach (Meet meet in meets) 
+            foreach (MeetInstance meet in meets) 
             {
                 Append (meet);
             }
@@ -101,10 +101,10 @@ namespace XCAnalyze.Gui
         /// Handler for when the list of meets is changed.
         /// </summary>
         protected void OnContentReplaced (object sender,
-            ContentModifiedArgs<Meet> arguments)
+            ContentModifiedArgs<MeetInstance> arguments)
         {
             Clear ();
-            Meets = new XList<Meet> (arguments.Items);
+            Meets = new XList<MeetInstance> (arguments.Items);
             Meets.Sort (new MeetComparer ());
             Append (Meets);
         }
@@ -113,7 +113,7 @@ namespace XCAnalyze.Gui
         /// Handler for when items needs to be added to the store.
         /// </summary>
         protected void OnItemsAdded (object sender,
-            ContentModifiedArgs<Meet> arguments)
+            ContentModifiedArgs<MeetInstance> arguments)
         {
             Clear ();
             Meets.AddRange (arguments.Items);
@@ -122,10 +122,10 @@ namespace XCAnalyze.Gui
         }
         
         protected void OnItemsDeleted (object sender,
-            ContentModifiedArgs<Meet> arguments)
+            ContentModifiedArgs<MeetInstance> arguments)
         {
             Clear ();
-            IList<Meet> meets = new List<Meet> (arguments.Items);
+            IList<MeetInstance> meets = new List<MeetInstance> (arguments.Items);
             Meets.RemoveAll (meet => meets.Contains (meet));
             Append (meets);
         }

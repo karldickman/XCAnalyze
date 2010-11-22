@@ -4,13 +4,18 @@ using NUnit.Framework;
 
 namespace XCAnalyze.Hytek
 {
-    [TestFixture]
-    public class TestHytekFormatter
+    public partial class HytekFormatter
     {
-        [Test]
-        public void TestFormatTime ()
+#if DEBUG
+        [TestFixture]
+        public class Test
         {
-            Assert.AreEqual ("25:02.10", HytekFormatter.FormatTime (25 * 60 + 2.1));
+            [Test]
+            public void TestFormatTime ()
+            {
+                Assert.AreEqual ("25:02.10", HytekFormatter.FormatTime (25 * 60 + 2.1));
+            }
         }
+#endif
     }
 }

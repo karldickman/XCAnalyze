@@ -5,49 +5,51 @@ using XCAnalyze.Model;
 
 namespace XCAnalyze.IO
 {
-    abstract public class AbstractXcDataWriter : IWriter<XcData>
-    {
-        abstract public void Dispose();
-        
+    abstract public class AbstractXcDataWriter
+    {        
         /// <summary>
         /// Write data to the database.
         /// </summary>
         /// <param name="data">
         /// The <see cref="Data"/> to be written.
         /// </param>
-        public void Write (XcData data)
+        public void Write (DataContext data)
         {
             WriteConferences (data.Conferences);
             WriteRunners (data.Runners);
-            WriteSchools (data.Schools, data.Conferences);
-            WriteAffiliations (data.Affiliations, data.Runners, data.Schools);
-            WriteMeetNames (data.MeetNames);
-            WriteRaces (data.Races);
+            WriteTeams (data.Teams);
+            WriteAffiliations (data.Affiliations);
+            WriteStates (data.States);
+            WriteCities (data.Cities);
             WriteVenues (data.Venues);
-            WriteMeets (data.Meets, data.MeetNames, data.Races, data.Venues);
-            WritePerformances (data.Performances, data.Races, data.Runners);
+            WriteMeets (data.Meets);
+            WriteMeetInstances (data.MeetInstances);
+            WriteRaces (data.Races);
+            WritePerformances (data.Performances);
         }
 
-        abstract public void WriteAffiliations(IList<Affiliation> affiliations,
-            IList<Runner> runnerIds, IList<School> schoolIds);                 
+        abstract public void WriteAffiliations(IEnumerable<Affiliation> affiliations);                 
                 
-        abstract public void WriteConferences(IList<string> conferences);
+        abstract public void WriteCities(IEnumerable<City> cities);
+            
+        abstract public void WriteConferences(IEnumerable<Conference> conferences);
                 
-        abstract public void WriteMeetNames(IList<string> meetNames);
+        abstract public void WriteMeets(IEnumerable<Meet> meets);
         
-        abstract public void WriteMeets(IList<Meet> meets,
-            IList<string> meetNames, IList<Race> races, IList<Venue> venues);
+        abstract public void WriteMeetInstances(
+            IEnumerable<MeetInstance> meetInstances);
         
-        abstract public void WritePerformances(IList<Performance> performances,
-            IList<Race> races, IList<Runner> runners);
+        abstract public void WritePerformances(
+            IEnumerable<Performance> performances);
         
-        abstract public void WriteRaces(IList<Race> races);
+        abstract public void WriteRaces(IEnumerable<Race> races);
                 
-        abstract public void WriteRunners(IList<Runner> runners);
+        abstract public void WriteRunners(IEnumerable<Runner> runners);
+        
+        abstract public void WriteStates(IEnumerable<State> states);
+        
+        abstract public void WriteTeams(IEnumerable<Team> teams);
                 
-        abstract public void WriteSchools(IList<School> schoolIds,
-            IList<string> conferences);
-                
-        abstract public void WriteVenues(IList<Venue> venues);
+        abstract public void WriteVenues(IEnumerable<Venue> venues);
     }
 }

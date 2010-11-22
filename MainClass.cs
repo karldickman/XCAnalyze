@@ -1,5 +1,4 @@
 using System;
-
 using XCAnalyze.Gui;
 using XCAnalyze.IO;
 using XCAnalyze.Model;

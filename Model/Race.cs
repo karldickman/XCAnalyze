@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-
 using XCAnalyze.Collections;
 
 namespace XCAnalyze.Model
@@ -11,70 +9,28 @@ namespace XCAnalyze.Model
     /// </summary>
     public class Race
     {
+        #region Properties
+        
+        #region Fields
+        
+        private Cell<int> _distance;
+        
+        private Cell<Gender> _gender;
+        
+        private Cell<MeetInstance> _meetInstance;
+        
         private IXList<Performance> _results;
         
         private IXList<TeamScore> _scores;
         
-        /// <summary>
-        /// Create a new race.
-        /// </summary>
-        /// <param name="meet">
-        /// The meet which this race is part of.
-        /// </param>
-        /// <param name="distance">
-        /// The length of the race.
-        /// </param>
-        public Race (Meet meet, int distance)
-        : this(meet, distance, new XList<Performance> ()) { }
-
-        /// <summary>
-        /// Create a new race.
-        /// </summary>
-        /// <param name="meet">
-        /// The <see cref="Meet"/> which this race is a part of.
-        /// </param>
-        /// <param name="distance">
-        /// The length of the race.
-        /// </param>
-        /// <param name="results">
-        /// The <see cref="List<Performance>"/> of results.
-        /// </param>       
-        public Race (Meet meet, int distance, XList<Performance> results)
-        : this(meet, distance, results, false) { }
-
-        /// <summary>
-        /// Create a new race.
-        /// </summary>
-        /// <param name="meet">
-        /// The <see cref="Meet"/> which this race is a part of.
-        /// </param>
-        /// <param name="distance">
-        /// The length of the race.
-        /// </param>
-        /// <param name="results">
-        /// The <see cref="List<Performance>"/> of results.
-        /// </param>
-        /// <param name="scoreMeet">
-        /// Should this meet be scored right away or not?
-        /// </param>
-        public Race (Meet meet, int distance, XList<Performance> results,
-            bool scoreMeet)
-        {
-            Distance = distance;
-            Meet = meet;
-            _results = results;
-            _results.Sort ();
-            if (scoreMeet) {
-                Score ();
-            }
-        }
+        #endregion
         
         /// <summary>
         /// The date on which this race was held.
         /// </summary>
         public DateTime Date
         {
-            get { return Meet.Date; }
+            get { return MeetInstance.Date; }
         }
         
         /// <summary>
@@ -87,27 +43,76 @@ namespace XCAnalyze.Model
         /// </summary>
         public Gender Gender
         {
-            get
+            get { return _gender.Value; }
+            
+            protected set
             {
-                if(this == Meet.MensRace)
+                if (value == null) 
                 {
-                    return Gender.MALE;
+                    throw new ArgumentNullException (
+                        "Property Gender cannot be null.");
                 }
-                return Gender.FEMALE;
+                _gender.Value = value;
             }
         }
+        
+        /// <summary>
+        /// The number used to identify this race.
+        /// </summary>
+        public int ID { get; set; }
 
+        /// <summary>
+        /// True if the race has a corresponding entry in the database, 
+        /// false otherwise.
+        /// </summary>
+        public bool IsAttached { get; set; }
+        
+        /// <summary>
+        /// True if the race has been changed since it was loaded from the
+        /// database, false otherwise.
+        /// </summary>
+        public bool IsChanged
+        {
+            get
+            {
+                if (IsAttached) 
+                {
+                    return _distance.IsChanged || _gender.IsChanged ||
+                        _meetInstance.IsChanged;
+                }
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Has the race been scored?
+        /// </summary>
+        public bool IsScored { get; protected set; }
+        
+        /// <summary>
+        /// The number that identifies the meet at which this race was held.
+        /// </summary>
+        public int MeetID
+        {
+            get { return MeetInstance.MeetID; }
+        }
+        
         /// <summary>
         /// The meet of which this race is a part.
         /// </summary>
-        public Meet Meet { get; protected internal set; }
-        
-        /// <summary>
-        /// The name of the meet of which this race is a part.
-        /// </summary>
-        public string Name
+        public MeetInstance MeetInstance
         {
-            get { return Meet.Name; }
+            get { return _meetInstance.Value; }
+            
+            set
+            {
+                if (value == null) 
+                {
+                    throw new ArgumentNullException (
+                        "Property MeetInstance cannot be null.");
+                }
+                _meetInstance.Value = value;
+            }
         }
 
         /// <summary>
@@ -115,7 +120,16 @@ namespace XCAnalyze.Model
         /// </summary>
         public IList<Performance> Results
         {
-            get { return _results.AsReadOnly (); }
+            get { return _results.AsReadOnly(); }
+            
+            protected set
+            {
+                if (value == null) 
+                {
+                    value = new List<Performance> ();
+                }
+                _results = new XList<Performance>(value);
+            }
         }
 
         /// <summary>
@@ -126,34 +140,95 @@ namespace XCAnalyze.Model
             get { return _scores.AsReadOnly (); }
         }
         
-        /// <summary>
-        /// The location of the race.
-        /// </summary>
-        public Venue Location { get { return Meet.Location; } }
+        #endregion
         
-        /// <summary>
-        /// Add a new result to the race.
-        /// </summary>
-        /// <param name="result">
-        /// The <see cref="Performance"/> to add.
-        /// </param>
-        public void Add (Performance result)
+        #region Constructors
+
+        protected Race ()
         {
-            _results.Add (result);
-            _results.Sort ();
+            _meetInstance = new Cell<MeetInstance> ();
+            _distance = new Cell<int> ();
+            _gender = new Cell<Gender> ();
+            _results = new XList<Performance> ();
+        }
+
+        /// <summary>
+        /// Create a new race.
+        /// </summary>
+        /// <param name="meet">
+        /// The <see cref="Meet"/> which this race is a part of.
+        /// </param>
+        /// <param name="distance">
+        /// The length of the race.
+        /// </param>
+        /// <param name="gender">
+        /// Was this a men's or a women's race.
+        /// </param>
+        public Race (MeetInstance meetInstance, Gender gender, int distance)
+        : this()
+        {
+            MeetInstance = meetInstance;
+            Distance = distance;
+            Gender = gender;
+            IsScored = false;
+            IsAttached = false;
         }
         
         /// <summary>
-        /// Delete one of the race results.
+        /// Create a new race.
         /// </summary>
-        /// <param name="result">
-        /// The <see cref="Performance"/> to delete.
+        /// <param name="id">
+        /// The number used to identify the race.
         /// </param>
-        public void Delete (Performance result)
+        /// <param name="meet">
+        /// The <see cref="Meet"/> which this race is a part of.
+        /// </param>
+        /// <param name="distance">
+        /// The length of the race.
+        /// </param>
+        /// <param name="gender">
+        /// Was this a men's or a women's race.
+        /// </param>
+        /// <param name="scoreMeet">
+        /// Should this meet be scored right away or not?
+        /// </param>
+        protected Race (int id, MeetInstance meetInstance, Gender gender,
+            int distance)
+        : this(meetInstance, gender, distance)
         {
-            _results.Remove (result);
+            ID = id;
         }
         
+        /// <summary>
+        /// Create a new race.
+        /// </summary>
+        /// <param name="id">
+        /// The number used to identify the race.
+        /// </param>
+        /// <param name="meet">
+        /// The <see cref="Meet"/> which this race is a part of.
+        /// </param>
+        /// <param name="distance">
+        /// The length of the race.
+        /// </param>
+        /// <param name="gender">
+        /// Was this a men's or a women's race.
+        /// </param>
+        /// <param name="scoreMeet">
+        /// Should this meet be scored right away or not?
+        /// </param>
+        public static Race NewEntity (int id, MeetInstance meetInstance,
+            Gender gender, int distance)
+        {
+            Race newRace = new Race (id, meetInstance, gender, distance);
+            newRace.IsAttached = true;
+            return newRace;
+        }
+        
+        #endregion
+        
+        #region Inherited methods
+                
         override public bool Equals(object other)
         {
             if(this == other)
@@ -169,12 +244,49 @@ namespace XCAnalyze.Model
         
         protected bool Equals (Race other)
         {
-            return Meet.Equals(other.Meet) && Gender == other.Gender;
+            return MeetInstance.Equals(other.MeetInstance) && Gender == other.Gender;
         }
         
         override public int GetHashCode ()
         {
-            return Meet.GetHashCode() + Distance;
+            return ID;
+        }
+        
+                
+        override public string ToString()
+        {
+            return Distance + " m run.";
+        }
+        
+        #endregion
+        
+        #region Methods
+        
+        /// <summary>
+        /// Add a new result to the race.
+        /// </summary>
+        /// <param name="result">
+        /// The <see cref="Performance"/> to add.
+        /// </param>
+        public void AddResult (Performance result)
+        {
+            _results.Add (result);
+            _results.Sort ();
+            IsScored = false;
+        }
+        
+        /// <summary>
+        /// Add more results to the race.
+        /// </summary>
+        /// <param name="results">
+        /// A <see cref="IEnumerable<Performance>"/> of results to add.
+        /// </param>
+        public void AddResults (IEnumerable<Performance> results)
+        
+        {
+            _results.AddRange (results);
+            _results.Sort ();
+            IsScored = false;
         }
         
         /// <summary>
@@ -182,13 +294,17 @@ namespace XCAnalyze.Model
         /// </summary>
         public void Score ()
         {
-            Dictionary<School, TeamScore> scores;
+            if (IsScored) 
+            {
+                return;
+            }
+            Dictionary<Team, TeamScore> scores;
             if (Results.Count == 0)
             {
                 _scores = new XList<TeamScore> ();
                 return;
             }
-            scores = new Dictionary<School, TeamScore> ();
+            scores = new Dictionary<Team, TeamScore> ();
             //Add the runners to the school
             foreach (Performance result in Results) 
             {
@@ -260,11 +376,9 @@ namespace XCAnalyze.Model
             }
             scoreList.Sort ();
             _scores = scoreList;
+            IsScored = true;
         }
         
-        override public string ToString()
-        {
-            return Distance + " m run.";
-        }
+        #endregion
     }
 }

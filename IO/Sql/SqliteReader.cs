@@ -5,12 +5,26 @@ using Mono.Data.Sqlite;
 
 namespace XCAnalyze.IO.Sql
 {
-    public class SqliteReader : Reader
+    public partial class SqliteReader : Reader
     {
+        #region Constructors
+        
+        /// <summary>
+        /// Create a new <see cref="SqliteConnection" to the given file.
+        /// </summary>
+        protected static IDbConnection CreateConnection(string fileName)
+        {
+            IDbConnection connection = new SqliteConnection("Data Source=" + fileName);
+            connection.Open();
+            return connection;
+        }
+        
         /// <summary>
         /// Create a new reader using an in-memory database.
         /// </summary>
-        public SqliteReader () : this(":memory:") {}
+        public SqliteReader() : this(":memory:")
+        {
+        }
 
         /// <summary>
         /// Create a new reader that reads from a file.
@@ -18,9 +32,10 @@ namespace XCAnalyze.IO.Sql
         /// <param name="fileName">
         /// The name of the file from which to read.
         /// </param>
-        public SqliteReader (string fileName)
-            : this(new SqliteConnection ("Data Source=" + fileName), fileName) {}
-        
+        public SqliteReader(string fileName) : this(CreateConnection(fileName), fileName)
+        {
+        }
+
         /// <summary>
         /// Create a new reader.
         /// </summary>
@@ -30,7 +45,10 @@ namespace XCAnalyze.IO.Sql
         /// <param name="database">
         /// The name of the database from which this reader should read.
         /// </param>
-        public SqliteReader (IDbConnection connection, string database)
-            : base(connection, database) {}
+        public SqliteReader(IDbConnection connection, string database) : base(connection, database)
+        {
+        }
+        
+        #endregion
     }
 }

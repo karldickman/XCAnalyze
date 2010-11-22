@@ -89,6 +89,7 @@ namespace XCAnalyze.Collections
             return InternalDictionary.TryGetValue (key, out value_);
         }
         #endregion
+        
         #region ICollection[KeyValuePair[K,T]] implementation
         public int Count
         {
@@ -125,11 +126,23 @@ namespace XCAnalyze.Collections
             throw new NotSupportedException();
         }
         #endregion
+        
         #region IEnumerable implementation
-        public IEnumerator GetEnumerator ()
+        
+        IEnumerator IEnumerable.GetEnumerator ()
         {
             return InternalDictionary.GetEnumerator ();
-        }        
+        }
+        
+        #endregion
+        
+        #region IEnumerable[KeyValuePair[K, T]] implementation
+        
+        IEnumerator<KeyValuePair<K, T>> System.Collections.Generic.IEnumerable<KeyValuePair<K, T>>.GetEnumerator ()
+        {
+            return InternalDictionary.GetEnumerator ();
+        }
+        
         #endregion
     }
 }

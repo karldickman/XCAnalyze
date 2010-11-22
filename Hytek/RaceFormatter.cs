@@ -64,9 +64,9 @@ namespace XCAnalyze.Hytek
             int width = resultsLines[0].Length;
             if (showHeader)
             {
-                lines.Add (StringFormatting.Centered (race.Name, width));
+                lines.Add (StringFormatting.Centered (race.MeetInstance.Name, width));
                 lines.Add (StringFormatting.Centered (race.Date.ToString (), width));
-                lines.Add (StringFormatting.Centered (race.Location, width));
+                lines.Add (StringFormatting.Centered (race.MeetInstance.Venue, width));
                 lines.Add ("");
             }
             lines.AddRange(resultsLines);

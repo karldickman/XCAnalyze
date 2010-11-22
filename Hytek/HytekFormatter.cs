@@ -6,28 +6,11 @@ using TextFormat;
 using TextFormat.Table;
 
 namespace XCAnalyze.Hytek
-{
-    /// <summary>
-    /// The interface to which all formatters must adhere.
-    /// </summary>
-    public interface IFormatter<T>
-    {
-        /// <summary>
-        /// Format a value into a list of lines.
-        /// </summary>
-        /// <param name="thing">
-        /// The value to format.
-        /// </param>
-        /// <returns>
-        /// A <see cref="IList<System.String>"/> of lines.
-        /// </returns>
-        IList<string> Format(T thing);
-    }
-    
+{    
     /// <summary>
     /// A formatter that produces Hytek-style tables.
     /// </summary>
-    public class HytekFormatter
+    public partial class HytekFormatter
     {
         /// <summary>
         /// Create a formatter that produces tables without titles.

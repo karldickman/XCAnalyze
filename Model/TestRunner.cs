@@ -4,15 +4,22 @@ using NUnit.Framework;
 
 namespace XCAnalyze.Model
 {
-    [TestFixture]
-    public class TestRunner
+    public partial class Runner
     {
-        [Test]
-        public void TestEquals ()
+#if DEBUG
+        [TestFixture]
+        public class Test
         {
-            Runner zim1 = new Runner ("Zimmerman", "Elizabeth", Gender.FEMALE, 2007);
-            Runner zim2 = new Runner ("Zimmerman", "Elizabeth", Gender.FEMALE, null);
-            Assert.IsFalse (zim1.Equals (zim2));
+            [Test]
+            public void TestEquals ()
+            {
+                Runner zim1 = new Runner (2, "Zimmerman", "Elizabeth",
+                    Gender.Female, 2007);
+                Runner zim2 = new Runner (5, "Zimmerman", "Elizabeth",
+                    Gender.Female, null);
+                Assert.IsFalse (zim1.Equals (zim2));
+            }
         }
+#endif
     }
 }

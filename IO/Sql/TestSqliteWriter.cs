@@ -6,44 +6,41 @@ using Mono.Data.Sqlite;
 using NUnit.Framework;
 
 namespace XCAnalyze.IO.Sql
-{    
-    [TestFixture]
-    public class TestSqliteWriter : TestWriter
+{
+    public partial class SqliteWriter
     {
-        [SetUp]
-        override public void SetUp ()
+        #if DEBUG
+        [TestFixture]
+        public new class Test : AbstractWriter.Test
         {
-            base.SetUp();
-            Writer = CreateWriter();
-            Reader = new Reader (new SqliteConnection (
-                    Writer.Connection.ConnectionString), TEST_DATABASE);
-        }
-        
-        override protected internal AbstractReader CreateExampleReader()
-        {
-            return new SqliteReader(SupportFiles.GetPath(EXAMPLE_DATABASE + ".db"));
-        }
-        
-        override protected internal AbstractWriter CreateWriter()
-        {
-            return new SqliteWriter(TEST_DATABASE);
-        }
-        
-        override protected internal void SetUpPartial ()
-        {
-            File.Delete(TEST_DATABASE);
-            IDbConnection connection = new SqliteConnection(
-                "Data Source=" + TEST_DATABASE);
-            connection.Open();
-            IDbCommand command = connection.CreateCommand();
-            Writer = new SqliteWriter(connection, TEST_DATABASE, command);
-        }
+            protected override AbstractReader CreateExampleReader ()
+            {
+                return new SqliteReader (SupportFiles.GetPath (ExampleDatabase + ".db"));
+            }
+            
+            protected override AbstractReader CreateReader ()
+            {
+                return new SqliteReader(TestDatabase);
+            }
 
-        [TearDown]
-        override public void TearDown ()
-        {
-            base.TearDown();
-            File.Delete (TEST_DATABASE);
+            protected override AbstractWriter CreateWriter()
+            {
+                return new SqliteWriter (TestDatabase);
+            }
+
+            protected override void SetUpPartial()
+            {
+                File.Delete (TestDatabase);
+                Writer = new SqliteWriter (SqliteWriter.CreateConnection(TestDatabase), TestDatabase, false);
+            }
+
+            [TearDown]
+            public override void TearDown ()
+            {
+                base.TearDown ();
+                File.Delete (TestDatabase);
+            }
         }
+        #endif
     }
 }

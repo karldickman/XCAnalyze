@@ -4,52 +4,54 @@ using System.Data;
 using NUnit.Framework;
 
 namespace XCAnalyze.IO.Sql
-{  
-    [TestFixture]
-    public class TestMySqlWriter : TestWriter
+{
+    public partial class MySqlWriter
     {
-        [SetUp]
-        override public void SetUp ()
+        #if DEBUG
+        [TestFixture]
+        public new class Test : Writer.Test
         {
-            base.SetUp();
-            Writer = CreateWriter();
-            Reader = new MySqlReader (TEST_DATABASE, TEST_ACCOUNT);
-        }  
-        
-        override protected internal AbstractReader CreateExampleReader()
-        {
-            return new MySqlReader(EXAMPLE_DATABASE, TEST_ACCOUNT);
-        }
-        
-        override protected internal AbstractWriter CreateWriter()
-        {
-            return new MySqlWriter(TEST_DATABASE, TEST_ACCOUNT);
-        }
-        
-        override protected internal void SetUpPartial ()
-        {
-            IDbCommand command;
-            Writer.Dispose();
-            Writer.Connection.Open();
-            command = Writer.Connection.CreateCommand();
-            Writer = new MySqlWriter (Writer.Connection, Writer.Database, command);
-            command.CommandText = "DROP DATABASE " + TEST_DATABASE;
-            command.ExecuteNonQuery();
-            command.CommandText = "CREATE DATABASE " + TEST_DATABASE;
-            command.ExecuteNonQuery();
-            command.CommandText = "USE " + TEST_DATABASE;
-            command.ExecuteNonQuery();
-        }
-
-        [TearDown]
-        override public void TearDown()
-        {
-            for(int i = Sql.Writer.TABLES.Length - 1; i >= 0; i--)
+            protected override AbstractReader CreateExampleReader()
             {
-                Writer.Command.CommandText = "DELETE FROM " + Sql.Writer.TABLES[i];
-                Writer.Command.ExecuteNonQuery();
+                return new MySqlReader(ExampleDatabase, TestAccount, TestAccount);
             }
-            base.TearDown();
+
+            protected override AbstractReader CreateReader()
+            {
+                return new MySqlReader(TestDatabase, TestAccount, TestAccount);
+            }
+
+            protected override AbstractWriter CreateWriter()
+            {
+                return new MySqlWriter(TestDatabase, TestAccount, TestAccount);
+            }
+
+            protected override void SetUpPartial()
+            {
+                Writer.Close();
+                WriterConnection.Open();
+                MySqlWriter writer = new MySqlWriter(WriterConnection, WriterDatabase);
+                IDbCommand command = WriterConnection.CreateCommand();
+                writer.Command = command;
+                Writer = writer;
+                command.CommandText = "DROP DATABASE " + TestDatabase;
+                command.ExecuteNonQuery();
+                command.CommandText = "CREATE DATABASE " + TestDatabase;
+                command.ExecuteNonQuery();
+                command.CommandText = "USE " + TestDatabase;
+                command.ExecuteNonQuery();
+            }
+
+            [TearDown]
+            public override void TearDown()
+            {
+                for(int i = Sql.Writer.Tables.Count - 1; i >= 0; i--) {
+                    WriterCommand.CommandText = "DELETE FROM " + Sql.Writer.Tables[i];
+                    WriterCommand.ExecuteNonQuery();
+                }
+                base.TearDown();
+            }
         }
+        #endif
     }
 }

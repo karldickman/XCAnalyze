@@ -9,30 +9,26 @@ namespace XCAnalyze.IO.Sql
     /// <summary>
     /// A <see cref="IWriter"/> used to write the model to an SQLite database.
     /// </summary>
-    public class SqliteWriter : Writer
+    public partial class SqliteWriter : Writer
     {
-        override public string CREATION_SCRIPT_EXTENSION
-        {
-            get
-            {
-                return "sqlite";
-            }
-        }
-        
-        override public string GET_TABLES_COLUMN
-        {
-             get { return "name"; }
-        }
+        #region Constructors
 
-        override public string GET_TABLES_COMMAND
+        /// <summary>
+        /// Create an open <see cref="SqliteConnection" /> to the specified file.
+        /// </summary>
+        protected static IDbConnection CreateConnection(string fileName)
         {
-            get { return "SELECT name FROM sqlite_master WHERE type=\"table\""; }
+            IDbConnection connection = new SqliteConnection("Data Source=" + fileName);
+            connection.Open();
+            return connection;
         }
 
         /// <summary>
         /// Create a new SqliteDatabaseWriter using an in-memory database.
         /// </summary>
-        public SqliteWriter () : this(":memory:") {}
+        public SqliteWriter() : this(":memory:")
+        {
+        }
 
         /// <summary>
         /// Create a new SqliteDatabaseWriter using a specific database file.
@@ -40,8 +36,9 @@ namespace XCAnalyze.IO.Sql
         /// <param name="fileName">
         /// The name of the file to connect to.
         /// </param>
-        public SqliteWriter (string fileName) 
-            : this(new SqliteConnection ("Data Source=" + fileName), fileName) {}
+        public SqliteWriter(string fileName) : this(CreateConnection(fileName), fileName)
+        {
+        }
 
         /// <summary>
         /// Create a new writer using a particular connection.
@@ -49,45 +46,45 @@ namespace XCAnalyze.IO.Sql
         /// <param name="connection">
         /// The <see cref="IDbConnection"/> to use.
         /// </param>
-        public SqliteWriter (IDbConnection connection,
-            string database) : base(connection, database) {}
-            
+        /// <param name="database">
+        /// The name of the database to use.
+        /// </param>
+        public SqliteWriter(IDbConnection connection, string database) : base(connection, database)
+        {
+        }
+
         /// <summary>
         /// Create a new writer using a particular connection.
         /// </summary>
         /// <param name="connection">
         /// The <see cref="IDbConnection"/> to use.
         /// </param>
-        /// <param name="oepn">
-        /// Should the database be opened.
+        /// <param name="database">
+        /// The name of the database to use.
         /// </param>
-        protected internal SqliteWriter(IDbConnection connection,
-            string database, IDbCommand command)
-        : base(connection, database, command) {}
-        
-        override protected internal AbstractReader CreateReader()
+        /// <param name="initializeDatabase">
+        /// Should the database be initialized.
+        /// </param>
+        protected SqliteWriter(IDbConnection connection, string database, bool initializeDatabase) : base(connection, database, initializeDatabase)
         {
-            return new Reader(Connection, Command, Database);
         }
         
-        override protected internal void Open()
-        {
-            Connection.Open();
-            Command = Connection.CreateCommand();
-            Command.CommandText = GET_TABLES_COMMAND;
-            IDataReader reader = Command.ExecuteReader();
-            IList<string> tables = new List<string>();
-            while(reader.Read())
-            {
-                tables.Add(reader[GET_TABLES_COLUMN].ToString());
-            }
-            reader.Close();
-            foreach(string table in tables)
-            {
-                Command.CommandText = "DROP TABLE " + table;
-                Command.ExecuteNonQuery();
-            }
-            InitializeDatabase();
+        #endregion
+        
+        #region Writer implementation
+        
+        protected override string CreationScriptExtension {
+            get { return "sqlite"; }
         }
+
+        protected override string GetTablesColumn {
+            get { return "name"; }
+        }
+
+        protected override string GetTablesCommand {
+            get { return "SELECT name FROM sqlite_master WHERE type=\"table\""; }
+        }
+        
+        #endregion
     }
 }

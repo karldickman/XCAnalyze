@@ -61,13 +61,13 @@ namespace XCAnalyze.Gui
         /// <param name="meet">
         /// The <see cref="Meet"/> to display.
         /// </param>
-        public MeetDetail (IDataSelection<Meet> meetSelection) : this()
+        public MeetDetail (IDataSelection<MeetInstance> meetSelection) : this()
         {
             meetSelection.SelectionChanged += OnSelectionChanged;
             RaceDisplayModel mensRaceModel =
-                new RaceDisplayModel (Gender.MALE, meetSelection);
+                new RaceDisplayModel (Gender.Male, meetSelection);
             RaceDisplayModel womensRaceModel =
-                new RaceDisplayModel (Gender.FEMALE, meetSelection);
+                new RaceDisplayModel (Gender.Female, meetSelection);
             RaceResultsBuffer mensBuffer = new RaceResultsBuffer (mensRaceModel);
             RaceResultsBuffer womensBuffer =
                 new RaceResultsBuffer (womensRaceModel);
@@ -100,11 +100,11 @@ namespace XCAnalyze.Gui
         /// Handler for when the selected <see cref="Meet"/> changes.
         /// </summary>
         public void OnSelectionChanged (object sender,
-            SelectionChangedArgs<Meet> arguments)
+            SelectionChangedArgs<MeetInstance> arguments)
         {
-            Meet meet = arguments.Selected;
+            MeetInstance meet = arguments.Selected;
             Info.Text = string.Format("{0}\n{1:yyyy/MM/dd}\n{2}", meet.Name,
-                meet.Date, meet.Location);
+                meet.Date, meet.Venue);
         }
     }
 }

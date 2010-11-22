@@ -1,59 +1,346 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 using XCAnalyze.Model;
 
 namespace XCAnalyze.IO.Sql
-{   
+{
     /// <summary>
     /// A writer to write all the data in the model to a database.
     /// </summary>
-    abstract public class Writer : AbstractWriter
+    public abstract class Writer : AbstractWriter
     {
+        #region Properties
+
         /// <summary>
         /// The creation script for the database.
         /// </summary>
-        public string CREATION_SCRIPT
-        {
-            get
-            {
-                return SupportFiles.GetPath ("xca_create." +
-                    CREATION_SCRIPT_EXTENSION);
-            }
+        protected string CreationScriptFileName {
+            get { return SupportFiles.GetPath("xca_create." + CreationScriptExtension); }
         }
-        
+
         /// <summary>
         /// The file extension of the creation script.
         /// </summary>
-        abstract public string CREATION_SCRIPT_EXTENSION { get; }
-        
+        protected abstract string CreationScriptExtension { get; }
+
         /// <summary>
         /// The title of the column that has the names of all the tables.
         /// </summary>
-        abstract public string GET_TABLES_COLUMN { get; }
+        protected abstract string GetTablesColumn { get; }
 
         /// <summary>
         /// The script used to get the list of tables in the database.
         /// </summary>
-        abstract public string GET_TABLES_COMMAND { get; }
-        
-        public Writer(IDbConnection connection, string database)
-        : base(connection, database) {}
-        
-        public Writer(IDbConnection connection, string database,
-            IDbCommand command) : base(connection, database, command) {}
-        
-        override public IList<string> CreationScript()
+        protected abstract string GetTablesCommand { get; }
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Create a new writer.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> connection to use.
+        /// </param>
+        /// <param name="database">
+        /// The name of the database to use.
+        /// </param>
+        public Writer(IDbConnection connection, string database) : base(connection, database)
+        {
+        }
+
+        /// <summary>
+        /// Create a new writer.
+        /// </summary>
+        /// <param name="connection">
+        /// The <see cref="IDbConnection"/> connection to use.
+        /// </param>
+        /// <param name="database">
+        /// The name of the database to use.
+        /// </param>
+        /// <param name="initializeDatabase">
+        /// Should the database be initialized.
+        /// </param>
+        protected Writer(IDbConnection connection, string database, bool initializeDatabase) : base(connection, database, initializeDatabase)
+        {
+        }
+
+        #endregion
+
+        #region AbstractWriter implementation
+
+        protected override IList<string> CreationScript()
         {
             IList<string> commands;
-            ScriptReader reader;
-            reader = new ScriptReader(CREATION_SCRIPT);
-            commands = reader.Read();
-            reader.Dispose();
+            using(ScriptReader reader = new ScriptReader(CreationScriptFileName)) {
+                commands = reader.Read();
+            }
             return commands;
         }
-        
+
+        protected override void InitializeDatabase()
+        {
+            IList<string> creationCommands = CreationScript();
+            foreach(string command in creationCommands) {
+                Command.CommandText = command;
+                Command.ExecuteNonQuery();
+            }
+        }
+
+        protected override bool IsDatabaseInitialized()
+        {
+            IList<string> foundTables = new List<string>();
+            Command.CommandText = GetTablesCommand;
+            using(Reader = Command.ExecuteReader()) {
+                while(Reader.Read()) {
+                    foundTables.Add(Reader[GetTablesColumn].ToString());
+                }
+            }
+            if(foundTables.Count < Tables.Count) {
+                return false;
+            }
+            foreach(string table in Tables) {
+                if(!foundTables.Contains(table)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public override void WriteAffiliations(IEnumerable<Affiliation> affiliations)
+        {
+            foreach(Affiliation affiliation in affiliations) {
+                if(!affiliation.IsAttached) {
+                    Command.CommandText = String.Format("INSERT INTO affiliations (runner_id, team_id, season) VALUES ({0}, {1}, {2})", affiliation.RunnerID, affiliation.TeamID, affiliation.Season);
+                    Command.ExecuteNonQuery();
+                    affiliation.IsAttached = true;
+                }
+
+                else {
+                    Command.CommandText = String.Format("UPDATE affiliations SET team_id = {0} WHERE runner_id = {1} AND season = {2}", affiliation.TeamID, affiliation.RunnerID, affiliation.Season);
+                    Command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public override void WriteCities(IEnumerable<City> cities)
+        {
+            foreach(City city in cities) {
+                if(city.IsAttached) {
+                    Command.CommandText = String.Format("UPDATE cities SET name = {0}, state_code = {1} WHERE city_id = {2}", Format(city.Name), Format(city.StateCode), city.ID);
+                }
+
+                else {
+                    Command.CommandText = String.Format("INSERT INTO cities (name, state_code) VALUES ({0}, {1})", Format(city.Name), Format(city.StateCode));
+                }
+                Command.ExecuteNonQuery();
+                if(!city.IsAttached) {
+                    Command.CommandText = String.Format("SELECT city_id FROM cities WHERE name = {0} AND state_code = {1}", Format(city.Name), Format(city.StateCode));
+                    city.ID = Convert.ToInt32(Command.ExecuteScalar());
+                    city.IsAttached = true;
+                }
+            }
+        }
+
+        public override void WriteConferences(IEnumerable<Conference> conferences)
+        {
+            foreach(Conference conference in conferences) {
+                if(!conference.IsAttached) {
+                    Command.CommandText = String.Format("INSERT INTO conferences (name, acronym) VALUES ({0}, {1})", Format(conference.Name), Format(conference.Acronym));
+                }
+
+                else {
+                    Command.CommandText = String.Format("UPDATE conferences SET name = {0}, acronym = {1} WHERE conference_id = {2}", Format(conference.Name), Format(conference.Acronym), conference.ID);
+                }
+                Command.ExecuteNonQuery();
+                if(!conference.IsAttached) {
+                    Command.CommandText = String.Format("SELECT conference_id FROM conferences WHERE name = {0} AND acronym = {1}", Format(conference.Name), Format(conference.Acronym));
+                    conference.ID = Convert.ToInt32(Command.ExecuteScalar());
+                    conference.IsAttached = true;
+                }
+            }
+        }
+
+        public override void WriteMeets(IEnumerable<Meet> meets)
+        {
+            foreach(Meet meet in meets) {
+                if(!meet.IsAttached) {
+                    Command.CommandText = String.Format("INSERT INTO meets (name) VALUES ({0})", Format(meet.Name));
+                    Command.ExecuteNonQuery();
+                    Command.CommandText = String.Format("SELECT meet_id FROM meets WHERE name = {0}", Format(meet.Name));
+                    meet.ID = Convert.ToInt32(Command.ExecuteScalar());
+                    meet.IsAttached = true;
+                }
+
+                else {
+                    Command.CommandText = String.Format("UPDATE meets SET name = {0} WHERE meet_id = {1}", meet.ID, Format(meet.Name));
+                    Command.ExecuteNonQuery();
+                }
+                Command.CommandText = String.Format("DELETE FROM meet_hosts WHERE meet_id = {0}", meet.ID);
+                Command.ExecuteNonQuery();
+                if(meet.Host != null) {
+                    Command.CommandText = String.Format("INSERT INTO meet_hosts (meet_id, team_id) VALUES ({0}, {1})", meet.ID, meet.HostID);
+                    Command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public override void WriteMeetInstances(IEnumerable<MeetInstance> meetInstances)
+        {
+            foreach(MeetInstance meetInstance in meetInstances) {
+                if(!meetInstance.IsAttached) {
+                    Command.CommandText = String.Format("INSERT INTO meet_instances (meet_id, date, venue_id) VALUES ({0}, {1}, {2})", meetInstance.MeetID, Format(meetInstance.Date), meetInstance.VenueID);
+                    meetInstance.IsAttached = true;
+                }
+
+                else {
+                    Command.CommandText = String.Format("UPDATE meet_instances SET venue_id = {0} WHERE meet_id = {1} AND date = {2}", meetInstance.VenueID, meetInstance.MeetID, Format(meetInstance.Date));
+                }
+                Command.ExecuteNonQuery();
+                Command.CommandText = String.Format("DELETE FROM meet_instance_hosts WHERE meet_id = {0} AND date = {1}", meetInstance.MeetID, Format(meetInstance.Date));
+                Command.ExecuteNonQuery();
+                if(meetInstance.Host != null) {
+                    Command.CommandText = String.Format("INSERT INTO meet_instance_hosts (meet_id, date, team_id) VALUES ({0}, {1}, {2})", meetInstance.MeetID, Format(meetInstance.Date), meetInstance.HostID);
+                    Command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public override void WritePerformances(IEnumerable<Performance> performances)
+        {
+            foreach(Performance performance in performances) {
+                Command.CommandText = String.Format("DELETE FROM results WHERE runner_id = {0} AND race_id = {1}", performance.RunnerID, performance.RaceID);
+                Command.ExecuteNonQuery();
+                Command.CommandText = String.Format("DELETE FROM did_not_finish WHERE runner_id = {0} AND race_id = {1}", performance.RunnerID, performance.RaceID);
+                Command.ExecuteNonQuery();
+                if(performance.Time != null) {
+                    Command.CommandText = String.Format("INSERT INTO results (runner_id, race_id, time) VALUES ({0}, {1}, {2})", performance.RunnerID, performance.RaceID, performance.Time);
+                }
+
+                else {
+                    Command.CommandText = String.Format("INSERT INTO did_not_finish (runner_id, race_id) VALUES ({0}, {1})", performance.RunnerID, performance.RaceID);
+                }
+                Command.ExecuteNonQuery();
+                performance.IsAttached = true;
+            }
+        }
+
+        public override void WriteRaces(IEnumerable<Race> races)
+        {
+            foreach(Race race in races) {
+                if(!race.IsAttached) {
+                    Command.CommandText = String.Format("INSERT INTO races (distance, gender, meet_id, date) VALUES ({0}, {1}, {2}, {3})", race.Distance, Format(race.Gender), race.MeetID, Format(race.Date));
+                    Command.ExecuteNonQuery();
+                    Command.CommandText = String.Format("SELECT race_id FROM races WHERE distance = {0} AND gender = {1} AND meet_id = {2} AND date = {3}", race.Distance, Format(race.Gender), race.MeetID, Format(race.Date));
+                    race.ID = Convert.ToInt32(Command.ExecuteScalar());
+                    race.IsAttached = true;
+                }
+
+                else {
+                    Command.CommandText = String.Format("UPDATE races SET distance = {0}, gender = {1}, meet_id = {2}, date = {3} WHERE race_id = {4}", race.Distance, Format(race.Gender), race.MeetID, Format(race.Date), race.ID);
+                    Command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public override void WriteRunners(IEnumerable<Runner> runners)
+        {
+            foreach(Runner runner in runners) {
+                if(!runner.IsAttached) {
+                    Command.CommandText = String.Format("INSERT INTO runners (surname, given_name, gender) VALUES ({0}, {1}, {2})", Format(runner.Surname), Format(runner.GivenName), Format(runner.Gender));
+                    Command.ExecuteNonQuery();
+                    Command.CommandText = String.Format("SELECT MAX(runner_id) FROM runners WHERE surname = {0} AND given_name = {1} AND gender = {2}", Format(runner.Surname), Format(runner.GivenName), Format(runner.Gender));
+                    runner.ID = Convert.ToInt32(Command.ExecuteScalar());
+                    runner.IsAttached = true;
+                }
+                else {
+                    Command.CommandText = String.Format("UPDATE runners SET surname = {0}, given_name = {1}, gender = {2} WHERE runner_id = {3}", Format(runner.Surname), Format(runner.GivenName), Format(runner.Gender), runner.ID);
+                    Command.ExecuteNonQuery();
+                    Command.CommandText = String.Format("DELETE FROM college_enrollment_years WHERE runner_id = {0}", runner.ID);
+                    Command.ExecuteNonQuery();
+                }
+                if(runner.EnrollmentYear != null) {
+                    Command.CommandText = String.Format("INSERT INTO college_enrollment_years (runner_id, enrollment_year) VALUES ({0}, {1})", runner.ID, runner.EnrollmentYear);
+                    Command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public override void WriteStates(IEnumerable<State> states)
+        {
+            Command.CommandText = "SELECT COUNT(state_code) FROM states";
+            foreach(State state in states) {
+                if(!state.IsAttached) {
+                    Command.CommandText = String.Format("INSERT INTO states (state_code, name) VALUES ({0}, {1})", Format(state.Code), Format(state.Name));
+                    Command.ExecuteNonQuery();
+                    state.IsAttached = true;
+                }
+            }
+            Command.CommandText = "SELECT COUNT(state_code) FROM states";
+        }
+
+        public override void WriteTeams(IEnumerable<Team> teams)
+        {
+            foreach(Team team in teams) {
+                if(!team.IsAttached) {
+                    Command.CommandText = String.Format("INSERT INTO teams (name) VALUES ({0})", Format(team.Name));
+                    Command.ExecuteNonQuery();
+                    Command.CommandText = String.Format("SELECT team_id FROM teams WHERE name = {0}", Format(team.Name));
+                    team.ID = Convert.ToInt32(Command.ExecuteScalar());
+                    team.IsAttached = true;
+                }
+
+                else {
+                    Command.CommandText = String.Format("UPDATE teams SET name = {0} WHERE team_id = {1}", Format(team.Name), team.ID);
+                }
+                Command.CommandText = String.Format("DELETE FROM conference_affiliations WHERE team_id = {0}", team.ID);
+                Command.ExecuteNonQuery();
+                Command.CommandText = String.Format("DELETE FROM unaffiliated_teams WHERE team_id = {0}", team.ID);
+                Command.ExecuteNonQuery();
+                if(team.Conference != null) {
+                    Command.CommandText = String.Format("INSERT INTO conference_affiliations (team_id, conference_id) VALUES ({0}, {1})", team.ID, team.ConferenceID);
+                    Command.ExecuteNonQuery();
+                }
+                else {
+                    Command.CommandText = String.Format("INSERT INTO unaffiliated_teams (team_id) VALUES ({0})", team.ID);
+                    Command.ExecuteNonQuery();
+                }
+                Command.CommandText = String.Format("DELETE FROM team_nicknames WHERE team_id = {0}", team.ID);
+                Command.ExecuteNonQuery();
+                foreach(string nickname in team.Nicknames) {
+                    Command.CommandText = String.Format("INSERT INTO team_nicknames (team_id, nickname) VALUES ({0}, {1})", team.ID, Format(nickname));
+                    Command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public override void WriteVenues(IEnumerable<Venue> venues)
+        {
+            foreach(Venue venue in venues) {
+                if(venue.IsAttached) {
+                    Command.CommandText = String.Format("UPDATE venues SET name = {0}, city_id = {1} WHERE venue_id = {2}", Format(venue.Name), venue.CityID, venue.ID);
+                }
+
+                else {
+                    Command.CommandText = String.Format("INSERT INTO venues (name, city_id) VALUES ({0}, {1})", Format(venue.Name), venue.CityID);
+                }
+                Command.ExecuteNonQuery();
+                if(!venue.IsAttached) {
+                    Command.CommandText = String.Format("SELECT venue_id FROM venues WHERE name = {0} AND city_id = {1}", Format(venue.Name), venue.CityID);
+                    venue.ID = Convert.ToInt32(Command.ExecuteScalar());
+                    venue.IsAttached = true;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Format a particular date for insertion in an SQL query.
         /// </summary>
@@ -63,30 +350,27 @@ namespace XCAnalyze.IO.Sql
         public string Format(DateTime value_)
         {
             string result = value_.Year + "-";
-            if(value_.Month < 10)
-            {
+            if(value_.Month < 10) {
                 result += "0";
             }
             result += value_.Month + "-";
-            if(value_.Day < 10)
-            {
+            if(value_.Day < 10) {
                 result += "0";
             }
             return Format(result + value_.Day);
         }
-        
+
         /// <summary>
         /// Format a particular boolean value for insertion in an SQL query.
         /// </summary>
-        public string Format (bool value_)
+        public string Format(bool value_)
         {
-            if (value_)
-            {
+            if(value_) {
                 return "1";
             }
             return "0";
         }
-        
+
         /// <summary>
         /// Format the given gender for insertion in an SQL query.
         /// </summary>
@@ -94,206 +378,18 @@ namespace XCAnalyze.IO.Sql
         {
             return Format(value_.ToString());
         }
-        
-        /// <summary>
-        /// Format the given value for insertion in an SQL query.
-        /// </summary>
-        public string Format(int? value_)
-        {
-            if(value_ == null)
-            {
-                return "NULL";
-            }
-            return value_.ToString();
-        }
-        
-        /// <summary>
-        /// Format the given value for insertion in an SQL query.
-        /// </summary>
-        public string Format (string value_)
-        {
-            if (value_ == null)
-            {
-                return "NULL";
-            }
-            return "\"" + value_ + "\"";
-        }
 
         /// <summary>
         /// Format the given value for insertion in an SQL query.
         /// </summary>
-        public string Format(string[] value_)
+        public string Format(string value_)
         {
-            if(value_ == null)
-            {
+            if(value_ == null) {
                 return "NULL";
             }
-            return Format(String.Join(", ", value_));
+            return "\"" + value_ + "\"";
         }
         
-        override protected internal void InitializeDatabase ()
-        {
-            IList<string> creationCommands = CreationScript();
-            foreach(string command in creationCommands)
-            {
-                Command.CommandText = command;
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override protected internal bool IsDatabaseInitialized ()
-        {
-            IList<string> foundTables = new List<string> ();
-            Command.CommandText = GET_TABLES_COMMAND;
-            ResultsReader = Command.ExecuteReader ();
-            while (ResultsReader.Read ())
-            {
-                foundTables.Add ((string)ResultsReader[GET_TABLES_COLUMN]);
-            }
-            ResultsReader.Dispose ();
-            if (foundTables.Count < TABLES.Length)
-            {
-                return false;
-            }
-            foreach (string table in TABLES)
-            {
-                if (!foundTables.Contains (table))
-                {
-                    return false;
-                }
-            }
-            if (foundTables.Count == TABLES.Length)
-            {
-                return true;
-            }
-            if (foundTables.Count != TABLES.Length + VIEWS.Length)
-            {
-                return false;
-            }
-            foreach (string table in VIEWS)
-            {
-                if (!foundTables.Contains (table))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        override public void WriteAffiliations(IList<Affiliation> affiliations,
-            IList<Runner> runners, IList<School> schools)
-        {
-            for(int i = 0; i < affiliations.Count; i++)
-            {
-                Command.CommandText = "INSERT INTO affiliations (id, runner_id, school_id, year) VALUES (" + (i + 1) + ", " + (runners.IndexOf(affiliations[i].Runner) + 1) + ", " + (schools.IndexOf(affiliations[i].School) + 1) + ", " + affiliations[i].Year + ")";
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override public void WriteConferences(IList<string> conferenceSet)
-        {
-            IList<string> conferences = new List<string>(conferenceSet);
-            for(int i = 0; i < conferences.Count; i++)
-            {
-                Command.CommandText = "INSERT INTO conferences (id, name) VALUES (" + (i + 1) + ", " + Format(conferences[i]) + ")";
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override public void WriteMeetNames(IList<string> meetNameSet)
-        {
-            IList<string> meetNames = new List<string>(meetNameSet);
-            for(int i = 0; i < meetNames.Count; i++)
-            {
-                Command.CommandText = "INSERT INTO meet_names (id, name) VALUES (" + (i + 1) + ", " + Format(meetNames[i]) + ")";
-                Command.ExecuteNonQuery();
-            }
-        }
-       
-        override public void WriteMeets(IList<Meet> meets,
-            IList<string> meetNameSet, IList<Race> races, IList<Venue> venues)
-        {
-            int? meetNameId, venueId, mensRaceId, womensRaceId;
-            IList<string> meetNames = new List<string>(meetNameSet);
-            for(int i = 0; i < meets.Count; i++)
-            {
-                meetNameId = venueId = mensRaceId = womensRaceId = null;
-                if(meets[i].Name != null)
-                {
-                    meetNameId = meetNames.IndexOf(meets[i].Name) + 1;
-                }
-                if(meets[i].Location != null)
-                {
-                    venueId = venues.IndexOf(meets[i].Location) + 1;
-                }
-                if(meets[i].MensRace != null)
-                {
-                    mensRaceId = races.IndexOf(meets[i].MensRace) + 1;
-                }
-                if(meets[i].WomensRace != null)
-                {
-                    womensRaceId = races.IndexOf(meets[i].WomensRace) + 1;
-                }
-                Command.CommandText = "SELECT id FROM races";
-                ResultsReader = Command.ExecuteReader();
-                ResultsReader.Close();
-                Command.CommandText = "INSERT INTO meets (id, meet_name_id, date, venue_id, mens_race_id, womens_race_id) VALUES (" + (i + 1) + ", " + Format(meetNameId) + ", " + Format(meets[i].Date) + ", " + Format(venueId) + ", " + Format(mensRaceId) + ", " + Format(womensRaceId) + ")";
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override public void WritePerformances(IList<Performance> performances,
-            IList<Race> races, IList<Runner> runners)
-        {
-            for(int i = 0; i < performances.Count; i++)
-            {                
-                Command.CommandText = "INSERT INTO results (id, runner_id, race_id, time) VALUES (" + (i + 1) + ", " + Format(runners.IndexOf(performances[i].Runner) + 1) + ", " + Format(races.IndexOf(performances[i].Race) + 1) + ", " + performances[i].Time + ")";
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override public void WriteRaces(IList<Race> races)
-        {
-            for(int i = 0; i < races.Count; i++)
-            {
-                Command.CommandText = "INSERT INTO races (id, distance) VALUES (" + (i + 1) + ", " + races[i].Distance + ")";
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override public void WriteRunners(IList<Runner> runners)
-        {
-            for(int i = 0; i < runners.Count; i++)
-            {
-                Command.CommandText = "INSERT INTO runners (id, surname, given_name, gender, year) VALUES (" + (i + 1) + ", " + Format(runners[i].Surname) + ", " + Format(runners[i].GivenName) + ", " + Format(runners[i].Gender) + ", " + Format(runners[i].Year) + ")";
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override public void WriteSchools(IList<School> schools,
-            IList<string> conferenceSet)
-        {
-            IList<string> conferences = new List<string>(conferenceSet);
-            int? conferenceId;
-            foreach(School school in schools)
-            {
-                conferenceId = null;
-                if(school.Conference != null)
-                {
-                    conferenceId = conferences.IndexOf(school.Conference) + 1;
-                }
-                Command.CommandText = "INSERT INTO schools (name, type, name_first, conference_id) VALUES (" + Format(school.Name) + ", " + Format(school.Type) + ", " + Format(school.NameFirst) + ", " + Format(conferenceId) + ")";
-                Command.ExecuteNonQuery();
-            }
-        }
-        
-        override public void WriteVenues(IList<Venue> venues)
-        {
-            foreach(Venue venue in venues)
-            {
-                Command.CommandText = "INSERT INTO venues (name, city, state) VALUES (" + Format(venue.Name) + ", " + Format(venue.City) + ", " + Format(venue.State) + ")";                
-                Command.ExecuteNonQuery();
-            }
-        }
+        #endregion
     }
 }

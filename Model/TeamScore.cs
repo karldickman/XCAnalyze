@@ -9,67 +9,149 @@ namespace XCAnalyze.Model
     /// <summary>
     /// A team's score at a race.
     /// </summary>
-    public class TeamScore : IComparable<TeamScore>
+    public partial class TeamScore : IComparable<TeamScore>
     {
+        #region Properties
+        
+        #region Fields
+        
+        private Race _race;
+        
         private IXList<Performance> _runners;
         
-        /// <summary>
-        /// Create a new team score.
-        /// </summary>
-        /// <param name="race">
-        /// The <see cref="Race"/> from which the score comes.
-        /// </param>
-        /// <param name="school">
-        /// The <see cref="School"/> to whome the score belongs.
-        /// </param>
-        public TeamScore (Race race, School school)
-        : this(race, school, new XList<Performance> ()) { }
-
-        /// <summary>
-        /// Create a new team score.
-        /// </summary>
-        /// <param name="race">
-        /// The <see cref="Race"/> from which the score comes.
-        /// </param>
-        /// <param name="school">
-        /// The <see cref="School"/> to whome the score belongs.
-        /// </param>
-        /// <param name="runners">
-        /// The <see cref="List<Performance>"/> of runners who were on the team.
-        /// </param>
-        protected internal TeamScore (Race race, School school, IXList<Performance> runners)
-        {
-            Race = race;
-            School = school;
-            _runners = runners;
-        }
+        private Team _team;
+        
+        #endregion
         
         /// <summary>
-        /// The school which earned the score.
+        /// The team which earned the score.
         /// </summary>
-        public School School { get; protected set; }
+        public Team Team
+        {
+            get { return _team; }
+            
+            protected set
+            {
+                if (value == null) 
+                {
+                    throw new ArgumentNullException (
+                        "Property Team cannot be null.");
+                }
+                _team = value;
+            }
+        }
 
         /// <summary>
         /// The race to which this score belongs.
         /// </summary>
-        public Race Race { get; protected set; }
+        public Race Race
+        {
+            get { return _race; }
+            
+            protected set
+            {
+                if (value == null) 
+                {
+                    throw new ArgumentNullException (
+                        "Property Race cannot be null.");
+                }
+                _race = value;
+            }
+        }
 
         /// <summary>
         /// The runners who were on the team at that particular race.
         /// </summary>
-        public ReadOnlyCollection<Performance> Runners
+        public IList<Performance> Runners
         {
-            get
+            get { return _runners.AsReadOnly (); }
+            
+            protected set
             {
-                return _runners.AsReadOnly();
+                if (value == null) 
+                {
+                    _runners = new XList<Performance> ();
+                }
+                else
+                {
+                    _runners = new XList<Performance> (value);
+                }
             }
         }
+        
+        #endregion
+        
+        #region Constructors
+        
+        /// <summary>
+        /// Create a new team score.
+        /// </summary>
+        /// <param name="race">
+        /// The <see cref="Race"/> from which the score comes.
+        /// </param>
+        /// <param name="team">
+        /// The <see cref="Team"/> to whome the score belongs.
+        /// </param>
+        public TeamScore (Race race, Team team)
+        : this(race, team, null)
+        {
+        }
+
+        /// <summary>
+        /// Create a new team score.
+        /// </summary>
+        /// <param name="race">
+        /// The <see cref="Race"/> from which the score comes.
+        /// </param>
+        /// <param name="team">
+        /// The <see cref="Team"/> to whome the score belongs.
+        /// </param>
+        /// <param name="runners">
+        /// The <see cref="IList<Performance>"/> of runners who were on the team.
+        /// </param>
+        protected TeamScore (Race race, Team team, IList<Performance> runners)
+        {
+            Race = race;
+            Team = team;
+            Runners = runners;
+        }
+        
+        #endregion
+        
+        #region Inherited methods
+                        
+        override public bool Equals(object other)
+        {
+            if(this == other)
+            {
+                return true;
+            }
+            if(other is TeamScore)
+            {
+                return 0 == CompareTo((TeamScore)other);
+            }
+            return false;
+        }
+        
+        override public int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+        
+        override public string ToString ()
+        {
+            return Team.Name + " " + Score ();
+        }
+        
+        #endregion
+        
+        #region Methods
         
         /// <summary>
         /// Compares the breakAt runner of this team with the the breakAt runner
         /// of the other team.
         /// </summary>
-        protected internal static int BreakTie (TeamScore item1, TeamScore item2,
+        protected static int BreakTie (TeamScore item1, TeamScore item2,
             int breakAt)
         {
             if (item1.Runners.Count < breakAt && item2.Runners.Count < breakAt)
@@ -84,7 +166,8 @@ namespace XCAnalyze.Model
             {
                 return -1;
             }
-            return item1.Runners[breakAt - 1].Points.Value.CompareTo (item2.Runners[breakAt - 1].Points.Value);
+            return item1.Runners[breakAt - 1].Points.Value.CompareTo (
+                item2.Runners[breakAt - 1].Points.Value);
         }
         
         /// <summary>
@@ -96,7 +179,68 @@ namespace XCAnalyze.Model
         public void AddRunner (Performance runner)
         {
             _runners.Add (runner);
+        }        
+        
+        /// <summary>
+        /// A teams score is the sum of the points earned by their first five runners.  Their score is incomplete if
+        /// they failed to field five runners.
+        /// </summary>
+        public int? Score ()
+        {
+            if (Runners.Count < 5) {
+                return null;
+            }
+            int? score = 0;
+            for (int i = 0; i < 5; i++) {
+                score += Runners[i].Points;
+            }
+            return score;
         }
+        
+        /// <summary>
+        /// The averate time of the top 5 runners on the team.
+        /// </summary>
+        public Performance TopFiveAverage ()
+        {
+            return TopXAverage (5);
+        }
+        
+        /// <summary>
+        /// The average time of the top 7 runners on the team.
+        /// </summary>
+        public Performance TopSevenAverage ()
+        {
+            return TopXAverage (7);
+        }
+        
+        /// <summary>
+        /// The average time of the top x runners on the team.
+        /// </summary>
+        protected Performance TopXAverage(int x)
+        {
+            double sum = 0.0;
+            int number;
+            if (Runners.Count < x)
+            {
+                number = Runners.Count;
+            }
+            else
+            {
+                number = x;
+            }
+            for (int i = 0; i < number; i++)
+            {
+                if(Runners[i].Time != null)
+                {
+                    sum += Runners[i].Time.Value;
+                }
+            }
+            return new Performance(null, Race, sum / number);
+        }
+        
+        #endregion
+        
+        #region IComparable implementation
         
         /// <summary>
         /// Team scores are compared first by the numerical score, then by the sixth runner, then by the seventh, then
@@ -140,82 +284,7 @@ namespace XCAnalyze.Model
             }
             return TopFiveAverage ().CompareTo (other.TopFiveAverage ());
         }
-        
-        override public bool Equals(object other)
-        {
-            if(this == other)
-            {
-                return true;
-            }
-            if(other is TeamScore)
-            {
-                return 0 == CompareTo((TeamScore)other);
-            }
-            return false;
-        }
-        
-        override public int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
 
-        /// <summary>
-        /// A teams score is the sum of the points earned by their first five runners.  Their score is incomplete if
-        /// they failed to field five runners.
-        /// </summary>
-        public int? Score ()
-        {
-            if (Runners.Count < 5) {
-                return null;
-            }
-            int? score = 0;
-            for (int i = 0; i < 5; i++) {
-                score += Runners[i].Points;
-            }
-            return score;
-        }
-        
-        /// <summary>
-        /// The averate time of the top 5 runners on the team.
-        /// </summary>
-        public Performance TopFiveAverage ()
-        {
-            return TopXAverage (5);
-        }
-        
-        /// <summary>
-        /// The average time of the top 7 runners on the team.
-        /// </summary>
-        public Performance TopSevenAverage ()
-        {
-            return TopXAverage (7);
-        }
-        
-        /// <summary>
-        /// The average time of the top x runners on the team.
-        /// </summary>
-        protected internal Performance TopXAverage(int x)
-        {
-            double sum = 0.0;
-            int number;
-            if (Runners.Count < x)
-            {
-                number = Runners.Count;
-            }
-            else
-            {
-                number = x;
-            }
-            for (int i = 0; i < number; i++)
-            {
-                sum += Runners[i].Time;
-            }
-            return new Performance(null, Race, sum / number);
-        }
-        
-        public override string ToString ()
-        {
-            return School.Name + " " + Score ();
-        }
+        #endregion
     }
 }
