@@ -91,7 +91,10 @@ namespace XCAnalyze.Model
         /// The races held at this meet instance.
         /// </summary>
         public IList<Race> Races {
-            get { return _races.AsReadOnly (); }
+            get
+            {
+                return _races.AsReadOnly ();
+            }
 
             protected set {
                 if (value == null) {
@@ -126,10 +129,11 @@ namespace XCAnalyze.Model
 
         #region Constructors
 
-        protected MeetInstance ()
+        protected MeetInstance()
         {
-            _venue = new Cell<Venue> ();
-            _host = new Cell<Team> ();
+            _venue = new Cell<Venue>();
+            _host = new Cell<Team>();
+            _races = new XList<Race>();
         }
 
         /// <summary>

@@ -165,6 +165,7 @@ namespace XCAnalyze.IO.Sql
                     MeetInstance meetInstance = meetInstances[meetID][date];
                     Gender gender = Gender.FromString(Reader["gender"].ToString());
                     Race race = Race.NewEntity(id, meetInstance, gender, distance);
+                    meetInstance.AddRace(race);
                     races.Add(id, race);
                 }
             }

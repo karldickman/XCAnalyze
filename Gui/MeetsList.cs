@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-
+using System.Linq;
 using Gtk;
-
 using XCAnalyze.Model;
 
 namespace XCAnalyze.Gui
@@ -17,11 +14,11 @@ namespace XCAnalyze.Gui
         /// </summary>
         protected IDataSelection<MeetInstance> MeetSelection { get; set; }
         
-        public MeetsList (IDataSelection<MeetInstance> selection, ListStore model)
+        public MeetsList(IDataSelection<MeetInstance> selection, ListStore model)
         {
             MeetSelection = selection;
-            AppendColumn ("Name", new CellRendererText (), "text", 1);
-            AppendColumn ("Date", new CellRendererText (), "text", 2);
+            AppendColumn("Name", new CellRendererText(), "text", 1);
+            AppendColumn("Date", new CellRendererText(), "text", 2);
             RowActivated += OnRowActivated;
             Model = model;
         }

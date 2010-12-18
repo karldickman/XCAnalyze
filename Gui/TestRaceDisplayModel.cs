@@ -29,10 +29,6 @@ namespace XCAnalyze.Gui
             {
                 Meets = new List<MeetInstance> { SampleData.LCInvite10, SampleData.PluInvite10, SampleData.NwcChampionships10 };
                 CurrentMeet = new DataSelection<MeetInstance>();
-                MModel = new RaceDisplayModel(Gender.Male, CurrentMeet);
-                MModel.SelectionChanged += MHandler;
-                WModel = new RaceDisplayModel(Gender.Female, CurrentMeet);
-                WModel.SelectionChanged += WHandler;
             }
 
             [Test]

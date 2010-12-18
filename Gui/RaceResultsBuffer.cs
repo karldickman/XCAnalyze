@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
-
 using Gtk;
-
+using XCAnalyze.Collections;
 using XCAnalyze.Hytek;
 using XCAnalyze.Model;
+using System.Collections.Generic;
+
 
 namespace XCAnalyze.Gui
 {
@@ -13,40 +13,44 @@ namespace XCAnalyze.Gui
     /// </summary>
     public class RaceResultsBuffer : TextBuffer
     {
+        #region Properties
+        
         /// <summary>
         /// The default tag used for the text.
         /// </summary>
         TextTag DefaultTag { get; set; }
-        
+
         /// <summary>
         /// The object used to format the race results.
         /// </summary>
         RaceFormatter Formatter { get; set; }
-    
-        protected internal RaceResultsBuffer () : base(null)
+
+        #endregion
+        
+        #region Constructors
+        
+        protected RaceResultsBuffer() : base(null)
         {
-            DefaultTag = new TextTag ("default");
+            DefaultTag = new TextTag("default");
             DefaultTag.Font = "courier";
-            TagTable.Add (DefaultTag);
-            Formatter = new RaceFormatter ();
+            TagTable.Add(DefaultTag);
+            Formatter = new RaceFormatter();
         }
         
-        public RaceResultsBuffer (IDataSelection<Race> selection) : this()
+        public RaceResultsBuffer(IEnumerable<Race> races) : this()
         {
-            selection.SelectionChanged += OnSelectionChanged;
-        }
-        
-        public void OnSelectionChanged (object sender,
-            SelectionChangedArgs<Race> arguments)
-        {
-            Race race = arguments.Selected;
-            if (race != null)
+            if(races == null)
             {
-                race.Score ();
-                Text = "\n" + String.Join ("\n",
-                new List<string> (Formatter.Format (race)).ToArray ());
-                ApplyTag (DefaultTag, StartIter, EndIter);
+                throw new ArgumentNullException("race");
             }
+            foreach(Race race in races)
+            {
+                race.Score();
+                Text += "\n" + String.Join("\n", Formatter.Format(race).ToArray());
+            }
+            ApplyTag(DefaultTag, StartIter, EndIter);
         }
+        
+        #endregion
     }
 }
