@@ -16,9 +16,9 @@ namespace Ngol.XcAnalyze.Model.Collections
         #region Properties
 
         /// <summary>
-        /// The session factory for the current application.
+        /// The NHibernate session to use to communicate with the database.
         /// </summary>
-        protected readonly ISessionFactory SessionFactory;
+        protected readonly ISession Session;
 
         #endregion
 
@@ -32,38 +32,19 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// </param>
         public Repository(ISessionFactory sessionFactory)
         {
-            SessionFactory = sessionFactory;
+            Session = sessionFactory.OpenSession();
         }
 
         #endregion
 
         #region Methods
 
-        /// <inheritdoc />
-        protected void UsingTransaction(Action<ISession, ITransaction> action)
+        /// <summary>
+        /// Get an object against which LINQ queries can be made.
+        /// </summary>
+        protected IQueryable<T> Query()
         {
-            if(action == null) throw new ArgumentNullException("action");
-            using(ISession session = SessionFactory.OpenSession())
-            {
-                using(ITransaction transaction = session.BeginTransaction())
-                {
-                    action(session, transaction);
-                }
-            }
-        }
-
-        /// <inheritdoc />
-        protected TReturn UsingTransaction<TReturn>(Func<ISession, ITransaction, TReturn> function)
-        {
-            if(function == null)
-                throw new ArgumentNullException("function");
-            using(ISession session = SessionFactory.OpenSession())
-            {
-                using(ITransaction transaction = session.BeginTransaction())
-                {
-                    return function(session, transaction);
-                }
-            }
+            return Session.Query<T>();
         }
 
         #endregion
@@ -73,11 +54,11 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// <inheritdoc />
         public void Update(T item)
         {
-            UsingTransaction((session, transaction) =>
+            using(ITransaction transaction = Session.BeginTransaction())
             {
-                session.Update(item);
+                Session.Update(item);
                 transaction.Commit();
-            });
+            }
         }
 
         #region ICollection[T] implementation
@@ -87,10 +68,7 @@ namespace Ngol.XcAnalyze.Model.Collections
         {
             get
             {
-                using(ISession session = SessionFactory.OpenSession())
-                {
-                    return session.Query<T>().Count();
-                }
+                return Query().Count();
             }
         }
 
@@ -106,11 +84,11 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// <inheritdoc />
         public void Add(T item)
         {
-            UsingTransaction((session, transaction) =>
+            using(ITransaction transaction = Session.BeginTransaction())
             {
-                session.Save(item);
+                Session.Save(item);
                 transaction.Commit();
-            });
+            }
         }
 
         /// <exception cref="NotSupportedException">
@@ -124,10 +102,7 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// <inheritdoc />
         public bool Contains(T item)
         {
-            using(ISession session = SessionFactory.OpenSession())
-            {
-                return session.Query<T>().Contains(item);
-            }
+            return Query().Contains(item);
         }
 
         /// <inheritdoc />
@@ -139,16 +114,16 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// <inheritdoc />
         public bool Remove(T item)
         {
-            return UsingTransaction((session, transaction) =>
+            using(ITransaction transaction = Session.BeginTransaction())
             {
                 if(!Contains(item))
                 {
                     return false;
                 }
-                session.Delete(item);
+                Session.Delete(item);
                 transaction.Commit();
                 return true;
-            });
+            }
         }
 
         #region IEnumerable[T] implementation
@@ -156,10 +131,7 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// <inheritdoc />
         public IEnumerator<T> GetEnumerator()
         {
-            using(ISession session = SessionFactory.OpenSession())
-            {
-                return session.Query<T>().GetEnumerator();
-            }
+            return Query().GetEnumerator();
         }
 
         #region IEnumerable implementation
@@ -172,6 +144,31 @@ namespace Ngol.XcAnalyze.Model.Collections
         #endregion
         
         #endregion
+
+        #endregion
+
+        #region IDisposable implementation
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Dispose of this instance.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if(disposing)
+            {
+                if(Session != null)
+                {
+                    Session.Dispose();
+                }
+            }
+        }
 
         #endregion
 

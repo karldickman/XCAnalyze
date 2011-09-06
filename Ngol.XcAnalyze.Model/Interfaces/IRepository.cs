@@ -6,7 +6,7 @@ namespace Ngol.XcAnalyze.Model.Interfaces
     /// <summary>
     /// Generic interface to be implemented by all repository classes.
     /// </summary>
-    public interface IRepository<T> : ICollection<T>
+    public interface IRepository<T> : ICollection<T>, IDisposable
     {
         /// <summary>
         /// Update the specified item.
