@@ -141,6 +141,7 @@ namespace Ngol.XcAnalyze.Model
 
         #region ICloneable implementation
 
+        /// <inheritdoc />
         object ICloneable.Clone()
         {
             return MemberwiseClone();

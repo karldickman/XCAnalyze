@@ -6,6 +6,28 @@ namespace Ngol.XcAnalyze.Model.Tests
 {
     public static class SampleData
     {
+        #region Conferences
+
+        public static readonly Conference Nwc = new Conference(1, "Northwest Conference", "NWC");
+        public static readonly Conference Sciac = new Conference(2, "Southern California Intercollegiate Athletic Conference", "SCIAC");
+        public static readonly Conference Scac = new Conference(3, "Southern Collegiate Athletic Conference", "SCAC");
+
+        public static readonly IEnumerable<Conference> Conferences = new List<Conference> { Nwc, Sciac, Scac, };
+
+        #endregion
+        #region Teams
+
+        public static readonly Team LewisAndClark = new Team(1, "Lewis & Clark", Nwc);
+        public static readonly Team Willamette = new Team(2, "Willamette", Nwc);
+        public static readonly Team PugetSound = new Team(3, "PugetSound", Nwc);
+        public static readonly Team ClaremontMuddScripps = new Team(4, "Claremont-Mudd-Scripps", Sciac);
+        public static readonly Team Pomona = new Team(5, "Pomona-Pitzer", Sciac);
+        public static readonly Team ColoradoCollege = new Team(6, "Colorado", Scac);
+        public static readonly Team Chapman = new Team(7, "Chapman");
+
+        public static readonly IEnumerable<Team> Teams = new List<Team> { LewisAndClark, Willamette, PugetSound, ClaremontMuddScripps, Pomona, ColoradoCollege, Chapman, };
+
+        #endregion
         #region States
 
         public static readonly State California = new State("CA", "California");
@@ -30,6 +52,20 @@ namespace Ngol.XcAnalyze.Model.Tests
         public static readonly IEnumerable<City> Cities = new List<City> { Estacada, Seattle, Claremont, WallaWalla, Chino, Salem, Tacoma, Portland, };
 
         #endregion
+        #region Venues
+
+        public static readonly Venue McIver = new Venue(1, "Milo McIver State Park", Estacada);
+        public static readonly Venue BushPark = new Venue(2, "Bush Pasture Park", Salem);
+        public static readonly Venue VeteransGolfCourse = new Venue(3, "Veteran's Memorial Golf Course", WallaWalla);
+        public static readonly Venue PomonaCampus = new Venue(4, "Pomona College Campus", Claremont);
+        public static readonly Venue LincolnPark = new Venue(5, "Lincoln Park", Seattle);
+        public static readonly Venue PradoPark = new Venue(6, "Prado Park", Chino);
+        public static readonly Venue PluGolfCourse = new Venue(7, "PLU Golf Course", Tacoma);
+        public static readonly Venue FortSteilacoom = new Venue(8, "Fort Steilacoom Park", Tacoma);
+
+        public static readonly IEnumerable<Venue> Venues = new List<Venue> { McIver, BushPark, VeteransGolfCourse, PomonaCampus, LincolnPark, PradoPark, PluGolfCourse, FortSteilacoom, };
+
+        #endregion
         #region Runners
         
         public static readonly Runner Karl = new Runner(1, "Dickman", "Karl");//, Gender.Male, 2010);
@@ -46,26 +82,6 @@ namespace Ngol.XcAnalyze.Model.Tests
         #endregion
         /*
          * #region Properties
-
-        #region Cities
-
-        public static readonly City Estacada;
-        public static readonly City Seattle;
-        public static readonly City Claremont;
-        public static readonly City WallaWalla;
-        public static readonly City Chino;
-        public static readonly City Salem;
-        public static readonly City Tacoma;
-
-        #endregion
-
-        #region Conferences
-
-        public static readonly Conference Nwc;
-        public static readonly Conference Sciac;
-        public static readonly Conference Scac;
-
-        #endregion
 
         #region MeetInstances
 
@@ -95,143 +111,10 @@ namespace Ngol.XcAnalyze.Model.Tests
 
         #endregion
 
-        #region Runners
-
-        public static readonly Runner Karl = new Runner("Dickman", "Karl", Gender.Male, 2010);
-        public static readonly Runner Hannah = new Runner("Palmer", "Hannah", Gender.Female, 2010);
-        public static readonly Runner Richie = new Runner("LeDonne", "Richie", Gender.Male, 2011);
-        public static readonly Runner Keith = new Runner("Woodard", "Keith", Gender.Male, null);
-        public static readonly Runner Leo = new Runner("Castillo", "Leo", Gender.Male, 2012);
-        public static readonly Runner Francis = new Runner("Reynolds", "Francis", Gender.Male, 2010);
-        public static readonly Runner Florian = new Runner("Scheulen", "Florian", Gender.Male, 2010);
-        public static readonly Runner Jackson = new Runner("Brainerd", "Jackson", Gender.Male, 2012);
-
-        #endregion
-
-        #region States
-
-        public static readonly State Oregon = new State("OR", "Oregon");
-        public static readonly State California = new State("CA", "California");
-        public static readonly State Colorado = new State("CO", "Colorado");
-        public static readonly State Texas = new State("TX", "Texas");
-        public static readonly State Washington = new State("WA", "Washington");
-
-        #endregion
-
-        #region Teams
-
-        public static readonly Team LewisAndClark;
-        public static readonly Team Willamette;
-        public static readonly Team PugetSound;
-        public static readonly Team ClaremontMuddScripps;
-        public static readonly Team Pomona;
-        public static readonly Team ColoradoCollege;
-        public static readonly Team Chapman;
-
-        #endregion
-
-        #region Venues
-
-        public static readonly Venue McIver;
-        public static readonly Venue BushPark;
-        public static readonly Venue VeteransGolfCourse;
-        public static readonly Venue PomonaCampus;
-        public static readonly Venue LincolnPark;
-        public static readonly Venue PradoPark;
-        public static readonly Venue PluGolfCourse;
-        public static readonly Venue FortSteilacoom;
-
-        #endregion
-
-        public static IList<City> Cities {
-            get { return Data.Cities; }
-        }
-
-        public static IList<Conference> Conferences {
-            get { return Data.Conferences; }
-        }
-
-        public static IList<Affiliation> Affiliations {
-            get { return Data.Affiliations; }
-        }
-
-        public static readonly DataContext Data;
-
-        public static IList<MeetInstance> MeetInstances {
-            get { return Data.MeetInstances; }
-        }
-
-        public static IList<Meet> Meets {
-            get { return Data.Meets; }
-        }
-
-        public static IList<Performance> Performances {
-            get { return Data.Performances; }
-        }
-
-        public static readonly IDictionary<MeetInstance, IDictionary<Gender, Race>> RaceLookup;
-
-        public static IList<Race> Races {
-            get { return Data.Races; }
-        }
-
-        public static IList<Runner> Runners {
-            get { return Data.Runners; }
-        }
-
-        public static IList<State> States {
-            get { return Data.States; }
-        }
-
-        public static IList<Team> Teams {
-            get { return Data.Teams; }
-        }
-
-        public static IList<Venue> Venues {
-            get { return Data.Venues; }
-        }
-
         #endregion
 
         static SampleData()
         {
-            #region Conferences
-            IList<Conference> conferences = new List<Conference>();
-            Nwc = new Conference("Northwest Conference", "NWC");
-            Sciac = new Conference("Southern California Intercollegiate Athletic Conference", "SCIAC");
-            Scac = new Conference("Southern Collegiate Athletic Conference", "SCAC");
-            conferences.Add(Nwc);
-            conferences.Add(Sciac);
-            conferences.Add(Scac);
-            #endregion
-            #region Teams
-            IList<Team> teams = new List<Team>();
-            LewisAndClark = new Team("Lewis & Clark", Nwc);
-            Willamette = new Team("Willamette", Nwc);
-            PugetSound = new Team("PugetSound", Nwc);
-            ClaremontMuddScripps = new Team("Claremont-Mudd-Scripps", Sciac);
-            Pomona = new Team("Pomona-Pitzer", Sciac);
-            ColoradoCollege = new Team("Colorado", Scac);
-            Chapman = new Team("Chapman");
-            teams.Add(LewisAndClark);
-            teams.Add(Willamette);
-            teams.Add(PugetSound);
-            teams.Add(ClaremontMuddScripps);
-            teams.Add(Pomona);
-            teams.Add(ColoradoCollege);
-            teams.Add(Chapman);
-            #endregion
-            #region Runners
-            IList<Runner> runners = new List<Runner>();
-            runners.Add(Karl);
-            runners.Add(Hannah);
-            runners.Add(Richie);
-            runners.Add(Keith);
-            runners.Add(Leo);
-            runners.Add(Francis);
-            runners.Add(Florian);
-            runners.Add(Jackson);
-            #endregion
             #region Affiliations
             IList<Affiliation> affiliations = new List<Affiliation>();
             int y;
@@ -247,50 +130,6 @@ namespace Ngol.XcAnalyze.Model.Tests
             affiliations.Add(new Affiliation(Hannah, LewisAndClark, 2008));
             affiliations.Add(new Affiliation(Hannah, LewisAndClark, 2009));
             affiliations.Add(new Affiliation(Hannah, LewisAndClark, 2010));
-            #endregion
-            #region States
-            IList<State> states = new List<State>();
-            states.Add(Oregon);
-            states.Add(Washington);
-            states.Add(California);
-            states.Add(Colorado);
-            states.Add(Texas);
-            #endregion
-            #region Cities
-            IList<City> cities = new List<City>();
-            Estacada = new City("Estacada", Oregon);
-            Seattle = new City("Seattle", Washington);
-            Claremont = new City("Claremont", California);
-            WallaWalla = new City("Walla Walla", Washington);
-            Chino = new City("Chino", California);
-            Salem = new City("Salem", Oregon);
-            Tacoma = new City("Tacoma", Washington);
-            cities.Add(Estacada);
-            cities.Add(Seattle);
-            cities.Add(Claremont);
-            cities.Add(WallaWalla);
-            cities.Add(Chino);
-            cities.Add(Salem);
-            cities.Add(Tacoma);
-            #endregion
-            #region Venues
-            IList<Venue> venues = new List<Venue>();
-            McIver = new Venue("Milo McIver State Park", Estacada);
-            BushPark = new Venue("Bush Pasture Park", Salem);
-            VeteransGolfCourse = new Venue("Veteran's Memorial Golf Course", WallaWalla);
-            PomonaCampus = new Venue("Pomona College Campus", Claremont);
-            LincolnPark = new Venue("Lincoln Park", Seattle);
-            PradoPark = new Venue("Prado Park", Chino);
-            PluGolfCourse = new Venue("PLU Golf Course", Tacoma);
-            FortSteilacoom = new Venue("Fort Steilacoom Park", Tacoma);
-            venues.Add(McIver);
-            venues.Add(BushPark);
-            venues.Add(VeteransGolfCourse);
-            venues.Add(PomonaCampus);
-            venues.Add(LincolnPark);
-            venues.Add(PradoPark);
-            venues.Add(PluGolfCourse);
-            venues.Add(FortSteilacoom);
             #endregion
             #region Meets
             IList<Meet> meets = new List<Meet>();

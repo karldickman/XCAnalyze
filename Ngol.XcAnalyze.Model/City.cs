@@ -30,7 +30,11 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The state in which the city is located geographically.
         /// </summary>
-        public virtual State State { get; protected set; }
+        public virtual State State
+        {
+            get;
+            protected set;
+        }
 
         #endregion
 
@@ -76,7 +80,15 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public static bool operator ==(City city1, City city2)
         {
-            return city1 == city2;
+            if(ReferenceEquals(city1, city2))
+            {
+                return true;
+            }
+            if(ReferenceEquals(city1, null) || ReferenceEquals(city2, null))
+            {
+                return false;
+            }
+            return city1.Equals(city2);
         }
 
         /// <summary>
@@ -110,7 +122,7 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override string ToString()
         {
-            return string.Format("{0}, {1}", Name, null);//State);
+            return string.Format("{0}, {1}", Name, State);
         }
 
         private bool Equals(City that)
@@ -130,6 +142,7 @@ namespace Ngol.XcAnalyze.Model
 
         #region ICloneable implementation
 
+        /// <inheritdoc />
         object ICloneable.Clone()
         {
             return MemberwiseClone();

@@ -1,250 +1,168 @@
 using System;
 using System.Collections.Generic;
-using XCAnalyze.Collections;
 
-namespace XCAnalyze.Model
+namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// Describes a venue at which races can be held.
     /// </summary>
-    public class Venue
+    public class Venue : ICloneable
     {
         #region Properties
-        
-        #region Fields
-        
-        private Cell<City> _city;
-        
-        private IXList<MeetInstance> _meetInstances;
-        
-        private Cell<string> _name;
-        
-        #endregion
-        
+
         /// <summary>
         /// The city in which the venue is.
         /// </summary>
-        public City City
+        public virtual City City
         {
-            get { return _city.Value; }
-            
-            set
-            {
-                if (value == null) 
-                {
-                    throw new ArgumentNullException (
-                        "Property city cannot be null.");
-                }
-                _city.Value = value;
-            }
+            get;
+            set;
         }
-        
-        /// <summary>
-        /// The number that identifies the city.
-        /// </summary>
-        public int CityID
-        {
-            get { return City.ID; }
-        }
-        
+
         /// <summary>
         /// The number that identifies this venue.
         /// </summary>
-        public int ID { get; set; }
+        public virtual int ID
+        {
+            get;
+            set;
+        }
 
-        /// <summary>
-        /// True if a corresponding entry for this venue exits in the database,
-        /// false otherwise.
-        /// </summary>
-        public bool IsAttached { get; set; }
-        
-        /// <summary>
-        /// True if the venue has been changed since it was loaded from the
-        /// database, false otherwise.
-        /// </summary>
-        public bool IsChanged
-        {
-            get
-            {
-                if (IsAttached) 
-                {
-                    return _name.IsChanged || _city.IsChanged;
-                }
-                return false;
-            }
-        }
-        
-        /// <summary>
-        /// The instances of meets that have been held at this venue.
-        /// </summary>
-        public IList<MeetInstance> MeetInstances
-        {
-            get { return _meetInstances.AsReadOnly (); }
-            
-            protected set
-            {
-                if (value == null) 
-                {
-                    value = new List<MeetInstance> ();
-                }
-                _meetInstances = new XList<MeetInstance> (value);
-            }
-        }
-        
         /// <summary>
         /// The name of the venue.
         /// </summary>
-        public string Name
+        public virtual string Name
         {
-            get { return _name.Value; }
-            
-            set
-            {
-                if (value == null) 
-                {
-                    throw new ArgumentNullException (
-                        "Property Name cannot be null.");
-                }
-                _name.Value = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
         /// The state where the venue is.
         /// </summary>
-        public State State
+        /*public State State
         {
             get { return City.State; }
-        }
-        
+        }*/
+
         #endregion
-        
+
         #region Constructors
-        
-        protected Venue ()
-        {
-            _name = new Cell<string> ();
-            _city = new Cell<City> ();
-        }
-        
+
         /// <summary>
         /// Create a new venue.
         /// </summary>
+        /// <param name="id">
+        /// The number used to identify the venue;
+        /// </param>
         /// <param name="name">
         /// The name of the venue.
         /// </param>
         /// <param name="city">
         /// The city in which the venue is.
         /// </param>
-        public Venue (string name, City city)
-        : this()
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if any argument is <see langword="null" />.
+        /// </exception>
+        public Venue(int id, string name, City city)
         {
+            if(name == null)
+                throw new ArgumentNullException("name");
+            if(city == null)
+                throw new ArgumentNullException("city");
+            ID = id;
             Name = name;
             City = city;
-            IsAttached = false;
         }
-        
+
         /// <summary>
-        /// Create a new venue.
+        /// Construct a new venue.  Needed for NHibernate.
         /// </summary>
-        /// <param name="id">
-        /// The number used to identify the venue;
-        /// </param>
-        /// <param name="name">
-        /// The name of the venue.
-        /// </param>
-        /// <param name="city">
-        /// The city in which the venue is.
-        /// </param>
-        protected Venue(int id, string name, City city)
-        : this(name, city)
+        protected Venue()
         {
-            ID = id;
         }
-        
-        /// <summary>
-        /// Create a new venue.
-        /// </summary>
-        /// <param name="id">
-        /// The number used to identify the venue;
-        /// </param>
-        /// <param name="name">
-        /// The name of the venue.
-        /// </param>
-        /// <param name="city">
-        /// The city in which the venue is.
-        /// </param>
-        public static Venue NewEntity (int id, string name, City city)
-        {
-            Venue newVenue = new Venue (id, name, city);
-            newVenue.IsAttached = true;
-            return newVenue;
-        }
-        
+
         #endregion
-        
+
         #region Inherited Methods
-        
-        override public bool Equals (object other)
+
+        /// <summary>
+        /// Overload of the == operator that delegates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator ==(Venue venue1, Venue venue2)
         {
-            if(this == other)
+            if(ReferenceEquals(venue1, venue2))
             {
                 return true;
             }
-            if(other is Venue)
+            if(ReferenceEquals(venue1, null) || ReferenceEquals(venue2, null))
             {
-                return Equals((Venue)other);
+                return false;
             }
-            return false;
+            return venue1.Equals(venue2);
         }
-        
+
+
         /// <summary>
-        /// Venues are compared first by state, then by city, then by name.
+        /// Overload of the != operator that delegates to <see cref="Equals(object)" />.
         /// </summary>
-        /// <param name="other">
-        /// The <see cref="Venue"/> with which to compare.
-        /// </param>
-        public bool Equals (Venue other)
+        public static bool operator !=(Venue venue1, Venue venue2)
         {
-            return City.Equals (other.City) && Name.Equals (other.Name);
-        }  
-        
-        override public int GetHashCode ()
+            return !(venue1 == venue2);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object other)
         {
-            return ID;
-        } 
-        
-        override public string ToString ()
+            if(ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return Equals(other as Venue);
+        }
+
+        /// <summary>
+        /// Check whether two venues are equal.
+        /// </summary>
+        protected bool Equals(Venue other)
+        {
+            if(ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return City == other.City && Name == other.Name;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
         {
             return Name + ", " + City;
         }
-        
+
         #endregion
-        
-        #region Methods
-        
-        /// <summary>
-        /// Add a meet instance run at this venue.
-        /// </summary>
-        /// <param name="meetInstance">
-        /// The <see cref="MeetInstance"/> to add.
-        /// </param>
-        public void AddMeetInstance (MeetInstance meetInstance)
+
+        #region ICloneable implementation
+
+        /// <inheritdoc />
+        object ICloneable.Clone()
         {
-            _meetInstances.Add (meetInstance);
+            return MemberwiseClone();
         }
-        
-        /// <summary>
-        /// Add more meet instances run at this venue.
-        /// </summary>
-        /// <param name="meetInstances">
-        /// A <see cref="IEnumerable<MeetInstance>"/> of meet instances to add.
-        /// </param>
-        public void AddMeetInstances (IEnumerable<MeetInstance> meetInstances)
-        {
-            _meetInstances.AddRange (meetInstances);
-        }
-        
+
         #endregion
     }
 }

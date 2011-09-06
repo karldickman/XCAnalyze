@@ -4,15 +4,6 @@
     assembly="Ngol.XcAnalyze.Model"
     namespace="Ngol.XcAnalyze.Model">
     <class
-        name="State">
-        <id
-            name="Code" />
-        <property
-            name="Name"
-            not-null="true"
-            unique="true" />
-    </class>
-    <class
         name="City">
         <id
             name="ID">
@@ -22,5 +13,47 @@
         <property
             name="Name"
             not-null="true" />
+    </class>
+    <class
+        name="Conference">
+        <id
+            name="ID">
+            <generator
+                class="native" />
+        </id>
+        <property
+            name="Name"
+            not-null="true" />
+        <property
+            name="Acronym"
+            not-null="true" />
+    </class>
+    <class
+        name="State">
+        <id
+            name="Code" />
+        <property
+            name="Name"
+            not-null="true"
+            unique="true" />
+    </class>
+    <class
+        name="Team">
+        <id name="ID">
+            <generator class="native" />
+        </id>
+        <property name="Name"
+                  not-null="true" />
+    </class>
+    <class
+        name="Venue">
+        <id
+            name="ID">
+            <generator
+                class="native" />&gt;
+        </id>
+        <property
+            name="Name"
+            not-null="true" />&gt;
     </class>
 </hibernate-mapping>

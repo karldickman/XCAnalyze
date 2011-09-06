@@ -11,11 +11,11 @@ using Assert = Ngol.Utilities.NUnit.MoreAssert;
 namespace Ngol.XcAnalyze.Model.Tests
 {
     [TestFixture]
-    public class TestCityRepository : TestRepository<City>
+    public class TestConferenceRepository : TestRepository<Conference>
     {
-        public override IEnumerable<City> TestData
+        public override IEnumerable<Conference> TestData
         {
-            get { return SampleData.Cities; }
+            get { return SampleData.Conferences; }
         }
 
         [Test]
@@ -51,16 +51,16 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            City portland = SampleData.Portland.Clone<City>();
-            Repository.Add(portland);
-            Assert.Contains(portland, Repository);
-            foreach(string newName in new List<string> { "Little Beirut", "Stumptown", "Rose City", "PDX", })
+            Conference nwc = SampleData.Nwc.Clone<Conference>();
+            Repository.Add(nwc);
+            Assert.Contains(nwc, Repository);
+            foreach(string newName in new List<string> { "NCIC", "WCIC" })
             {
-                portland.SetProperty("Name", newName);
-                Repository.Update(portland);
+                nwc.SetProperty("Name", newName);
+                Repository.Update(nwc);
                 using(ISession session = SessionFactory.OpenSession())
                 {
-                    City actual = session.Get<City>(portland.ID);
+                    Conference actual = session.Get<Conference>(nwc.ID);
                     Assert.AreEqual(newName, actual.Name);
                 }
             }

@@ -1,224 +1,162 @@
 using System;
 using System.Collections.Generic;
-using XCAnalyze.Collections;
 
-namespace XCAnalyze.Model
+namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// An athletic conference is the basic unit into which teams organize
     /// themselves.
     /// </summary>
-    public class Conference
+    public class Conference : ICloneable
     {
         #region Properties
-        
-        #region Fields
-        
-        private Cell<string> _acronym;
-        private Cell<string> _name;
-        private IXList<Team> _teams;
 
-        #endregion
-        
         /// <summary>
         /// The acronym conventionally used for the conference.
         /// </summary>
-        public string Acronym
+        public virtual string Acronym
         {
-            get { return _acronym.Value; }
-            
-            set
-            {
-                if (value == null) 
-                {
-                    throw new ArgumentNullException (
-                        "Property Acronym cannot be null.");
-                }
-                _acronym.Value = value;
-            }
+            get;
+            set;
         }
-        
+
         /// <summary>
         /// The number that identifies this conference.
         /// </summary>
-        public int ID { get; set; }
-        
-        /// <summary>
-        /// True if the conference is stored in the databas.  False otherwise.
-        /// </summary>
-        public bool IsAttached { get; set; }
-        
-        public bool IsChanged
+        public virtual int ID
         {
-            get
-            {
-                if (IsAttached) 
-                {
-                    return _name.IsChanged || _acronym.IsChanged;
-                }
-                return false;
-            }
+            get;
+            set;
         }
-        
+
         /// <summary>
         /// The name of the conference.
         /// </summary>
-        public string Name
+        public virtual string Name
         {
-            get { return _name.Value; }
-            
-            set
-            {
-                if (value == null) 
-                {
-                    throw new ArgumentNullException (
-                        "Property Name cannot be null.");
-                }
-                _name.Value = value;
-            }
+            get;
+            set;
         }
-        
-        /// <summary>
-        /// The teams affiliated with the conference.
-        /// </summary>
-        public IList<Team> Teams
-        {
-            get { return _teams; }
-            
-            protected set
-            {
-                if (value == null) 
-                {
-                    value = new List<Team> ();
-                }
-                _teams = new XList<Team> (value);
-            }
-        }
-        
+
         #endregion
-        
+
         #region Constructors
-        
-        protected Conference ()
-        {
-            _name = new Cell<string> ();
-            _acronym = new Cell<string> ();
-        }
-        
-        /// <summary>
-        /// Create a new conference.
-        /// </summary>
-        /// <param name="name">
-        /// The name of the conference.
-        /// </param>
-        /// <param name="acronym">
-        /// The acronym conventionally used for the conference.
-        /// </param>
-        public Conference (string name, string acronym)
-        : this()
-        {
-            Name = name;
-            Acronym = acronym;
-            IsAttached = false;
-        }
-        
-        /// <summary>
-        /// Create a new conference.
-        /// </summary>
-        /// <param name="id">
-        /// The identification number for the conference.
-        /// </param>
-        /// <param name="name">
-        /// The name of the conference.
-        /// </param>
-        /// <param name="acronym">
-        /// The acronym conventionally used for the conference.
-        /// </param>
-        protected Conference (int id, string name, string acronym)
-        : this(name, acronym)
-        {
-            ID = id;
-        }
 
         /// <summary>
         /// Create a new conference.
         /// </summary>
         /// <param name="id">
         /// The identification number for the conference.
-        /// </para>
+        /// </param>
         /// <param name="name">
         /// The name of the conference.
         /// </param>
         /// <param name="acronym">
         /// The acronym conventionally used for the conference.
         /// </param>
-        /// <param name="teams">
-        /// A <see cref="IList<Team>"/> of teams in the conference.
-        /// </param>
-        public static Conference NewEntity (int id, string name,
-            string acronym)
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="name"/> or <paramref name="acronym"/>
+        /// is <see langword="null" />.
+        /// </exception>
+        public Conference(int id, string name, string acronym)
         {
-            Conference newConference = new Conference (id, name, acronym);
-            newConference.IsAttached = true;
-            return newConference;
+            if(name == null)
+                throw new ArgumentNullException("name");
+            if(acronym == null)
+                throw new ArgumentNullException("acronym");
+            ID = id;
+            Name = name;
+            Acronym = acronym;
         }
-        
-        #endregion
-        
-        #region Inherited methods
-        
-        override public bool Equals(object other)
+
+        /// <summary>
+        /// Construct a new conference.
+        /// </summary>
+        /// <remarks>
+        /// Required for NHibernate.
+        /// </remarks>
+        protected Conference()
         {
-            if(this == other)
+        }
+
+        #endregion
+
+        #region Inherited methods
+
+        /// <summary>
+        /// Overload of operator == that delegates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator ==(Conference conference1, Conference conference2)
+        {
+            if(ReferenceEquals(conference1, conference2))
             {
                 return true;
             }
-            else if(other is Conference)
+            if(ReferenceEquals(conference1, null) || ReferenceEquals(conference2, null))
             {
-                return Equals((Conference)other);
+                return false;
             }
-            return false;
+            return conference1.Equals(conference2);
         }
-        
-        public bool Equals (Conference that)
+
+        /// <summary>
+        /// Overload of operator != that delegates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator !=(Conference conference1, Conference conference2)
         {
-            return Name.Equals (that.Name);
+            return !(conference1 == conference2);
         }
-        
-        override public int GetHashCode ()
+
+        /// <inheritdoc />
+        public override bool Equals(object other)
         {
-            return ID;
+            if(ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return Equals(other as Conference);
         }
-        
-        override public string ToString()
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
         {
             return Name;
         }
-        
-        #endregion
-        
-        #region Methods
-        
+
         /// <summary>
-        /// Add a new team to the conference.
+        /// Determine if two conferences are equal.
         /// </summary>
-        /// <param name="team">
-        /// The <see cref="Team"/> to add.
-        /// </param>
-        public void AddTeam (Team team)
+        protected bool Equals(Conference that)
         {
-            _teams.Add (team);
+            if(ReferenceEquals(that, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, that))
+            {
+                return true;
+            }
+            return Name == that.Name;
         }
-        
-        /// <summary>
-        /// Add new teams to the conference.
-        /// </summary>
-        /// <param name="teams">
-        /// A <see cref="IEnumerable<Team>"/> of teams to add.
-        /// </param>
-        public void AddTeams (IEnumerable<Team> teams)
+
+        #endregion
+
+        #region ICloneable implementation
+
+        /// <inheritdoc />
+        object ICloneable.Clone()
         {
-            _teams.AddRange (teams);
+            return MemberwiseClone();
         }
         
         #endregion

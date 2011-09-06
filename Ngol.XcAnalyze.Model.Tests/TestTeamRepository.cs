@@ -4,6 +4,7 @@ using System.Linq;
 using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
+using Ngol.XcAnalyze.Model;
 using NHibernate;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
@@ -11,11 +12,11 @@ using Assert = Ngol.Utilities.NUnit.MoreAssert;
 namespace Ngol.XcAnalyze.Model.Tests
 {
     [TestFixture]
-    public class TestCityRepository : TestRepository<City>
+    public class TestTeamRepository : TestRepository<Team>
     {
-        public override IEnumerable<City> TestData
+        public override IEnumerable<Team> TestData
         {
-            get { return SampleData.Cities; }
+            get { return SampleData.Teams; }
         }
 
         [Test]
@@ -51,16 +52,16 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            City portland = SampleData.Portland.Clone<City>();
-            Repository.Add(portland);
-            Assert.Contains(portland, Repository);
-            foreach(string newName in new List<string> { "Little Beirut", "Stumptown", "Rose City", "PDX", })
+            Team pioneers = SampleData.LewisAndClark.Clone<Team>();
+            Repository.Add(pioneers);
+            Assert.Contains(pioneers, Repository);
+            foreach(string newName in new List<string> { "Pioneers", "LC", })
             {
-                portland.SetProperty("Name", newName);
-                Repository.Update(portland);
+                pioneers.SetProperty("Name", newName);
+                Repository.Update(pioneers);
                 using(ISession session = SessionFactory.OpenSession())
                 {
-                    City actual = session.Get<City>(portland.ID);
+                    Team actual = session.Get<Team>(pioneers.ID);
                     Assert.AreEqual(newName, actual.Name);
                 }
             }
