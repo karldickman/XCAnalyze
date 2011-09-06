@@ -1,0 +1,22 @@
+using System;
+using Ngol.XcAnalyze.Model;
+using NHibernate.Cfg;
+using NHibernate.Tool.hbm2ddl;
+using NUnit.Framework;
+
+namespace Ngol.XcAnalyze.Model.Tests
+{
+    [TestFixture]
+    public class TestGenerateSchema
+    {
+        [Test]
+        public void TestGenerationOfSchema()
+        {
+            Configuration configuration = new Configuration();
+            configuration.Configure();
+            configuration.AddAssembly(typeof(State).Assembly);
+            new SchemaExport(configuration).Execute(false, true, false);
+        }
+    }
+}
+

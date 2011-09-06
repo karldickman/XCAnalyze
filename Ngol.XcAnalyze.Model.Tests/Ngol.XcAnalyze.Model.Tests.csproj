@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7377447A-A3CE-451B-896E-0A6136E6E1DC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Ngol.XcAnalyze.Model.Tests</RootNamespace>
+    <AssemblyName>Ngol.XcAnalyze.Model.Tests</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="NHibernate, Version=3.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4" />
+    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>mono-nunit</Package>
+    </Reference>
+    <Reference Include="nunit.core, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>mono-nunit</Package>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="Mono.Data.Sqlite" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SampleData.cs" />
+    <Compile Include="TestCity.cs" />
+    <Compile Include="TestCityRepository.cs" />
+    <Compile Include="TestGenerateSchema.cs" />
+    <Compile Include="TestRunner.cs" />
+    <Compile Include="TestState.cs" />
+    <Compile Include="TestStateRepository.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\Ngol.XcAnalyze.Model\Ngol.XcAnalyze.Model.csproj">
+      <Project>{03F68573-C451-45CF-A666-BACF76B57BBD}</Project>
+      <Name>Ngol.XcAnalyze.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Ngol.Utilities.System\Ngol.Utilities.System.csproj">
+      <Project>{B53B9249-70AC-4414-95A8-0E7838885C2B}</Project>
+      <Name>Ngol.Utilities.System</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Ngol.Utilities.Reflection\Ngol.Utilities.Reflection.csproj">
+      <Project>{8F46EFD3-2D0F-4DE1-9CBB-E775E2A2458A}</Project>
+      <Name>Ngol.Utilities.Reflection</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Ngol.Utilities.Collections\Ngol.Utilities.Collections.csproj">
+      <Project>{7F9239EA-AB07-4CCB-B0DC-58C665D1E02D}</Project>
+      <Name>Ngol.Utilities.Collections</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Ngol.Utilities.NUnit\Ngol.Utilities.NUnit.csproj">
+      <Project>{60ED6A54-F0A6-4AFC-9E81-C783C935980C}</Project>
+      <Name>Ngol.Utilities.NUnit</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Ngol.Utilities.NHibernate\Ngol.Utilities.NHibernate.csproj">
+      <Project>{61454F0F-30AA-40F8-9328-77A861A30A89}</Project>
+      <Name>Ngol.Utilities.NHibernate</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="hibernate.cfg.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Ngol.XcAnalyze.Model\Mapping.hbm.xml">
+    </None>
+  </ItemGroup>
+</Project>
