@@ -102,6 +102,19 @@ namespace Ngol.XcAnalyze.Model.Tests
         }
 
         #endregion
+        #region Meets
+
+        public static readonly Meet LCInvite = new Meet(1, "Lewis & Clark Invitational");
+        public static readonly Meet CharlesBowles = new Meet(2, "Charles Bowles Invitational");
+        public static readonly Meet NwcChampionships = new Meet(3, "Northwest Conference Championship");
+        public static readonly Meet SciacMultiDuals = new Meet(4, "SCIAC Multi-Duals");
+        public static readonly Meet Sundodger = new Meet(5, "Sundodger Invitational");
+        public static readonly Meet Regionals = new Meet(6, "NCAA West Region Championship");
+        public static readonly Meet PluInvite = new Meet(7, "Pacific Lutheran Invitational");
+
+        public static readonly IEnumerable<Meet> Meets = new List<Meet> { LCInvite, CharlesBowles, NwcChampionships, SciacMultiDuals, Sundodger, Regionals, PluInvite, };
+
+        #endregion
 
         static SampleData()
         {
@@ -143,32 +156,11 @@ namespace Ngol.XcAnalyze.Model.Tests
 
         #endregion
 
-        #region Meets
-
-        public static readonly Meet LCInvite = new Meet("Lewis & Clark Invitational");
-        public static readonly Meet CharlesBowles = new Meet("Charles Bowles Invitational");
-        public static readonly Meet NwcChampionships = new Meet("Northwest Conference Championship");
-        public static readonly Meet SciacMultiDuals = new Meet("SCIAC Multi-Duals");
-        public static readonly Meet Sundodger = new Meet("Sundodger Invitational");
-        public static readonly Meet Regionals = new Meet("NCAA West Region Championship");
-        public static readonly Meet PluInvite = new Meet("Pacific Lutheran Invitational");
-
-        #endregion
 
         #endregion
 
         static SampleData()
         {
-            #region Meets
-            IList<Meet> meets = new List<Meet>();
-            meets.Add(LCInvite);
-            meets.Add(CharlesBowles);
-            meets.Add(NwcChampionships);
-            meets.Add(SciacMultiDuals);
-            meets.Add(Sundodger);
-            meets.Add(Regionals);
-            meets.Add(PluInvite);
-            #endregion
             #region MeetInstances
             IList<MeetInstance> meetInstances = new List<MeetInstance>();
             LCInvite09 = new MeetInstance(LCInvite, new DateTime(2009, 9, 12), McIver);

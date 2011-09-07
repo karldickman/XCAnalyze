@@ -5,8 +5,10 @@
     namespace="Ngol.XcAnalyze.Model">
     <class
         name="Affiliation">
-        <id name="ID">
-        <generator class="native" />
+        <id
+            name="ID">
+            <generator
+                class="native" />
         </id>
         <property
             name="Season"
@@ -35,6 +37,17 @@
             not-null="true" />
         <property
             name="Acronym"
+            not-null="true" />
+    </class>
+    <class
+        name="Meet">
+        <id
+            name="ID">
+            <generator
+                class="native" />
+        </id>
+        <property
+            name="Name"
             not-null="true" />
     </class>
     <class

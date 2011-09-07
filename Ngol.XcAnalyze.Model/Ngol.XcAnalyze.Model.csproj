@@ -48,6 +48,7 @@
     <Compile Include="Conference.cs" />
     <Compile Include="Team.cs" />
     <Compile Include="Affiliation.cs" />
+    <Compile Include="Meet.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

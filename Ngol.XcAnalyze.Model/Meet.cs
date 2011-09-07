@@ -1,168 +1,63 @@
 using System;
 using System.Collections.Generic;
-using XCAnalyze.Collections;
 
-namespace XCAnalyze.Model
+namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A recurring Cross-Country competition.
     /// </summary>
-    public class Meet
+    public class Meet : ICloneable
     {
         #region Properties
-        
-        #region Fields
-        
-        private Cell<Team> _host;
-        
-        private IXDictionary<int, MeetInstance> _instances;
-        
-        private Cell<string> _name;
-        
-        #endregion
 
         /// <summary>
         /// The team that hosts the meet.
         /// </summary>
-        public Team Host
+        public virtual Team Host
         {
-            get
-            {
-                return _host.Value;
-            }
-            
-            set
-            {
-                _host.Value = value;
-            }
+            get;
+            set;
         }
-        
-        /// <summary>
-        /// The number used to identify the team that hosts the meet.
-        /// </summary>
-        public int? HostID
-        {
-            get
-            {
-                if (Host == null) 
-                {
-                    return null;
-                }
-                return Host.ID;
-            }
-        }
-         
+
         /// <summary>
         /// The number used to identify this meet.
         /// </summary>
-        public int ID { get; set; }
-        
-        /// <summary>
-        /// True if the meet has been stored to the database, false otherwise.
-        /// </summary>
-        public bool IsAttached { get; set; }
-        
-        /// <summary>
-        /// True if the meet has been changed since being loaded from the
-        /// database, false otherwise.
-        /// </summary>
-        public bool IsChanged
+        public virtual int ID
         {
-            get
-            {
-                if (IsAttached) 
-                {
-                    return _host.IsChanged || _name.IsChanged;
-                }
-                return false;
-            }
+            get;
+            set;
         }
-        
-        /// <summary>
-        /// The instances of this meet.
-        /// </summary>
-        public IDictionary<int, MeetInstance> Instances
-        {
-            get
-            {
-                return _instances.AsReadOnly();
-            }
-            
-            protected set
-            {
-                if (value == null) 
-                {
-                    value = new Dictionary<int, MeetInstance> ();
-                }
-                _instances = new XDictionary<int, MeetInstance>(value);
-            }
-        }
-        
+
         /// <summary>
         /// The name of the meet.
         /// </summary>
-        public string Name
+        public virtual string Name
         {
-            get
-            {
-                return _name.Value;
-            }
-        
-            protected set
-            {
-                if (value == null) 
-                {
-                    throw new ArgumentNullException (
-                        "Property Name cannot be null.");
-                }
-                _name.Value = value;
-            }            
+            get;
+            set;
         }
-        
+
         #endregion
-        
+
         #region Constructors
-        
-        protected Meet ()
-        {
-            _name = new Cell<string> ();
-            _host = new Cell<Team> ();
-        }
-        
+
         /// <summary>
         /// Create a new meet.
         /// </summary>
+        /// <param name="id">
+        /// The number used to identify the meet.
+        /// </param>
         /// <param name="name">
         /// The name of the meet.
         /// </param>
         /// <exception cref="ArgumentNullException">
         /// Thrown if name is null.
         /// </exception>
-        public Meet (string name)
-        : this(name, null)
+        public Meet(int id, string name)
+            : this(id, name, null)
         {
         }
-        
-        /// <summary>
-        /// Create a new meet.
-        /// </summary>
-        /// <param name="name">
-        /// The name of the meet.
-        /// </param>
-        /// <param name="host">
-        /// The <see cref="Team"/> that hosts the meet.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if name is null.
-        /// </exception>
-        public Meet (string name, Team host)
-        : this()
-        {
-            Name = name;
-            Host = host;
-            IsAttached = false;
-        }
-        
+
         /// <summary>
         /// Create a new meet.
         /// </summary>
@@ -178,109 +73,102 @@ namespace XCAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if name is null.
         /// </exception>
-        protected Meet (int id, string name, Team host)
-        : this(name, host)
+        protected Meet(int id, string name, Team host)
         {
             ID = id;
+            Name = name;
+            Host = host;
         }
-         
+
         /// <summary>
-        /// Create a new meet.
+        /// Construct a new <see cref="Meet" />
         /// </summary>
-        /// <param name="id">
-        /// The number used to identify the meet.
-        /// </param>
-        /// <param name="name">
-        /// The name of the meet.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if name is null.
-        /// </exception>
-        public static Meet NewEntity (int id, string name)
+        /// <remarks>
+        /// Required for NHibernate.
+        /// </remarks>
+        protected Meet()
         {
-            return NewEntity (id, name, null);
         }
-        
-        /// <summary>
-        /// Create a new meet.
-        /// </summary>
-        /// <param name="id">
-        /// The number used to identify the meet.
-        /// </param>
-        /// <param name="name">
-        /// The name of the meet.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if name is null.
-        /// </exception>
-        public static Meet NewEntity (int id, string name, Team host)
-        {
-            Meet newMeet = new Meet (id, name, host);
-            newMeet.IsAttached = true;
-            return newMeet;
-        }
-        
+
         #endregion
-        
+
         #region Inherited methods
-        
-        override public bool Equals (object other)
+
+        /// <summary>
+        /// Overload of == operator that delegates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator ==(Meet meet1, Meet meet2)
         {
-            if (this == other) 
+            if(ReferenceEquals(meet1, meet2))
             {
                 return true;
             }
-            if (other is Meet)
+            if(ReferenceEquals(meet1, null) || ReferenceEquals(meet2, null))
             {
-                return Equals ((Meet)other);
+                return false;
             }
-            return false;
+            return meet1.Equals(meet2);
         }
-        
-        public bool Equals (Meet that)
+
+        /// <summary>
+        /// Overload of != operator that delegates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator !=(Meet meet1, Meet meet2)
         {
-            return Name.Equals (that.Name);
+            return !(meet1 == meet2);
         }
-        
-        override public int GetHashCode()
+
+        /// <inheritdoc />
+        public override bool Equals(object other)
         {
-            return ID;
+            if(ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            if(other is Meet)
+            {
+                return Equals((Meet)other);
+            }
+            return Equals(other as Meet);
         }
-        
-        override public string ToString()
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
         {
             return Name;
         }
-        
-        #endregion
-        
-        #region Methods
-        
+
         /// <summary>
-        /// Add an instance to this meet.
+        /// Determine if two <see cref="Meet" />s are equal.
         /// </summary>
-        /// <param name="instance">
-        /// The <see cref="MeetInstance"/> to add.
-        /// </param>
-        public void AddInstance (MeetInstance instance)
+        protected bool Equals(Meet that)
         {
-            _instances[instance.Date.Year] = instance;
-        }
-        
-        /// <summary>
-        /// Add more instances of this meet.
-        /// </summary>
-        /// <param name="instances">
-        /// A <see cref="IEnumerable<MeetINstance>"/> of instances to add.
-        /// </param>
-        public void AddInstances (IEnumerable<MeetInstance> instances)
-        {
-            foreach (MeetInstance instance in instances)
+            if(ReferenceEquals(that, null))
             {
-                AddInstance (instance);
+                return false;
             }
+            if(ReferenceEquals(this, that))
+            {
+                return true;
+            }
+            return Name == that.Name;
         }
-        
+
+        #endregion
+
+        #region ICloneable implementation
+
+        object ICloneable.Clone()
+        {
+            return MemberwiseClone();
+        }
+
         #endregion
     }
 }
