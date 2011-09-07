@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ngol.XcAnalyze.Model;
+using Ngol.Utilities.Collections.Extensions;
 
 namespace Ngol.XcAnalyze.Model.Tests
 {
@@ -12,7 +14,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         public static readonly Conference Sciac = new Conference(2, "Southern California Intercollegiate Athletic Conference", "SCIAC");
         public static readonly Conference Scac = new Conference(3, "Southern Collegiate Athletic Conference", "SCAC");
 
-        public static readonly IEnumerable<Conference> Conferences = new List<Conference> { Nwc, Sciac, Scac, };
+        public static readonly IEnumerable<Conference> Conferences = new List<Conference> { Nwc, Sciac, Scac };
 
         #endregion
         #region Teams
@@ -25,7 +27,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         public static readonly Team ColoradoCollege = new Team(6, "Colorado", Scac);
         public static readonly Team Chapman = new Team(7, "Chapman");
 
-        public static readonly IEnumerable<Team> Teams = new List<Team> { LewisAndClark, Willamette, PugetSound, ClaremontMuddScripps, Pomona, ColoradoCollege, Chapman, };
+        public static readonly IEnumerable<Team> Teams = new List<Team> { LewisAndClark, Willamette, PugetSound, ClaremontMuddScripps, Pomona, ColoradoCollege, Chapman };
 
         #endregion
         #region States
@@ -35,7 +37,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         public static readonly State Oregon = new State("OR", "Oregon");
         public static readonly State Washington = new State("WA", "Washington");
 
-        public static readonly IEnumerable<State> States = new List<State> { California, Colorado, Oregon, Washington, };
+        public static readonly IEnumerable<State> States = new List<State> { California, Colorado, Oregon, Washington };
 
         #endregion
         #region Cities
@@ -49,7 +51,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         public static readonly City Tacoma = new City(7, "Tacoma", Washington);
         public static readonly City Portland = new City(8, "Portland", Oregon);
 
-        public static readonly IEnumerable<City> Cities = new List<City> { Estacada, Seattle, Claremont, WallaWalla, Chino, Salem, Tacoma, Portland, };
+        public static readonly IEnumerable<City> Cities = new List<City> { Estacada, Seattle, Claremont, WallaWalla, Chino, Salem, Tacoma, Portland };
 
         #endregion
         #region Venues
@@ -63,23 +65,65 @@ namespace Ngol.XcAnalyze.Model.Tests
         public static readonly Venue PluGolfCourse = new Venue(7, "PLU Golf Course", Tacoma);
         public static readonly Venue FortSteilacoom = new Venue(8, "Fort Steilacoom Park", Tacoma);
 
-        public static readonly IEnumerable<Venue> Venues = new List<Venue> { McIver, BushPark, VeteransGolfCourse, PomonaCampus, LincolnPark, PradoPark, PluGolfCourse, FortSteilacoom, };
+        public static readonly IEnumerable<Venue> Venues = new List<Venue> { McIver, BushPark, VeteransGolfCourse, PomonaCampus, LincolnPark, PradoPark, PluGolfCourse, FortSteilacoom };
 
         #endregion
         #region Runners
-        
-        public static readonly Runner Karl = new Runner(1, "Dickman", "Karl");//, Gender.Male, 2010);
-        public static readonly Runner Hannah = new Runner(2, "Palmer", "Hannah");//, Gender.Female, 2010);
-        public static readonly Runner Richie = new Runner(3, "LeDonne", "Richie");//, Gender.Male, 2011);
-        public static readonly Runner Keith = new Runner(4, "Woodard", "Keith");//, Gender.Male, null);
-        public static readonly Runner Leo = new Runner(5, "Castillo", "Leo");//, Gender.Male, 2012);
-        public static readonly Runner Francis = new Runner(6, "Reynolds", "Francis");//, Gender.Male, 2010);
-        public static readonly Runner Florian = new Runner(7, "Scheulen", "Florian");//, Gender.Male, 2010);
-        public static readonly Runner Jackson = new Runner(8, "Brainerd", "Jackson");//, Gender.Male, 2012);
 
-        public static readonly IEnumerable<Runner> Runners = new List<Runner> { Karl, Hannah, Richie, Keith, Leo, Francis, Florian, Jackson, };
+        public static readonly Runner Karl = new Runner(1, "Dickman", "Karl");
+        //, Gender.Male, 2010);
+        public static readonly Runner Hannah = new Runner(2, "Palmer", "Hannah");
+        //, Gender.Female, 2010);
+        public static readonly Runner Richie = new Runner(3, "LeDonne", "Richie");
+        //, Gender.Male, 2011);
+        public static readonly Runner Keith = new Runner(4, "Woodard", "Keith");
+        //, Gender.Male, null);
+        public static readonly Runner Leo = new Runner(5, "Castillo", "Leo");
+        //, Gender.Male, 2012);
+        public static readonly Runner Francis = new Runner(6, "Reynolds", "Francis");
+        //, Gender.Male, 2010);
+        public static readonly Runner Florian = new Runner(7, "Scheulen", "Florian");
+        //, Gender.Male, 2010);
+        public static readonly Runner Jackson = new Runner(8, "Brainerd", "Jackson");
+        //, Gender.Male, 2012);
+        public static readonly IEnumerable<Runner> Runners = new List<Runner> { Karl, Hannah, Richie, Keith, Leo, Francis, Florian, Jackson };
 
         #endregion
+        #region Affiliations
+
+        public static IDictionary<Runner, IDictionary<int, Affiliation>> AffiliationDictionary;
+
+        public static IEnumerable<Affiliation> Affiliations
+        {
+            get
+            {
+                return AffiliationDictionary.Values.SelectMany(entry => entry.Values);
+            }
+        }
+
+        #endregion
+
+        static SampleData()
+        {
+            AffiliationDictionary = new Dictionary<Runner, IDictionary<int, Affiliation>>();
+            IEnumerable<Runner> runners = new List<Runner> { Florian, Karl, Francis, Richie, Leo, Jackson };
+            IEnumerable<Team> teams = new List<Team> { ClaremontMuddScripps, LewisAndClark, PugetSound, LewisAndClark, Willamette, ColoradoCollege };
+            IEnumerable<int> years = new List<int> { 2005, 2006, 2006, 2007, 2008, 2008 };
+            IEnumerableExtensions.ForEachEqual(runners, teams, years, (runner, team, year) =>
+            {
+                AffiliationDictionary[runner] = new Dictionary<int, Affiliation>(4);
+                for(int i = 0; i < 4; i++)
+                {
+                    AffiliationDictionary[runner][year + i] = new Affiliation(runner, team, year + i);
+                }
+            });
+            AffiliationDictionary[Hannah] = new Dictionary<int, Affiliation>(4);
+            foreach(int year in new List<int> { 2006, 2008, 2009, 2010 })
+            {
+                AffiliationDictionary[Hannah][year] = new Affiliation(Hannah, LewisAndClark, year);
+            }
+        }
+    }
         /*
          * #region Properties
 
@@ -115,22 +159,6 @@ namespace Ngol.XcAnalyze.Model.Tests
 
         static SampleData()
         {
-            #region Affiliations
-            IList<Affiliation> affiliations = new List<Affiliation>();
-            int y;
-            for(y = 0; y < 4; y++) {
-                affiliations.Add(new Affiliation(Florian, ClaremontMuddScripps, y + 2005));
-                affiliations.Add(new Affiliation(Karl, LewisAndClark, y + 2006));
-                affiliations.Add(new Affiliation(Francis, PugetSound, y + 2006));
-                affiliations.Add(new Affiliation(Richie, LewisAndClark, y + 2007));
-                affiliations.Add(new Affiliation(Leo, Willamette, y + 2008));
-                affiliations.Add(new Affiliation(Jackson, ColoradoCollege, y + 2008));
-            }
-            affiliations.Add(new Affiliation(Hannah, LewisAndClark, 2006));
-            affiliations.Add(new Affiliation(Hannah, LewisAndClark, 2008));
-            affiliations.Add(new Affiliation(Hannah, LewisAndClark, 2009));
-            affiliations.Add(new Affiliation(Hannah, LewisAndClark, 2010));
-            #endregion
             #region Meets
             IList<Meet> meets = new List<Meet>();
             meets.Add(LCInvite);
@@ -192,7 +220,6 @@ namespace Ngol.XcAnalyze.Model.Tests
             #endregion
             Data = new DataContext(affiliations, cities, conferences, meetInstances, meets, performances, races, runners, states, teams,
             venues);
-        }*/
+        }*/        
     }
-}
 

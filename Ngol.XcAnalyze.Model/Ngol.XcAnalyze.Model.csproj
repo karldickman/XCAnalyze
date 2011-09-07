@@ -47,6 +47,7 @@
     <Compile Include="Venue.cs" />
     <Compile Include="Conference.cs" />
     <Compile Include="Team.cs" />
+    <Compile Include="Affiliation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
@@ -54,12 +55,6 @@
     <Folder Include="Collections\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\..\Utilities\Ngol.Utilities.Collections\Ngol.Utilities.Collections.csproj">
-      <Project>{7F9239EA-AB07-4CCB-B0DC-58C665D1E02D}</Project>
-      <Name>Ngol.Utilities.Collections</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Mapping.hbm.xml" />
   </ItemGroup>

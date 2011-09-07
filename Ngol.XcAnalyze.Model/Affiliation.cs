@@ -1,61 +1,57 @@
 using System;
 using System.Collections.Generic;
 
-namespace XCAnalyze.Model
+namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// Describes in which Year a Runner ran for a particular Team.
     /// </summary>
-    public class Affiliation
+    public class Affiliation : ICloneable
     {
         #region Properties
-        
-        #region Constants
-       
+
         /// <summary>
-        /// The <see cref="Runner"/> affiliated with a Team.
+        /// TODO DELETE ME!
         /// </summary>
-        public readonly Runner Runner;
-        
-        /// <summary>
-        /// The Year in which the Runner was affiliated with the Team.
-        /// </summary>
-        public readonly int Season;
-        
-        #endregion
-        
-        /// <summary>
-        /// True if the affiliation is stored in the database, false otherwise.
-        /// </summary>
-        public bool IsAttached { get; set; }
-        
-        /// <summary>
-        /// The number that identifies the runner in the affiliation.
-        /// </summary>
-        public int RunnerID
+        public virtual int ID
         {
-            get { return Runner.ID; }
+            get;
+            set;
         }
-        
+
         /// <summary>
-        /// The number that identifies the team in the affiliation.
+        /// The <see cref="Runner"/> affiliated with a <see cref="Team" />.
         /// </summary>
-        public int TeamID
+        public virtual Runner Runner
         {
-            get { return Team.ID; }
+            get;
+            set;
         }
-        
+
         /// <summary>
-        /// The <see cref="Team"/> with which a Runner is affiliated.
+        /// The year in which the <see cref="Runner" /> was affiliated with the <see cref="Team" />.
         /// </summary>
-        public Team Team { get; set; }
-        
+        public virtual int Season
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// The <see cref="Team"/> with which a <see cref="Runner" /> is affiliated in a particular season.
+        /// </summary>
+        public virtual Team Team
+        {
+            get;
+            set;
+        }
+
         #endregion
-        
+
         #region Constructors
-        
+
         /// <summary>
-        /// Create a new affiliation.
+        /// Create a new <see cref="Affiliation" />.
         /// </summary>
         /// <param name="runner">
         /// The <see cref="Runner"/> who is affiliated with the team.
@@ -63,76 +59,108 @@ namespace XCAnalyze.Model
         /// <param name="team">
         /// The <see cref="Team"/> the runner ran for.
         /// </param>
-        /// <param name="year">
+        /// <param name="season">
         /// The season in which the affiliation occurred.
         /// </param>
-        public Affiliation (Runner runner, Team team, int season)
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="runner"/> or <paramref name="team"/>
+        /// is <see langword="null" />.
+        /// </exception>
+        public Affiliation(Runner runner, Team team, int season)
         {
-            if (runner == null) {
-                throw new ArgumentNullException (
-                    "Property Runner cannot be null.");
-            }
+            if(runner == null)
+                throw new ArgumentNullException("runner");
+            if(team == null)
+                throw new ArgumentNullException("team");
             Runner = runner;
-            if (team == null) {
-                throw new ArgumentNullException (
-                    "Property Team cannot be null.");
-            }
             Team = team;
             Season = season;
-            IsAttached = false;
         }
-        
+
         /// <summary>
-        /// Create a new affiliation.
+        /// Construct a new <see cref="Affiliation" />.
         /// </summary>
-        /// <param name="runner">
-        /// The <see cref="Runner"/> who is affiliated with the team.
-        /// </param>
-        /// <param name="team">
-        /// The <see cref="Team"/> the runner ran for.
-        /// </param>
-        /// <param name="year">
-        /// The season in which the affiliation occurred.
-        /// </param>
-        public static Affiliation NewEntity (Runner runner, Team team,
-            int season)
+        /// <remarks>
+        /// Required for NHibernate.
+        /// </remarks>
+        protected Affiliation()
         {
-            Affiliation newAffiliation = new Affiliation (runner, team, season);
-            newAffiliation.IsAttached = true;
-            return newAffiliation;
         }
-        
+
         #endregion
-        
+
         #region Inherited methods
-        
-        override public bool Equals (object other)
+
+        /// <summary>
+        /// Overload of == operator that delegates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator ==(Affiliation affiliation1, Affiliation affiliation2)
         {
-            if (this == other) 
+            if(ReferenceEquals(affiliation1, affiliation2))
             {
                 return true;
             }
-            if (other is Affiliation) 
+            if(ReferenceEquals(affiliation1, null) || ReferenceEquals(affiliation2, null))
             {
-                return Equals((Affiliation)other);
+                return false;
             }
-            return false;
+            return affiliation1.Equals(affiliation2);
         }
-        
-        protected bool Equals (Affiliation other)
+
+
+        /// <summary>
+        /// Overload of != operator that delegates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator !=(Affiliation affiliation1, Affiliation affiliation2)
         {
-            return Team.Equals(other.Team) && Runner.Equals(other.Runner) &&
-                    Season == other.Season;
+            return !(affiliation1 == affiliation2);
         }
-        
-        override public int GetHashCode ()
+
+        /// <inheritdoc />
+        public override bool Equals(object other)
         {
-            return ToString().GetHashCode ();
+            if(ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return Equals(other as Affiliation);
         }
-        
-        override public string ToString ()
+
+        /// <inheritdoc />
+        public override int GetHashCode()
         {
-            return Runner.Name + ", " + Team.Name + " " + Season;
+            return ToString().GetHashCode();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return string.Format("{0}, {1} ({2}", Runner.FullName, Team.Name, Season);
+        }
+
+        /// <summary>
+        /// Check whether to <see cref="Affiliation" />s are equal.
+        /// </summary>
+        protected bool Equals(Affiliation that)
+        {
+            if(ReferenceEquals(that, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, that))
+            {
+                return true;
+            }
+            return Team == that.Team && Runner == that.Runner && Season == that.Season;
+        }
+
+        #endregion
+
+        #region ICloneable implementation
+
+        object ICloneable.Clone()
+        {
+            return MemberwiseClone();
         }
         
         #endregion

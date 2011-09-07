@@ -53,6 +53,7 @@
     <Compile Include="TestVenueRepository.cs" />
     <Compile Include="TestConferenceRepository.cs" />
     <Compile Include="TestTeamRepository.cs" />
+    <Compile Include="TestAffiliationRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -67,10 +68,6 @@
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.Reflection\Ngol.Utilities.Reflection.csproj">
       <Project>{8F46EFD3-2D0F-4DE1-9CBB-E775E2A2458A}</Project>
       <Name>Ngol.Utilities.Reflection</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Utilities\Ngol.Utilities.Collections\Ngol.Utilities.Collections.csproj">
-      <Project>{7F9239EA-AB07-4CCB-B0DC-58C665D1E02D}</Project>
-      <Name>Ngol.Utilities.Collections</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.NUnit\Ngol.Utilities.NUnit.csproj">
       <Project>{60ED6A54-F0A6-4AFC-9E81-C783C935980C}</Project>
