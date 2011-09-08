@@ -15,7 +15,7 @@ namespace Ngol.XcAnalyze.Model.Tests
     {
         public override IEnumerable<Affiliation> TestData
         {
-            get { return SampleData.Affiliations; }
+            get { return SampleData.Affiliations.Values; }
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            Affiliation karl = SampleData.AffiliationDictionary[SampleData.Karl][2009].Clone<Affiliation>();
+            Affiliation karl = SampleData.Affiliations[SampleData.Karl, 2009].Clone<Affiliation>();
             karl.ID = 1;
             Repository.Add(karl);
             Assert.Contains(karl, Repository);

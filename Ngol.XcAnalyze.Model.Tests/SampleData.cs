@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ngol.XcAnalyze.Model;
 using Ngol.Utilities.Collections.Extensions;
+using Ngol.Utilities.System.Collections.Generic;
+using Ngol.XcAnalyze.Model;
 
 namespace Ngol.XcAnalyze.Model.Tests
 {
@@ -91,15 +92,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         #endregion
         #region Affiliations
 
-        public static IDictionary<Runner, IDictionary<int, Affiliation>> AffiliationDictionary;
-
-        public static IEnumerable<Affiliation> Affiliations
-        {
-            get
-            {
-                return AffiliationDictionary.Values.SelectMany(entry => entry.Values);
-            }
-        }
+        public static IDictionary<Runner, int, Affiliation> Affiliations;
 
         #endregion
         #region Meets
@@ -118,22 +111,20 @@ namespace Ngol.XcAnalyze.Model.Tests
 
         static SampleData()
         {
-            AffiliationDictionary = new Dictionary<Runner, IDictionary<int, Affiliation>>();
+            Affiliations = new Dictionary<Runner, int, Affiliation>();
             IEnumerable<Runner> runners = new List<Runner> { Florian, Karl, Francis, Richie, Leo, Jackson };
             IEnumerable<Team> teams = new List<Team> { ClaremontMuddScripps, LewisAndClark, PugetSound, LewisAndClark, Willamette, ColoradoCollege };
             IEnumerable<int> years = new List<int> { 2005, 2006, 2006, 2007, 2008, 2008 };
             IEnumerableExtensions.ForEachEqual(runners, teams, years, (runner, team, year) =>
             {
-                AffiliationDictionary[runner] = new Dictionary<int, Affiliation>(4);
                 for(int i = 0; i < 4; i++)
                 {
-                    AffiliationDictionary[runner][year + i] = new Affiliation(runner, team, year + i);
+                    Affiliations[runner, year + i] = new Affiliation(runner, team, year + i);
                 }
             });
-            AffiliationDictionary[Hannah] = new Dictionary<int, Affiliation>(4);
             foreach(int year in new List<int> { 2006, 2008, 2009, 2010 })
             {
-                AffiliationDictionary[Hannah][year] = new Affiliation(Hannah, LewisAndClark, year);
+                Affiliations[Hannah, year] = new Affiliation(Hannah, LewisAndClark, year);
             }
         }
     }
