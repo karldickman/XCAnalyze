@@ -50,6 +50,10 @@
     <Compile Include="Affiliation.cs" />
     <Compile Include="Meet.cs" />
     <Compile Include="MeetInstance.cs" />
+    <Compile Include="Gender.cs" />
+    <Compile Include="Race.cs" />
+    <Compile Include="TeamScore.cs" />
+    <Compile Include="Performance.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

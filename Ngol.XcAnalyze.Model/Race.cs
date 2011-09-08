@@ -1,162 +1,96 @@
 using System;
 using System.Collections.Generic;
-using XCAnalyze.Collections;
+using System.Linq;
 
-namespace XCAnalyze.Model
-{    
+namespace Ngol.XcAnalyze.Model
+{
     /// <summary>
     /// An instance of a meet.
     /// </summary>
-    public class Race
+    public class Race : ICloneable
     {
         #region Properties
-        
-        #region Fields
-        
-        private Cell<int> _distance;
-        
-        private Cell<Gender> _gender;
-        
-        private Cell<MeetInstance> _meetInstance;
-        
-        private IXList<Performance> _results;
-        
-        private IXList<TeamScore> _scores;
-        
-        #endregion
-        
-        /// <summary>
-        /// The date on which this race was held.
-        /// </summary>
-        public DateTime Date
-        {
-            get { return MeetInstance.Date; }
-        }
-        
+
         /// <summary>
         /// The length of the race.
         /// </summary>
-        public int Distance { get; protected set; }
+        public virtual int Distance
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Was it a men's race or a women's race?
         /// </summary>
-        public Gender Gender
+        public virtual Gender Gender
         {
-            get { return _gender.Value; }
-            
-            protected set
-            {
-                if (value == null) 
-                {
-                    throw new ArgumentNullException (
-                        "Property Gender cannot be null.");
-                }
-                _gender.Value = value;
-            }
+            get;
+            set;
         }
-        
+
         /// <summary>
         /// The number used to identify this race.
         /// </summary>
-        public int ID { get; set; }
-
-        /// <summary>
-        /// True if the race has a corresponding entry in the database, 
-        /// false otherwise.
-        /// </summary>
-        public bool IsAttached { get; set; }
-        
-        /// <summary>
-        /// True if the race has been changed since it was loaded from the
-        /// database, false otherwise.
-        /// </summary>
-        public bool IsChanged
+        public int ID
         {
-            get
-            {
-                if (IsAttached) 
-                {
-                    return _distance.IsChanged || _gender.IsChanged ||
-                        _meetInstance.IsChanged;
-                }
-                return false;
-            }
+            get;
+            set;
         }
-        
-        /// <summary>
+
+        /*/// <summary>
         /// Has the race been scored?
         /// </summary>
-        public bool IsScored { get; protected set; }
-        
-        /// <summary>
-        /// The number that identifies the meet at which this race was held.
-        /// </summary>
-        public int MeetID
+        public bool IsScored
         {
-            get { return MeetInstance.MeetID; }
-        }
-        
+            get;
+            set;
+        }*/
+
         /// <summary>
         /// The meet of which this race is a part.
         /// </summary>
         public MeetInstance MeetInstance
         {
-            get { return _meetInstance.Value; }
-            
-            set
-            {
-                if (value == null) 
-                {
-                    throw new ArgumentNullException (
-                        "Property MeetInstance cannot be null.");
-                }
-                _meetInstance.Value = value;
-            }
+            get;
+            set;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// The results of the meet.
         /// </summary>
         public IList<Performance> Results
         {
-            get { return _results.AsReadOnly(); }
-            
-            protected set
-            {
-                if (value == null) 
-                {
-                    value = new List<Performance> ();
-                }
-                _results = new XList<Performance>(value);
-            }
-        }
+            get;
+            set;
+        }*/
 
-        /// <summary>
+        /*/// <summary>
         /// The team scores of the meet.
         /// </summary>
-        public IList<TeamScore> Scores
+        public IEnumerable<TeamScore> Scores
         {
-            get { return _scores.AsReadOnly (); }
-        }
-        
-        #endregion
-        
-        #region Constructors
+            get { return ScoresCollection; }
+        }*/
 
-        protected Race ()
+        /*protected readonly ICollection<TeamScore> ScoresCollection
         {
-            _meetInstance = new Cell<MeetInstance> ();
-            _distance = new Cell<int> ();
-            _gender = new Cell<Gender> ();
-            _results = new XList<Performance> ();
-        }
+            get;
+            set;
+        }*/
+
+        #endregion
+
+        #region Constructors
 
         /// <summary>
         /// Create a new race.
         /// </summary>
-        /// <param name="meet">
-        /// The <see cref="Meet"/> which this race is a part of.
+        /// <param name="id">
+        /// The number used to identify the race.
+        /// </param>
+        /// <param name="meetInstance">
+        /// The <see cref="MeetInstance"/> of which this race is a part.
         /// </param>
         /// <param name="distance">
         /// The length of the race.
@@ -164,72 +98,59 @@ namespace XCAnalyze.Model
         /// <param name="gender">
         /// Was this a men's or a women's race.
         /// </param>
-        public Race (MeetInstance meetInstance, Gender gender, int distance)
-        : this()
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="meetInstance"/> or <paramref name="gender"/>
+        /// is <see langword="null" />.
+        /// </exception>
+        public Race(int id, MeetInstance meetInstance, Gender gender, int distance)
         {
+            ID = id;
             MeetInstance = meetInstance;
             Distance = distance;
             Gender = gender;
-            IsScored = false;
-            IsAttached = false;
+            //IsScored = false;
         }
-        
+
         /// <summary>
-        /// Create a new race.
+        /// Construct a new <see cref="Race" />
         /// </summary>
-        /// <param name="id">
-        /// The number used to identify the race.
-        /// </param>
-        /// <param name="meet">
-        /// The <see cref="Meet"/> which this race is a part of.
-        /// </param>
-        /// <param name="distance">
-        /// The length of the race.
-        /// </param>
-        /// <param name="gender">
-        /// Was this a men's or a women's race.
-        /// </param>
-        /// <param name="scoreMeet">
-        /// Should this meet be scored right away or not?
-        /// </param>
-        protected Race (int id, MeetInstance meetInstance, Gender gender,
-            int distance)
-        : this(meetInstance, gender, distance)
+        /// <remarks>
+        /// Required for NHibernate.
+        /// </remarks>
+        protected Race()
         {
-            ID = id;
         }
-        
-        /// <summary>
-        /// Create a new race.
-        /// </summary>
-        /// <param name="id">
-        /// The number used to identify the race.
-        /// </param>
-        /// <param name="meet">
-        /// The <see cref="Meet"/> which this race is a part of.
-        /// </param>
-        /// <param name="distance">
-        /// The length of the race.
-        /// </param>
-        /// <param name="gender">
-        /// Was this a men's or a women's race.
-        /// </param>
-        /// <param name="scoreMeet">
-        /// Should this meet be scored right away or not?
-        /// </param>
-        public static Race NewEntity (int id, MeetInstance meetInstance,
-            Gender gender, int distance)
-        {
-            Race newRace = new Race (id, meetInstance, gender, distance);
-            newRace.IsAttached = true;
-            return newRace;
-        }
-        
+
         #endregion
-        
+
         #region Inherited methods
-                
-        override public bool Equals(object other)
+
+        /// <summary>
+        /// Overload of == operator that delecates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator ==(Race race1, Race race2)
+        {
+            if(ReferenceEquals(race1, race2))
+            {
+                return true;
+            }
+            if(ReferenceEquals(race1, null) || ReferenceEquals(race2, null))
+            {
+                return false;
+            }
+            return race1.Equals(race2);
+        }
+
+        /// <summary>
+        /// Overload of != operator that delecates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator !=(Race race1, Race race2)
+        {
+            return !(race1 == race2);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object other)
         {
             if(this == other)
             {
@@ -241,142 +162,131 @@ namespace XCAnalyze.Model
             }
             return false;
         }
-        
-        protected bool Equals (Race other)
+
+        /// <inheritdoc />
+        public override int GetHashCode()
         {
-            return MeetInstance.Equals(other.MeetInstance) && Gender == other.Gender;
+            return (MeetInstance.Meet.Name + MeetInstance.Date + Gender + Distance).ToString().GetHashCode();
         }
-        
-        override public int GetHashCode ()
+
+        /// <inheritdoc />
+        public override string ToString()
         {
-            return ID;
+            return string.Format("{0} m run.", Distance);
         }
-        
-                
-        override public string ToString()
+
+        /// <summary>
+        /// Check whether two <see cref="Race" />s are equal.
+        /// </summary>
+        protected bool Equals(Race that)
         {
-            return Distance + " m run.";
+            if(ReferenceEquals(that, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, that))
+            {
+                return true;
+            }
+            return MeetInstance == that.MeetInstance && Gender == that.Gender;
         }
-        
+
         #endregion
-        
+
         #region Methods
-        
-        /// <summary>
-        /// Add a new result to the race.
-        /// </summary>
-        /// <param name="result">
-        /// The <see cref="Performance"/> to add.
-        /// </param>
-        public void AddResult (Performance result)
-        {
-            _results.Add (result);
-            _results.Sort ();
-            IsScored = false;
-        }
-        
-        /// <summary>
-        /// Add more results to the race.
-        /// </summary>
-        /// <param name="results">
-        /// A <see cref="IEnumerable<Performance>"/> of results to add.
-        /// </param>
-        public void AddResults (IEnumerable<Performance> results)
-        
-        {
-            _results.AddRange (results);
-            _results.Sort ();
-            IsScored = false;
-        }
-        
+
         /// <summary>
         /// Score the race.
         /// </summary>
-        public void Score ()
+        public void Score()
         {
-            if (IsScored) 
-            {
-                return;
-            }
+            //if(IsScored)
+            //{
+            //    return;
+            //}
             Dictionary<Team, TeamScore> scores;
-            if (Results.Count == 0)
-            {
-                _scores = new XList<TeamScore> ();
-                return;
-            }
-            scores = new Dictionary<Team, TeamScore> ();
+            //if(Results.Count == 0)
+            //{
+            //    _scores = new XList<TeamScore>();
+            //    return;
+            //}
+            scores = new Dictionary<Team, TeamScore>();
             //Add the runners to the school
-            foreach (Performance result in Results) 
+            /*foreach(Performance result in Results)
             {
-                if (result.School != null) 
+                if(result.School != null)
                 {
                     result.Points = 0;
-                    if (!scores.ContainsKey (result.School))
+                    if(!scores.ContainsKey(result.School))
                     {
-                        scores[result.School] = new TeamScore (this, result.School);
+                        scores[result.School] = new TeamScore(this, result.School);
                     }
-                    scores[result.School].AddRunner (result);
+                    scores[result.School].AddRunner(result);
                 }
-            }
+            }*/
             //Tag runners on teams with fewer than five as scoreless
             //Tag runner 8 and beyond on each team as scorelss
-            foreach (TeamScore score in scores.Values) 
+            foreach(TeamScore score in scores.Values)
             {
-                if (score.Runners.Count < 5)
+                if(score.Runners.Count() < 5)
                 {
-                    foreach (Performance runner in score.Runners)
+                    //foreach(Performance runner in score.Runners)
                     {
-                        runner.Points = null;
+                        //runner.Points = null;
                     }
                 }
-                else if (score.Runners.Count > 7) 
+
+                else if(score.Runners.Count() > 7)
                 {
-                    for (int i = 7; i < score.Runners.Count; i++) 
+                    for(int i = 7; i < score.Runners.Count(); i++)
                     {
-                        score.Runners[i].Points = null;
+                        //score.Runners[i].Points = null;
                     }
                 }
             }
             //Find first runner with a score
-            int firstWithScore;
-            for (firstWithScore = 0; firstWithScore < Results.Count; firstWithScore++) 
+            //int firstWithScore;
+            //for(firstWithScore = 0; firstWithScore < Results.Count; firstWithScore++)
             {
-                if (Results[firstWithScore].Points != null) 
+                //if(Results[firstWithScore].Points != null)
                 {
-                    Results[firstWithScore].Points = 1;
-                    break;
+                    //Results[firstWithScore].Points = 1;
+                    //break;
                 }
             }
             //Tag each runner with their points
-            if (firstWithScore < Results.Count)
+            //if(firstWithScore < Results.Count)
             {
-                Performance previous = Results[firstWithScore];
+                //Performance previous = Results[firstWithScore];
                 int points = 2;
-                for (int i = firstWithScore + 1; i < Results.Count; i++)
+                //for(int i = firstWithScore + 1; i < Results.Count; i++)
                 {
-                    if (Results[i].Points != null) 
+                    //if(Results[i].Points != null)
                     {
-                        if (Results[i].Time != previous.Time) 
+                        //if(Results[i].Time != previous.Time)
                         {
-                            Results[i].Points = points;
+                            //Results[i].Points = points;
                         }
-                        else 
+                        //else
                         {
-                            Results[i].Points = previous.Points;
+                            //Results[i].Points = previous.Points;
                         }
                         points++;
                     }
                 }
             }
             //Create the final list
-            IXList<TeamScore> scoreList = new XList<TeamScore> ();
-            foreach (TeamScore score in scores.Values) 
-            {
-                scoreList.Add (score);
-            }
-            scoreList.Sort ();
-            _scores = scoreList;
-            IsScored = true;
+            // ScoresCollection = scores.Values.Sort();
+            //IsScored = true;
+        }
+
+        #endregion
+
+        #region ICloneable implementation
+
+        object ICloneable.Clone()
+        {
+            return MemberwiseClone();
         }
         
         #endregion

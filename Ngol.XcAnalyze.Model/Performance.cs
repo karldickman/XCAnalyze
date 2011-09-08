@@ -1,6 +1,6 @@
 using System;
 
-namespace XCAnalyze.Model
+namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A runners time (in seconds) at a particular race.
@@ -8,102 +8,63 @@ namespace XCAnalyze.Model
     public class Performance : IComparable<Performance>
     {
         #region Properties
-        
-        #region Fields
-        
-        private Cell<double?> _time;
-        
-        #endregion
-         
-        /// <summary>
-        /// The length of the race whereat the time was run.
-        /// </summary>
-        public int Distance
-        {
-            get { return Race.Distance; }
-        }
-        
-        /// <summary>
-        /// True if a corresponding entry exists in the database, false
-        /// otherwise.
-        /// </summary>
-        public bool IsAttached { get; set; }
-        
-        /// <summary>
-        /// True if changes have been made since the performance was loaded
-        /// from the database, false otherwise.
-        /// </summary>
-        public bool IsChanged
-        {
-            get
-            {
-                if (IsAttached) 
-                {
-                    return _time.IsChanged;
-                }
-                return false;
-            }
-        }
-        
+
         /// <summary>
         /// The number of points the runner earned in the race for this
         /// performance.
         /// </summary>
-        public int? Points { get; set; }
+        /*public int? Points
+        {
+            get;
+            set;
+        }*/
+
+        /// <summary>
+        /// TODO DELETE
+        /// </summary>
+        public virtual int ID
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// The race whereat the time was run.
         /// </summary>
-        public readonly Race Race;
-        
-        /// <summary>
-        /// The number that identifies the race where this performance
-        /// was made.
-        /// </summary>
-        public int RaceID
+        public virtual Race Race
         {
-            get { return Race.ID; }
+            get;
+            set;
         }
 
         /// <summary>
         /// The runner who ran the time.
         /// </summary>
-        public readonly Runner Runner;
-        
-        /// <summary>
-        /// The number that identifies the runner that ran this performance.
-        /// </summary>
-        public int RunnerID
+        public virtual Runner Runner
         {
-            get { return Runner.ID; }
+            get;
+            set;
         }
 
         /// <summary>
         /// The time that was run.
         /// </summary>
-        public double? Time
+        public virtual double? Time
         {
-            get { return _time.Value; }
-            
-            set { _time.Value = value; }
+            get;
+            set;
         }
-     
-        /// <summary>
-        /// The school with which this runner was associated when he ran this
-        /// time.
-        /// </summary>
-        public Team School
-        {
-            get { return Runner.Teams[Race.MeetInstance.Date.Year]; }
-        }     
-        
+
         #endregion
-        
+
         #region Constructors
-        
+
         /// <summary>
         /// Create a new performance.
         /// </summary>
+        /// <param name="id">
+        /// DELETE
+        /// </param>
         /// <param name="runner">
         /// The <see cref="Runner"/> who owns the performance.
         /// </param>
@@ -114,124 +75,147 @@ namespace XCAnalyze.Model
         /// The <see cref="Time"/> in which teh race was run.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when runner or race is null.
+        /// Thrown when <paramref name="runner" /> or <paramref name="race" /> is null.
         /// </exception>
-        public Performance (Runner runner, Race race, double? time)
+        public Performance(int id, Runner runner, Race race, double? time)
         {
+            if(runner == null)
+                throw new ArgumentNullException("runner");
+            if(race == null)
+                throw new ArgumentNullException("race");
+            ID = id;
             Runner = runner;
             Race = race;
-            _time = new Cell<double?> ();
             Time = time;
-            IsAttached = false;
         }
-        
-        /// <summary>
-        /// Create a new performance.
-        /// </summary>
-        /// <param name="runner">
-        /// The <see cref="Runner"/> who owns the performance.
-        /// </param>
-        /// <param name="race">
-        /// The <see cref="Race"/> at which the performance was ran.
-        /// </param>
-        /// <param name="time">
-        /// The <see cref="Time"/> in which teh race was run.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when runner or race is null.
-        /// </exception>
-        public static Performance NewEntity (Runner runner, Race race,
-            double? time)
-        {
-            Performance newPerformance = new Performance (runner, race, time);
-            newPerformance.IsAttached = true;
-            return newPerformance;
-        }
-        
-        #endregion  
+
+        #endregion
 
         #region Inherited methods
-        
-        override public bool Equals (object other)
+
+        /// <summary>
+        /// Overload of == operator that delegates to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator ==(Performance performance1, Performance performance2)
         {
-            if (this == other)
+            if(ReferenceEquals(performance1, performance2))
             {
                 return true;
             }
-            if (other is Performance)
+            if(ReferenceEquals(performance1, null) || ReferenceEquals(performance2, null))
             {
-                return 0 == CompareTo ((Performance)other);
+                return false;
             }
-            return false;
+            return performance1.Equals(performance2);
         }
 
-        override public int GetHashCode ()
-        {
-            return string.Format("{0} {1}", RunnerID, RaceID).GetHashCode();
-        }
-                        
-        override public string ToString()
-        {
-            return Time + " run by " + Runner.Name;
-        }
-        
-        #endregion
-        
-        #region IComparable implementation
-                        
         /// <summary>
-        /// A faster pace is a better performance, and comes before a slower
-        /// pace.  If the paces are the same, the longer race is considered the
-        /// better performance.
+        /// Overload of != operator that delegates to <see cref="Equals(object)" />.
         /// </summary>
-        public int CompareTo (Performance other)
+        public static bool operator !=(Performance performance1, Performance performance2)
         {
-            int comparison;
-            if (this == other)
-            {
-                return 0;
-            }
-            double? milePace = MilePace ();
-            double? otherMilePace = other.MilePace ();
-            if (milePace == null)
-            {
-                if (otherMilePace != null) 
-                {
-                    return 1;
-                }
-                comparison = 0;
-            }
-            else if (otherMilePace == null)
-            {
-                return -1;
-            }
-            else
-            {
-                comparison = milePace.Value.CompareTo (otherMilePace.Value);
-            }            
-            if (comparison != 0)
-            {
-                return comparison;
-            }
-            return Distance.CompareTo (other.Distance);
+            return !(performance1 == performance2);
         }
-        
+
+        /// <inheritdoc />
+        public override bool Equals(object other)
+        {
+            if(ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return Equals(other as Performance);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return string.Format("{0} {1}", Runner.ID, Race.ID).GetHashCode();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return string.Format("{0} run by {1}", Time, string.Empty);//Runner.Name);
+        }
+
+        /// <summary>
+        /// Check if two <see cref="Performance" />s are equal.
+        /// </summary>
+        protected bool Equals(Performance that)
+        {
+            if(ReferenceEquals(that, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, that))
+            {
+                return true;
+            }
+            return 0 == CompareTo(that);
+        }
+
         #endregion
 
         #region Methods
-        
+
         /// <summary>
         /// The pace in minutes per mile of the performance.
         /// </summary>
-        public double? MilePace ()
+        public double? MilePace()
         {
             if(Time == null)
             {
                 return null;
             }
-            return Time.Value / Distance * 60 * 1609.344;
+            return Time.Value / Race.Distance * 60 * 1609.344;
         }
-        
+
+        #endregion
+
+        #region IComparable implementation
+
+        /// <inheritdoc />
+        /// <remarks>
+        /// A faster pace is a better performance, and comes before a slower
+        /// pace.  If the paces are the same, the longer race is considered the
+        /// better performance.
+        /// </remarks>
+        public int CompareTo(Performance that)
+        {
+            if(that == null)
+                throw new ArgumentNullException("that");
+            int comparison;
+            if(this == that)
+            {
+                return 0;
+            }
+            double? milePace = MilePace();
+            double? otherMilePace = that.MilePace();
+            if(milePace == null)
+            {
+                if(otherMilePace != null)
+                {
+                    return 1;
+                }
+                comparison = 0;
+            }
+
+            else if(otherMilePace == null)
+            {
+                return -1;
+            }
+            else
+            {
+                comparison = milePace.Value.CompareTo(otherMilePace.Value);
+            }
+            if(comparison != 0)
+            {
+                return comparison;
+            }
+            return Race.Distance.CompareTo(that.Race.Distance);
+        }
+
         #endregion
     }
 }

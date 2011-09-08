@@ -1,41 +1,35 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 
-using XCAnalyze.Collections;
-
-namespace XCAnalyze.Model
+namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A team's score at a race.
     /// </summary>
-    public partial class TeamScore : IComparable<TeamScore>
+    public class TeamScore : IComparable<TeamScore>
     {
         #region Properties
-        
-        #region Fields
-        
+
+        #region Physical implementation
+
         private Race _race;
-        
-        private IXList<Performance> _runners;
-        
         private Team _team;
-        
+
         #endregion
-        
+
         /// <summary>
         /// The team which earned the score.
         /// </summary>
         public Team Team
         {
             get { return _team; }
-            
+
             protected set
             {
-                if (value == null) 
+                if(value == null)
                 {
-                    throw new ArgumentNullException (
-                        "Property Team cannot be null.");
+                    throw new ArgumentNullException("value");
                 }
                 _team = value;
             }
@@ -47,13 +41,12 @@ namespace XCAnalyze.Model
         public Race Race
         {
             get { return _race; }
-            
+
             protected set
             {
-                if (value == null) 
+                if(value == null)
                 {
-                    throw new ArgumentNullException (
-                        "Property Race cannot be null.");
+                    throw new ArgumentNullException("value");
                 }
                 _race = value;
             }
@@ -62,27 +55,21 @@ namespace XCAnalyze.Model
         /// <summary>
         /// The runners who were on the team at that particular race.
         /// </summary>
-        public IList<Performance> Runners
+        public IEnumerable<Performance> Runners
         {
-            get { return _runners.AsReadOnly (); }
-            
-            protected set
-            {
-                if (value == null) 
-                {
-                    _runners = new XList<Performance> ();
-                }
-                else
-                {
-                    _runners = new XList<Performance> (value);
-                }
-            }
+            get { return RunnerCollection; }
         }
-        
+
+        /// <summary>
+        /// The collection of runners that can be manipulated externally
+        /// to this class.
+        /// </summary>
+        protected readonly ICollection<Performance> RunnerCollection;
+
         #endregion
-        
+
         #region Constructors
-        
+
         /// <summary>
         /// Create a new team score.
         /// </summary>
@@ -92,8 +79,8 @@ namespace XCAnalyze.Model
         /// <param name="team">
         /// The <see cref="Team"/> to whome the score belongs.
         /// </param>
-        public TeamScore (Race race, Team team)
-        : this(race, team, null)
+        public TeamScore(Race race, Team team)
+            : this(race, team, null)
         {
         }
 
@@ -107,184 +94,238 @@ namespace XCAnalyze.Model
         /// The <see cref="Team"/> to whome the score belongs.
         /// </param>
         /// <param name="runners">
-        /// The <see cref="IList<Performance>"/> of runners who were on the team.
+        /// A collection of runners who were on the team.
         /// </param>
-        protected TeamScore (Race race, Team team, IList<Performance> runners)
+        protected TeamScore(Race race, Team team, IEnumerable<Performance> runners)
         {
+            if(race == null)
+                throw new ArgumentNullException("race");
             Race = race;
             Team = team;
-            Runners = runners;
+            if(runners == null)
+            {
+                runners = new List<Performance>();
+            }
+            else
+            {
+                RunnerCollection = runners.ToList();
+            }
         }
-        
+
         #endregion
-        
+
         #region Inherited methods
-                        
-        override public bool Equals(object other)
+
+        /// <summary>
+        /// Overload of == operator that delegtes to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator ==(TeamScore score1, TeamScore score2)
         {
-            if(this == other)
+            if(ReferenceEquals(score1, score2))
             {
                 return true;
             }
-            if(other is TeamScore)
+            if(ReferenceEquals(score1, null) || ReferenceEquals(score2, null))
             {
-                return 0 == CompareTo((TeamScore)other);
+                return false;
             }
-            return false;
+            return score1.Equals(score2);
         }
-        
-        override public int GetHashCode()
+
+        /// <summary>
+        /// Overload of != operator that delegtes to <see cref="Equals(object)" />.
+        /// </summary>
+        public static bool operator !=(TeamScore score1, TeamScore score2)
         {
-            return base.GetHashCode();
+            return !(score1 == score2);
         }
-        
-        override public string ToString ()
+
+        /// <inheritdoc />
+        public override bool Equals(object other)
         {
-            return Team.Name + " " + Score ();
+            if(ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return Equals(other as TeamScore);
         }
-        
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return string.Format("{0} {1}", Team.Name, CalculateScore());
+        }
+
+        /// <summary>
+        /// Check if two <see cref="TeamScore" />s are equal.
+        /// </summary>
+        protected bool Equals(TeamScore that)
+        {
+            if(ReferenceEquals(that, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, that))
+            {
+                return true;
+            }
+            return 0 == CompareTo(that);
+        }
+
         #endregion
-        
+
         #region Methods
-        
+
         /// <summary>
         /// Compares the breakAt runner of this team with the the breakAt runner
         /// of the other team.
         /// </summary>
-        protected static int BreakTie (TeamScore item1, TeamScore item2,
-            int breakAt)
+        protected static int BreakTie(TeamScore item1, TeamScore item2, int breakAt)
         {
-            if (item1.Runners.Count < breakAt && item2.Runners.Count < breakAt)
+            if(item1.Runners.Count() < breakAt && item2.Runners.Count() < breakAt)
             {
                 return 0;
             }
-            if (item1.Runners.Count < breakAt)
+            if(item1.Runners.Count() < breakAt)
             {
                 return 1;
             }
-            if (item2.Runners.Count < breakAt)
+            if(item2.Runners.Count() < breakAt)
             {
                 return -1;
             }
-            return item1.Runners[breakAt - 1].Points.Value.CompareTo (
-                item2.Runners[breakAt - 1].Points.Value);
+            return int.MaxValue;//item1.Runners[breakAt - 1].Points.Value.CompareTo(item2.Runners[breakAt - 1].Points.Value);
         }
-        
+
+        /// <summary>
+        /// A teams score is the sum of the points earned by their first five runners.  Their score is incomplete if
+        /// they failed to field five runners.
+        /// </summary>
+        public int? CalculateScore()
+        {
+            if(Runners.Count() < 5)
+            {
+                return null;
+            }
+            int? score = 0;
+            for(int i = 0; i < 5; i++)
+            {
+                //score += Runners[i].Points;
+            }
+            return score;
+        }
+
+        /// <summary>
+        /// The averate time of the top 5 runners on the team.
+        /// </summary>
+        public Performance CalculateTopFiveAverage()
+        {
+            return CalculateTopXAverage(5);
+        }
+
+        /// <summary>
+        /// The average time of the top 7 runners on the team.
+        /// </summary>
+        public Performance CalculateTopSevenAverage()
+        {
+            return CalculateTopXAverage(7);
+        }
+
         /// <summary>
         /// Add a new runner from the race results.
         /// </summary>
         /// <param name="runner">
         /// The <see cref="Performance"/> to add.
         /// </param>
-        public void AddRunner (Performance runner)
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="runner"/> is <see langword="null" />.
+        /// </exception>
+        public void AddRunner(Performance runner)
         {
-            _runners.Add (runner);
-        }        
-        
-        /// <summary>
-        /// A teams score is the sum of the points earned by their first five runners.  Their score is incomplete if
-        /// they failed to field five runners.
-        /// </summary>
-        public int? Score ()
-        {
-            if (Runners.Count < 5) {
-                return null;
-            }
-            int? score = 0;
-            for (int i = 0; i < 5; i++) {
-                score += Runners[i].Points;
-            }
-            return score;
+            if(runner == null)
+                throw new ArgumentNullException("runner");
+            RunnerCollection.Add(runner);
         }
-        
-        /// <summary>
-        /// The averate time of the top 5 runners on the team.
-        /// </summary>
-        public Performance TopFiveAverage ()
-        {
-            return TopXAverage (5);
-        }
-        
-        /// <summary>
-        /// The average time of the top 7 runners on the team.
-        /// </summary>
-        public Performance TopSevenAverage ()
-        {
-            return TopXAverage (7);
-        }
-        
+
         /// <summary>
         /// The average time of the top x runners on the team.
         /// </summary>
-        protected Performance TopXAverage(int x)
+        protected Performance CalculateTopXAverage(int x)
         {
             double sum = 0.0;
             int number;
-            if (Runners.Count < x)
+            if(Runners.Count() < x)
             {
-                number = Runners.Count;
+                number = Runners.Count();
             }
             else
             {
                 number = x;
             }
-            for (int i = 0; i < number; i++)
+            for(int i = 0; i < number; i++)
             {
-                if(Runners[i].Time != null)
+                //if(Runners[i].Time != null)
                 {
-                    sum += Runners[i].Time.Value;
+                    //sum += Runners[i].Time.Value;
                 }
             }
-            return new Performance(null, Race, sum / number);
+            return new Performance(-1, null, Race, sum / number);
         }
-        
+
         #endregion
-        
+
         #region IComparable implementation
-        
-        /// <summary>
-        /// Team scores are compared first by the numerical score, then by the sixth runner, then by the seventh, then
-        /// by the name of the school.
-        /// </summary>
-        public int CompareTo (TeamScore other)
+
+        /// <inheritdoc />
+        public int CompareTo(TeamScore that)
         {
+            if(ReferenceEquals(that, null))
+            {
+                throw new ArgumentNullException("that");
+            }
             int comparison;
             int? score, otherScore;
-            if (this == other)
+            if(ReferenceEquals(this, that))
             {
                 return 0;
             }
-            score = Score ();
-            otherScore = other.Score ();
-            if (score != otherScore)
+            score = CalculateScore();
+            otherScore = that.CalculateScore();
+            if(score != otherScore)
             {
-                if (score == null)
+                if(score == null)
                 {
                     return 1;
                 }
-                if (otherScore == null)
+                if(otherScore == null)
                 {
                     return -1;
                 }
-                comparison = score.Value.CompareTo (otherScore.Value);
-                if (comparison != 0) 
+                comparison = score.Value.CompareTo(otherScore.Value);
+                if(comparison != 0)
                 {
                     return comparison;
                 }
             }
-            comparison = BreakTie (this, other, 6);
-            if (comparison != 0)
+            comparison = BreakTie(this, that, 6);
+            if(comparison != 0)
             {
                 return comparison;
             }
-            comparison = BreakTie (this, other, 7);
-            if (comparison != 0)
+            comparison = BreakTie(this, that, 7);
+            if(comparison != 0)
             {
                 return comparison;
             }
-            return TopFiveAverage ().CompareTo (other.TopFiveAverage ());
+            return int.MaxValue;//TopFiveAverage().CompareTo(that.CalculateTopFiveAverage());
         }
-
+        
         #endregion
     }
 }
