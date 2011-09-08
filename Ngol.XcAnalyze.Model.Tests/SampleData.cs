@@ -14,6 +14,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         public static readonly Conference Nwc = new Conference(1, "Northwest Conference", "NWC");
         public static readonly Conference Sciac = new Conference(2, "Southern California Intercollegiate Athletic Conference", "SCIAC");
         public static readonly Conference Scac = new Conference(3, "Southern Collegiate Athletic Conference", "SCAC");
+        public static readonly Conference Pac12 = new Conference(4, "Pacific 12", "PAC-12");
 
         public static readonly IEnumerable<Conference> Conferences = new List<Conference> { Nwc, Sciac, Scac };
 
@@ -22,11 +23,14 @@ namespace Ngol.XcAnalyze.Model.Tests
 
         public static readonly Team LewisAndClark = new Team(1, "Lewis & Clark", Nwc);
         public static readonly Team Willamette = new Team(2, "Willamette", Nwc);
-        public static readonly Team PugetSound = new Team(3, "PugetSound", Nwc);
+        public static readonly Team PugetSound = new Team(3, "Puget Sound", Nwc);
         public static readonly Team ClaremontMuddScripps = new Team(4, "Claremont-Mudd-Scripps", Sciac);
         public static readonly Team Pomona = new Team(5, "Pomona-Pitzer", Sciac);
         public static readonly Team ColoradoCollege = new Team(6, "Colorado", Scac);
         public static readonly Team Chapman = new Team(7, "Chapman");
+        public static readonly Team Whitman = new Team(8, "Whitman", Nwc);
+        public static readonly Team UniversityOfWashington = new Team(9, "Washington", Pac12);
+        public static readonly Team PacificLutheran = new Team(10, "Pacific Lutheran", Nwc);
 
         public static readonly IEnumerable<Team> Teams = new List<Team> { LewisAndClark, Willamette, PugetSound, ClaremontMuddScripps, Pomona, ColoradoCollege, Chapman };
 
@@ -105,7 +109,25 @@ namespace Ngol.XcAnalyze.Model.Tests
         public static readonly Meet Regionals = new Meet(6, "NCAA West Region Championship");
         public static readonly Meet PluInvite = new Meet(7, "Pacific Lutheran Invitational");
 
-        public static readonly IEnumerable<Meet> Meets = new List<Meet> { LCInvite, CharlesBowles, NwcChampionships, SciacMultiDuals, Sundodger, Regionals, PluInvite, };
+        public static readonly IEnumerable<Meet> Meets = new List<Meet> { LCInvite, CharlesBowles, NwcChampionships, SciacMultiDuals, Sundodger, Regionals, PluInvite };
+
+        #endregion
+        #region MeetInstances
+
+        public static readonly MeetInstance LCInvite09 = new MeetInstance(1, LCInvite, new DateTime(2009, 9, 12), McIver, LewisAndClark);
+        public static readonly MeetInstance LCInvite10 = new MeetInstance(2, LCInvite, new DateTime(2010, 9, 27), McIver, LewisAndClark);
+        public static readonly MeetInstance CharlesBowles09 = new MeetInstance(3, CharlesBowles, new DateTime(2009, 10, 3), BushPark, Willamette);
+        public static readonly MeetInstance NwcChampionships10 = new MeetInstance(4, NwcChampionships, new DateTime(2010, 10, 30), FortSteilacoom, PugetSound);
+        public static readonly MeetInstance NwcChampionships09 = new MeetInstance(5, NwcChampionships, new DateTime(2009, 10, 31), McIver, LewisAndClark);
+        public static readonly MeetInstance NwcChampionships08 = new MeetInstance(6, NwcChampionships, new DateTime(2008, 11, 1), VeteransGolfCourse, Whitman);
+        public static readonly MeetInstance PluInvite10 = new MeetInstance(7, PluInvite, new DateTime(2010, 10, 16), PluGolfCourse, PacificLutheran);
+        public static readonly MeetInstance SciacMultiDuals09 = new MeetInstance(8, SciacMultiDuals, new DateTime(2009, 10, 17), PradoPark, ClaremontMuddScripps);
+        public static readonly MeetInstance Sundodger09 = new MeetInstance(9, Sundodger, new DateTime(2009, 9, 19), LincolnPark, UniversityOfWashington);
+        public static readonly MeetInstance Regionals08 = new MeetInstance(10, Regionals, new DateTime(2009, 11, 15), BushPark, Willamette);
+        public static readonly MeetInstance Regionals09 = new MeetInstance(11, Regionals, new DateTime(2009, 11, 14), PomonaCampus, Pomona);
+
+        public static readonly IEnumerable<MeetInstance> MeetInstances = new List<MeetInstance> { LCInvite09, LCInvite10, CharlesBowles09, NwcChampionships10, NwcChampionships09, NwcChampionships08, PluInvite10, SciacMultiDuals09, Sundodger09, Regionals08,
+        Regionals09 };
 
         #endregion
 
@@ -128,55 +150,7 @@ namespace Ngol.XcAnalyze.Model.Tests
             }
         }
     }
-        /*
-         * #region Properties
-
-        #region MeetInstances
-
-        public static readonly MeetInstance LCInvite09;
-        public static readonly MeetInstance LCInvite10;
-        public static readonly MeetInstance CharlesBowles09;
-        public static readonly MeetInstance NwcChampionships10;
-        public static readonly MeetInstance NwcChampionships09;
-        public static readonly MeetInstance NwcChampionships08;
-        public static readonly MeetInstance PluInvite10;
-        public static readonly MeetInstance SciacMultiDuals09;
-        public static readonly MeetInstance Sundodger09;
-        public static readonly MeetInstance Regionals08;
-        public static readonly MeetInstance Regionals09;
-
-        #endregion
-
-
-        #endregion
-
-        static SampleData()
-        {
-            #region MeetInstances
-            IList<MeetInstance> meetInstances = new List<MeetInstance>();
-            LCInvite09 = new MeetInstance(LCInvite, new DateTime(2009, 9, 12), McIver);
-            LCInvite10 = new MeetInstance(LCInvite, new DateTime(2010, 9, 27), McIver);
-            CharlesBowles09 = new MeetInstance(CharlesBowles, new DateTime(2009, 10, 3), BushPark);
-            NwcChampionships10 = new MeetInstance(NwcChampionships, new DateTime(2010, 10, 30), FortSteilacoom);
-            NwcChampionships09 = new MeetInstance(NwcChampionships, new DateTime(2009, 10, 31), McIver);
-            NwcChampionships08 = new MeetInstance(NwcChampionships, new DateTime(2008, 11, 1), VeteransGolfCourse);
-            PluInvite10 = new MeetInstance(PluInvite, new DateTime(2010, 10, 16), PluGolfCourse);
-            SciacMultiDuals09 = new MeetInstance(SciacMultiDuals, new DateTime(2009, 10, 17), PradoPark);
-            Sundodger09 = new MeetInstance(Sundodger, new DateTime(2009, 9, 19), LincolnPark);
-            Regionals08 = new MeetInstance(Regionals, new DateTime(2009, 11, 15), BushPark);
-            Regionals09 = new MeetInstance(Regionals, new DateTime(2009, 11, 14), PomonaCampus);
-            meetInstances.Add(LCInvite09);
-            meetInstances.Add(LCInvite10);
-            meetInstances.Add(CharlesBowles09);
-            meetInstances.Add(NwcChampionships10);
-            meetInstances.Add(NwcChampionships09);
-            meetInstances.Add(NwcChampionships08);
-            meetInstances.Add(PluInvite10);
-            meetInstances.Add(SciacMultiDuals09);
-            meetInstances.Add(Sundodger09);
-            meetInstances.Add(Regionals08);
-            meetInstances.Add(Regionals09);
-            #endregion
+    /*
             #region Races
             RaceLookup = new Dictionary<MeetInstance, IDictionary<Gender, Race>>();
             IList<Race> races = new List<Race>();
@@ -203,6 +177,6 @@ namespace Ngol.XcAnalyze.Model.Tests
             #endregion
             Data = new DataContext(affiliations, cities, conferences, meetInstances, meets, performances, races, runners, states, teams,
             venues);
-        }*/        
-    }
+        */    
+}
 

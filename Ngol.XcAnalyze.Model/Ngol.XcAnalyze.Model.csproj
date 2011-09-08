@@ -49,6 +49,7 @@
     <Compile Include="Team.cs" />
     <Compile Include="Affiliation.cs" />
     <Compile Include="Meet.cs" />
+    <Compile Include="MeetInstance.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

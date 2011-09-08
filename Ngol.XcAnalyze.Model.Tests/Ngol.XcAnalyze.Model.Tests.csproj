@@ -55,6 +55,7 @@
     <Compile Include="TestTeamRepository.cs" />
     <Compile Include="TestAffiliationRepository.cs" />
     <Compile Include="TestMeetRepository.cs" />
+    <Compile Include="TestMeetInstanceRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

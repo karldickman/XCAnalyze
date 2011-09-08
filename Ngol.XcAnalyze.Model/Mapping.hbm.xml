@@ -51,6 +51,17 @@
             not-null="true" />
     </class>
     <class
+        name="MeetInstance">
+        <id
+            name="ID">
+            <generator
+                class="native" />
+        </id>
+        <property
+            name="Date"
+            not-null="true" />
+    </class>
+    <class
         name="State">
         <id
             name="Code" />
