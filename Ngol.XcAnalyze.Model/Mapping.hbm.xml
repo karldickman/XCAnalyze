@@ -61,6 +61,13 @@
             name="Date"
             not-null="true" />
     </class>
+    <class name="Race">
+        <id name="ID">
+            <generator class="native" />
+        </id>
+        <property name="Distance"
+                  not-null="true" />
+    </class>
     <class
         name="State">
         <id

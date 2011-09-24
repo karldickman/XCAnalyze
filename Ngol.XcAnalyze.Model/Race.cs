@@ -32,7 +32,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The number used to identify this race.
         /// </summary>
-        public int ID
+        public virtual int ID
         {
             get;
             set;
@@ -50,7 +50,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The meet of which this race is a part.
         /// </summary>
-        public MeetInstance MeetInstance
+        public virtual MeetInstance MeetInstance
         {
             get;
             set;
@@ -198,7 +198,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// Score the race.
         /// </summary>
-        public void Score()
+        public virtual void Score()
         {
             //if(IsScored)
             //{

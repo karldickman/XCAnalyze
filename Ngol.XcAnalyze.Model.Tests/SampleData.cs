@@ -130,9 +130,25 @@ namespace Ngol.XcAnalyze.Model.Tests
         Regionals09 };
 
         #endregion
+        #region Races
+
+        public static readonly IDictionary<MeetInstance, Gender, Race> Races = new Dictionary<MeetInstance, Gender, Race>();
+
+        #endregion
+        #region Performances
+
+        public static readonly Performance KarlAtSundodger;
+        public static readonly Performance KarlAtWillamette;
+        public static readonly Performance HannahsPerformance;
+        public static readonly Performance FrancisPerformance;
+
+        public static readonly IList<Performance> Performances;
+
+        #endregion
 
         static SampleData()
         {
+            // Affiliations
             Affiliations = new Dictionary<Runner, int, Affiliation>();
             IEnumerable<Runner> runners = new List<Runner> { Florian, Karl, Francis, Richie, Leo, Jackson };
             IEnumerable<Team> teams = new List<Team> { ClaremontMuddScripps, LewisAndClark, PugetSound, LewisAndClark, Willamette, ColoradoCollege };
@@ -148,35 +164,20 @@ namespace Ngol.XcAnalyze.Model.Tests
             {
                 Affiliations[Hannah, year] = new Affiliation(Hannah, LewisAndClark, year);
             }
+            // Races
+            MeetInstances.ForEach(1, (meetInstance, id) =>
+            {
+                int womensDistance = meetInstance.Meet == CharlesBowles ? 5000 : 6000;
+                Races[meetInstance, Gender.Male] = new Race(id, meetInstance, Gender.Male, 8000);
+                Races[meetInstance, Gender.Female] = new Race(id, meetInstance, Gender.Female, womensDistance);
+            });
+            // Performances
+            KarlAtSundodger = new Performance(1, Karl, Races[Sundodger09, Gender.Male], 24 * 60 + 55);
+            KarlAtWillamette = new Performance(2, Karl, Races[CharlesBowles09, Gender.Male], 24 * 60 + 44);
+            HannahsPerformance = new Performance(3, Hannah, Races[Regionals08, Gender.Female], 22 * 60 + 3);
+            FrancisPerformance = new Performance(4, Francis, Races[NwcChampionships08, Gender.Male], 24 * 60 + 30);
+            Performances = new List<Performance> { KarlAtSundodger, KarlAtWillamette, HannahsPerformance, FrancisPerformance };
         }
     }
-    /*
-            #region Races
-            RaceLookup = new Dictionary<MeetInstance, IDictionary<Gender, Race>>();
-            IList<Race> races = new List<Race>();
-            int womensDistance;
-            Race mensRace, womensRace;
-            foreach(MeetInstance meetInstance in meetInstances) {
-                mensRace = new Race(meetInstance, Gender.Male, 8000);
-                womensDistance = meetInstance.Meet == CharlesBowles ? 5000 : 6000;
-                womensRace = new Race(meetInstance, Gender.Female, womensDistance);
-                IDictionary<Gender, Race> lookup = new Dictionary<Gender, Race>();
-                lookup[Gender.Male] = mensRace;
-                lookup[Gender.Female] = womensRace;
-                RaceLookup.Add(meetInstance, lookup);
-                races.Add(mensRace);
-                races.Add(womensRace);
-            }
-            #endregion
-            #region Performances
-            IList<Performance> performances = new List<Performance>();
-            performances.Add(new Performance(Karl, RaceLookup[Sundodger09][Gender.Male], 24 * 60 + 55));
-            performances.Add(new Performance(Karl, RaceLookup[CharlesBowles09][Gender.Male], 24 * 60 + 44));
-            performances.Add(new Performance(Hannah, RaceLookup[Regionals08][Gender.Female], 22 * 60 + 3));
-            performances.Add(new Performance(Francis, RaceLookup[NwcChampionships08][Gender.Male], 24 * 60 + 30));
-            #endregion
-            Data = new DataContext(affiliations, cities, conferences, meetInstances, meets, performances, races, runners, states, teams,
-            venues);
-        */    
 }
 
