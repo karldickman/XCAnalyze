@@ -44,18 +44,15 @@ namespace Ngol.XcAnalyze.Model.Tests
         [TestFixtureSetUp]
         public void InitialSetUp()
         {
+            Configuration = new Configuration();
+            Configuration.Configure();
+            Configuration.AddAssembly(typeof(State).Assembly);
+            SessionFactory = Configuration.BuildSessionFactory();
         }
 
         [SetUp]
         public void SetUp()
         {
-            Configuration = new Configuration();
-            Configuration.Configure();
-            Configuration.AddAssembly(typeof(State).Assembly);
-            SessionFactory = Configuration.BuildSessionFactory();
-
-
-            
             new SchemaExport(Configuration).Execute(false, true, false);
             Repository = new Repository<T>(SessionFactory);
         }

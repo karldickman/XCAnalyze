@@ -89,6 +89,16 @@ namespace Ngol.XcAnalyze.Model
             Time = time;
         }
 
+        /// <summary>
+        /// Construct a new <see cref="Performance" />.
+        /// </summary>
+        /// <remarks>
+        /// Required for NHibernate.
+        /// </remarks>
+        protected Performance()
+        {
+        }
+
         #endregion
 
         #region Inherited methods
@@ -162,7 +172,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The pace in minutes per mile of the performance.
         /// </summary>
-        public double? MilePace()
+        public virtual double? MilePace()
         {
             if(Time == null)
             {
@@ -181,7 +191,7 @@ namespace Ngol.XcAnalyze.Model
         /// pace.  If the paces are the same, the longer race is considered the
         /// better performance.
         /// </remarks>
-        public int CompareTo(Performance that)
+        public virtual int CompareTo(Performance that)
         {
             if(that == null)
                 throw new ArgumentNullException("that");
