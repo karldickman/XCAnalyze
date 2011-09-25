@@ -5,25 +5,31 @@ using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
-using Ngol.XcAnalyze.Model.Collections;
-using Ngol.XcAnalyze.Model.Interfaces;
-using NHibernate;
+using Ngol.XcAnalyze.Persistence.Collections;
+using Ngol.XcAnalyze.Persistence.Interfaces;
+using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
     [TestFixture]
-    public class TestTeamRepository : TestRepository<Team>
+    public class TestMeetRepository : TestRepository<Meet>
     {
         #region Properties
 
-        public override IEnumerable<Team> TestData
+        public override IEnumerable<Meet> TestData
         {
-            get { return SampleData.Teams; }
+            get { return Data.Meets; }
         }
 
         protected IRepository<Conference> ConferenceRepository
+        {
+            get;
+            set;
+        }
+
+        protected IRepository<Team> TeamRepository
         {
             get;
             set;
@@ -38,7 +44,9 @@ namespace Ngol.XcAnalyze.Model.Tests
         {
             base.SetUp();
             ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(SampleData.Conferences);
+            ConferenceRepository.AddRange(Data.Conferences);
+            TeamRepository = new Repository<Team>(Session);
+            TeamRepository.AddRange(Data.Teams);
         }
 
         [TearDown]
@@ -46,6 +54,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         {
             base.TearDown();
             ConferenceRepository.SafeDispose();
+            TeamRepository.SafeDispose();
         }
 
         #endregion
@@ -85,18 +94,18 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            Team pioneers = SampleData.LewisAndClark.Clone<Team>();
-            Repository.Add(pioneers);
-            Assert.Contains(pioneers, Repository);
-            foreach(string newName in new List<string> { "Pioneers", "LC" })
+            Meet originalMeet = Data.SciacMultiDuals.Clone<Meet>();
+            Repository.Add(originalMeet);
+            Assert.Contains(originalMeet, Repository);
+            foreach(string newName in Data.Meets.Select(meet => meet.Name))
             {
-                pioneers.SetProperty("Name", newName);
-                Repository.Update(pioneers);
-                Team actual = Session.Get<Team>(pioneers.ID);
+                originalMeet.SetProperty("Name", newName);
+                Repository.Update(originalMeet);
+                Meet actual = Session.Get<Meet>(originalMeet.ID);
                 Assert.AreEqual(newName, actual.Name);
             }
         }
-        
+
         #endregion
     }
 }

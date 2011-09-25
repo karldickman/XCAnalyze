@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
     [TestFixture]
-    public class TestStateRepository : TestRepository<State>
+    public class TestConferenceRepository : TestRepository<Conference>
     {
         #region Properties
 
-        public override IEnumerable<State> TestData
+        public override IEnumerable<Conference> TestData
         {
-            get { return SampleData.States; }
+            get { return Data.Conferences; }
         }
 
         #endregion
@@ -55,14 +56,14 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            State oregon = SampleData.Oregon.Clone<State>();
-            Repository.Add(oregon);
-            Assert.Contains(oregon, Repository);
-            foreach(string newName in new List<string> { "California's Canada", "Washington's Mexico", "Idaho's Portugal", })
+            Conference nwc = Data.Nwc.Clone<Conference>();
+            Repository.Add(nwc);
+            Assert.Contains(nwc, Repository);
+            foreach(string newName in new List<string> { "NCIC", "WCIC" })
             {
-                oregon.SetProperty("Name", newName);
-                Repository.Update(oregon);
-                State actual = Session.Get<State>(oregon.Code);
+                nwc.SetProperty("Name", newName);
+                Repository.Update(nwc);
+                Conference actual = Session.Get<Conference>(nwc.ID);
                 Assert.AreEqual(newName, actual.Name);
             }
         }

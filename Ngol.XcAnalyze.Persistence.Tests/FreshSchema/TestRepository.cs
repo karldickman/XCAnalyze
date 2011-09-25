@@ -4,15 +4,16 @@ using System.IO;
 using System.Linq;
 using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.System.Extensions;
-using Ngol.XcAnalyze.Model.Collections;
-using Ngol.XcAnalyze.Model.Interfaces;
+using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.Persistence.Collections;
+using Ngol.XcAnalyze.Persistence.Interfaces;
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
     public abstract class TestRepository<T>
     {
@@ -54,15 +55,14 @@ namespace Ngol.XcAnalyze.Model.Tests
         [TestFixtureSetUp]
         public void InitialSetUp()
         {
+            Configuration = new Configuration();
+            Configuration.Configure();
+            SessionFactory = Configuration.BuildSessionFactory();
         }
 
         [SetUp]
         public virtual void SetUp()
         {
-            Configuration = new Configuration();
-            Configuration.Configure();
-            Configuration.AddAssembly(typeof(State).Assembly);
-            SessionFactory = Configuration.BuildSessionFactory();
             // Export the schema
             new SchemaExport(Configuration).Execute(false, true, false);
             Session = SessionFactory.OpenSession();

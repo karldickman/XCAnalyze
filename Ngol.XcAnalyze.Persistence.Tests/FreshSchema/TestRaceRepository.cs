@@ -1,25 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
-using Ngol.XcAnalyze.Model.Collections;
-using Ngol.XcAnalyze.Model.Interfaces;
-using NHibernate.Linq;
+using Ngol.XcAnalyze.Persistence.Collections;
+using Ngol.XcAnalyze.Persistence.Interfaces;
+using Ngol.XcAnalyze.SampleData;
+using NHibernate;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
     [TestFixture]
-    public class TestMeetInstanceRepository : TestRepository<MeetInstance>
+    public class TestRaceRepository : TestRepository<Race>
     {
         #region Properties
 
-        public override IEnumerable<MeetInstance> TestData
+        public override IEnumerable<Race> TestData
         {
-            get { return SampleData.MeetInstances; }
+            get { return Data.Races.Values; }
         }
 
         protected IRepository<City> CityRepository
@@ -35,6 +35,12 @@ namespace Ngol.XcAnalyze.Model.Tests
         }
 
         protected IRepository<Meet> MeetRepository
+        {
+            get;
+            set;
+        }
+
+        protected IRepository<MeetInstance> MeetInstanceRepository
         {
             get;
             set;
@@ -67,17 +73,19 @@ namespace Ngol.XcAnalyze.Model.Tests
         {
             base.SetUp();
             ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(SampleData.Conferences);
+            ConferenceRepository.AddRange(Data.Conferences);
             TeamRepository = new Repository<Team>(Session);
-            TeamRepository.AddRange(SampleData.Teams);
+            TeamRepository.AddRange(Data.Teams);
             MeetRepository = new Repository<Meet>(Session);
-            MeetRepository.AddRange(SampleData.Meets);
+            MeetRepository.AddRange(Data.Meets);
             StateRepository = new Repository<State>(Session);
-            StateRepository.AddRange(SampleData.States);
+            StateRepository.AddRange(Data.States);
             CityRepository = new Repository<City>(Session);
-            CityRepository.AddRange(SampleData.Cities);
+            CityRepository.AddRange(Data.Cities);
             VenueRepository = new Repository<Venue>(Session);
-            VenueRepository.AddRange(SampleData.Venues);
+            VenueRepository.AddRange(Data.Venues);
+            MeetInstanceRepository = new Repository<MeetInstance>(Session);
+            MeetInstanceRepository.AddRange(Data.MeetInstances);
         }
 
         [TearDown]
@@ -90,6 +98,7 @@ namespace Ngol.XcAnalyze.Model.Tests
             StateRepository.SafeDispose();
             CityRepository.SafeDispose();
             VenueRepository.SafeDispose();
+            MeetInstanceRepository.SafeDispose();
         }
 
         #endregion
@@ -129,22 +138,22 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            MeetInstance originalMeetInstance = SampleData.LCInvite09.Clone<MeetInstance>();
-            Repository.Add(originalMeetInstance);
-            Assert.Contains(originalMeetInstance, Repository);
-            foreach(Venue venue in SampleData.MeetInstances.Select(meet => meet.Venue))
+            Random random = new Random();
+            foreach(Race race in TestData)
             {
-                originalMeetInstance.Venue = venue;
-                Repository.Update(originalMeetInstance);
-                IEnumerable<MeetInstance> matches = Session.Query<MeetInstance>()
-                                                           .Where(m => m.Meet == originalMeetInstance.Meet
-                                                                && m.Date == originalMeetInstance.Date);
-                Assert.HasCount(1, matches);
-                MeetInstance actual = matches.First();
-                Assert.AreEqual(venue, actual.Venue);
+                Repository.Add(race);
+                Assert.Contains(race, Repository);
+            }
+            foreach(Race race in TestData)
+            {
+                int expected = random.Next();
+                race.Distance = expected;
+                Repository.Update(race);
+                Race actual = Session.Get<Race>(race.ID);
+                Assert.AreEqual(expected, actual.Distance);
             }
         }
-
+        
         #endregion
     }
 }

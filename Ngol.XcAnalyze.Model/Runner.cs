@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using Iesi.Collections.Generic;
 using Ngol.Utilities.Collections.Extensions;
-using Ngol.XcAnalyze.Model.Interfaces;
 
 namespace Ngol.XcAnalyze.Model
 {

@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.System.Extensions;
-using Ngol.XcAnalyze.Model.Collections;
-using Ngol.XcAnalyze.Model.Interfaces;
+using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.Persistence.Collections;
+using Ngol.XcAnalyze.Persistence.Interfaces;
+using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
     [TestFixture]
     public class TestRunnerRepository : TestRepository<Runner>
@@ -16,7 +18,7 @@ namespace Ngol.XcAnalyze.Model.Tests
 
         public override IEnumerable<Runner> TestData
         {
-            get { return SampleData.Runners; }
+            get { return Data.Runners; }
         }
 
         protected IRepository<Conference> ConferenceRepository
@@ -40,9 +42,9 @@ namespace Ngol.XcAnalyze.Model.Tests
         {
             base.SetUp();
             ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(SampleData.Conferences);
+            ConferenceRepository.AddRange(Data.Conferences);
             TeamRepository = new Repository<Team>(Session);
-            TeamRepository.AddRange(SampleData.Teams);
+            TeamRepository.AddRange(Data.Teams);
         }
 
         [TearDown]
@@ -90,7 +92,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            Runner karl = SampleData.Karl.Clone<Runner>();
+            Runner karl = Data.Karl.Clone<Runner>();
             Repository.Add(karl);
             Assert.Contains(karl, Repository);
             karl.Surname = "Diechmann";

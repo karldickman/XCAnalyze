@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{03F68573-C451-45CF-A666-BACF76B57BBD}</ProjectGuid>
+    <ProjectGuid>{7A78C95A-2060-4617-AD21-34E3A84668E8}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Ngol.XcAnalyze.Model</RootNamespace>
-    <AssemblyName>Ngol.XcAnalyze.Model</AssemblyName>
+    <RootNamespace>Ngol.XcAnalyze.SampleData</RootNamespace>
+    <AssemblyName>Ngol.XcAnalyze.SampleData</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -20,7 +20,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <GenerateDocumentation>true</GenerateDocumentation>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -33,37 +32,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4" />
-    <Reference Include="NHibernate, Version=3.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4" />
-    <Reference Include="System.Core" />
-    <Reference Include="MoreLinq, Version=1.0.11522.0, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\MoreLinq.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="City.cs" />
-    <Compile Include="Runner.cs" />
-    <Compile Include="State.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Venue.cs" />
-    <Compile Include="Conference.cs" />
-    <Compile Include="Team.cs" />
-    <Compile Include="Meet.cs" />
-    <Compile Include="MeetInstance.cs" />
-    <Compile Include="Gender.cs" />
-    <Compile Include="Race.cs" />
-    <Compile Include="TeamScore.cs" />
-    <Compile Include="Performance.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="SampleData.cs" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.System\Ngol.Utilities.System.csproj">
       <Project>{B53B9249-70AC-4414-95A8-0E7838885C2B}</Project>
       <Name>Ngol.Utilities.System</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ngol.XcAnalyze.Model\Ngol.XcAnalyze.Model.csproj">
+      <Project>{03F68573-C451-45CF-A666-BACF76B57BBD}</Project>
+      <Name>Ngol.XcAnalyze.Model</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

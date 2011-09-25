@@ -1,12 +1,12 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using Ngol.XcAnalyze.Model.Interfaces;
+using Ngol.XcAnalyze.Persistence.Interfaces;
 using NHibernate;
 using NHibernate.Linq;
-using System.Collections.Generic;
-using System.Collections;
 
-namespace Ngol.XcAnalyze.Model.Collections
+namespace Ngol.XcAnalyze.Persistence.Collections
 {
     /// <summary>
     /// Persistence repository for various classes.

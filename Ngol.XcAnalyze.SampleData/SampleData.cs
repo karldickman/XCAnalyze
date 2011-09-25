@@ -5,9 +5,9 @@ using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.System.Collections.Generic;
 using Ngol.XcAnalyze.Model;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.SampleData
 {
-    public static class SampleData
+    public static class Data
     {
         #region Conferences
 
@@ -133,7 +133,7 @@ namespace Ngol.XcAnalyze.Model.Tests
 
         #endregion
 
-        static SampleData()
+        static Data()
         {
             // Conferences
             Nwc = new Conference("Northwest Conference", "NWC");

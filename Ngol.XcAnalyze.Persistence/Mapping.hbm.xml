@@ -20,13 +20,13 @@
             column="state_code"
             name="State"
             not-null="true" />
-        <set
+        <!--<set
             name="Venues">
             <key
                 column="city_id" />
             <one-to-many
                 class="Venue" />
-        </set>
+        </set>-->
     </class>
     <class
         table="conferences"

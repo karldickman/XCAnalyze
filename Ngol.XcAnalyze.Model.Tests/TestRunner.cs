@@ -1,6 +1,7 @@
 using System;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
 
 namespace Ngol.XcAnalyze.Model.Tests
@@ -10,12 +11,12 @@ namespace Ngol.XcAnalyze.Model.Tests
     {
         protected Runner Karl
         {
-            get { return SampleData.Karl; }
+            get { return Data.Karl; }
         }
         
         protected Runner Florian
         {
-            get { return SampleData.Florian; }
+            get { return Data.Florian; }
         }
         
         [Test]

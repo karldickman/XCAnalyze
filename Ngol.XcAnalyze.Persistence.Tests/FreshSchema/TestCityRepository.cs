@@ -3,33 +3,29 @@ using System.Collections.Generic;
 using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
-using Ngol.XcAnalyze.Model.Collections;
-using Ngol.XcAnalyze.Model.Interfaces;
+using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.Persistence.Collections;
+using Ngol.XcAnalyze.Persistence.Interfaces;
+using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
     [TestFixture]
-    public class TestVenueRepository : TestRepository<Venue>
+    public class TestCityRepository : TestRepository<City>
     {
         #region Properties
 
-        public override IEnumerable<Venue> TestData
-        {
-            get { return SampleData.Venues; }
-        }
-
-        protected IRepository<City> CityRepository
+        public IRepository<State> StateRepository
         {
             get;
             set;
         }
 
-        protected IRepository<State> StateRepository
+        public override IEnumerable<City> TestData
         {
-            get;
-            set;
+            get { return Data.Cities; }
         }
 
         #endregion
@@ -41,21 +37,19 @@ namespace Ngol.XcAnalyze.Model.Tests
         {
             base.SetUp();
             StateRepository = new Repository<State>(Session);
-            StateRepository.AddRange(SampleData.States);
-            CityRepository = new Repository<City>(Session);
-            CityRepository.AddRange(SampleData.Cities);
+            StateRepository.AddRange(Data.States);
         }
 
+        [TearDown]
         public override void TearDown()
         {
             base.TearDown();
-            CityRepository.SafeDispose();
             StateRepository.SafeDispose();
         }
 
         #endregion
 
-        #region Methods
+        #region Tests
 
         [Test]
         public void Add()
@@ -90,18 +84,18 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            Venue mcIver = SampleData.McIver.Clone<Venue>();
-            Repository.Add(mcIver);
-            Assert.Contains(mcIver, Repository);
-            foreach(string newName in new List<string> { "The Vortex" })
+            City portland = Data.Portland.Clone<City>();
+            Repository.Add(portland);
+            Assert.Contains(portland, Repository);
+            foreach(string newName in new List<string> { "Little Beirut", "Stumptown", "Rose City", "PDX", })
             {
-                mcIver.SetProperty("Name", newName);
-                Repository.Update(mcIver);
-                Venue actual = Session.Get<Venue>(mcIver.ID);
+                portland.SetProperty("Name", newName);
+                Repository.Update(portland);
+                City actual = Session.Get<City>(portland.ID);
                 Assert.AreEqual(newName, actual.Name);
             }
         }
-        
+
         #endregion
     }
 }

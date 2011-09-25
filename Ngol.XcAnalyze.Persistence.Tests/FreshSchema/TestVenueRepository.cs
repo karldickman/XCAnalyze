@@ -1,34 +1,34 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
-using Ngol.XcAnalyze.Model.Collections;
-using Ngol.XcAnalyze.Model.Interfaces;
+using Ngol.XcAnalyze.Persistence.Collections;
+using Ngol.XcAnalyze.Persistence.Interfaces;
+using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
     [TestFixture]
-    public class TestMeetRepository : TestRepository<Meet>
+    public class TestVenueRepository : TestRepository<Venue>
     {
         #region Properties
 
-        public override IEnumerable<Meet> TestData
+        public override IEnumerable<Venue> TestData
         {
-            get { return SampleData.Meets; }
+            get { return Data.Venues; }
         }
 
-        protected IRepository<Conference> ConferenceRepository
+        protected IRepository<City> CityRepository
         {
             get;
             set;
         }
 
-        protected IRepository<Team> TeamRepository
+        protected IRepository<State> StateRepository
         {
             get;
             set;
@@ -42,23 +42,22 @@ namespace Ngol.XcAnalyze.Model.Tests
         public override void SetUp()
         {
             base.SetUp();
-            ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(SampleData.Conferences);
-            TeamRepository = new Repository<Team>(Session);
-            TeamRepository.AddRange(SampleData.Teams);
+            StateRepository = new Repository<State>(Session);
+            StateRepository.AddRange(Data.States);
+            CityRepository = new Repository<City>(Session);
+            CityRepository.AddRange(Data.Cities);
         }
 
-        [TearDown]
         public override void TearDown()
         {
             base.TearDown();
-            ConferenceRepository.SafeDispose();
-            TeamRepository.SafeDispose();
+            CityRepository.SafeDispose();
+            StateRepository.SafeDispose();
         }
 
         #endregion
 
-        #region Tests
+        #region Methods
 
         [Test]
         public void Add()
@@ -93,18 +92,18 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            Meet originalMeet = SampleData.SciacMultiDuals.Clone<Meet>();
-            Repository.Add(originalMeet);
-            Assert.Contains(originalMeet, Repository);
-            foreach(string newName in SampleData.Meets.Select(meet => meet.Name))
+            Venue mcIver = Data.McIver.Clone<Venue>();
+            Repository.Add(mcIver);
+            Assert.Contains(mcIver, Repository);
+            foreach(string newName in new List<string> { "The Vortex" })
             {
-                originalMeet.SetProperty("Name", newName);
-                Repository.Update(originalMeet);
-                Meet actual = Session.Get<Meet>(originalMeet.ID);
+                mcIver.SetProperty("Name", newName);
+                Repository.Update(mcIver);
+                Venue actual = Session.Get<Venue>(mcIver.ID);
                 Assert.AreEqual(newName, actual.Name);
             }
         }
-
+        
         #endregion
     }
 }

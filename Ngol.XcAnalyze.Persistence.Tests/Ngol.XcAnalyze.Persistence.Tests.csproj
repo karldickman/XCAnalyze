@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7377447A-A3CE-451B-896E-0A6136E6E1DC}</ProjectGuid>
+    <ProjectGuid>{A809AA40-8498-464B-96AF-1EA694546EAA}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Ngol.XcAnalyze.Model.Tests</RootNamespace>
-    <AssemblyName>Ngol.XcAnalyze.Model.Tests</AssemblyName>
+    <RootNamespace>Ngol.XcAnalyze.Persistence.Tests</RootNamespace>
+    <AssemblyName>Ngol.XcAnalyze.Persistence.Tests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -19,6 +19,7 @@
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -31,26 +32,35 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>mono-nunit</Package>
-    </Reference>
     <Reference Include="nunit.core, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
       <Package>mono-nunit</Package>
     </Reference>
+    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>mono-nunit</Package>
+    </Reference>
+    <Reference Include="NHibernate, Version=3.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4" />
     <Reference Include="System.Core" />
-    <Reference Include="Mono.Data.Sqlite" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="TestCity.cs" />
-    <Compile Include="TestRunner.cs" />
-    <Compile Include="TestState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Ngol.XcAnalyze.Model\Ngol.XcAnalyze.Model.csproj">
-      <Project>{03F68573-C451-45CF-A666-BACF76B57BBD}</Project>
-      <Name>Ngol.XcAnalyze.Model</Name>
-    </ProjectReference>
+    <None Include="hibernate.cfg.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FreshSchema\TestCityRepository.cs" />
+    <Compile Include="FreshSchema\TestConferenceRepository.cs" />
+    <Compile Include="FreshSchema\TestGenerateSchema.cs" />
+    <Compile Include="FreshSchema\TestMeetInstanceRepository.cs" />
+    <Compile Include="FreshSchema\TestMeetRepository.cs" />
+    <Compile Include="FreshSchema\TestRaceRepository.cs" />
+    <Compile Include="FreshSchema\TestRepository.cs" />
+    <Compile Include="FreshSchema\TestRunnerRepository.cs" />
+    <Compile Include="FreshSchema\TestStateRepository.cs" />
+    <Compile Include="FreshSchema\TestTeamRepository.cs" />
+    <Compile Include="FreshSchema\TestVenueRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.System\Ngol.Utilities.System.csproj">
       <Project>{B53B9249-70AC-4414-95A8-0E7838885C2B}</Project>
       <Name>Ngol.Utilities.System</Name>
@@ -58,6 +68,14 @@
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.Reflection\Ngol.Utilities.Reflection.csproj">
       <Project>{8F46EFD3-2D0F-4DE1-9CBB-E775E2A2458A}</Project>
       <Name>Ngol.Utilities.Reflection</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ngol.XcAnalyze.Model\Ngol.XcAnalyze.Model.csproj">
+      <Project>{03F68573-C451-45CF-A666-BACF76B57BBD}</Project>
+      <Name>Ngol.XcAnalyze.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ngol.XcAnalyze.Persistence\Ngol.XcAnalyze.Persistence.csproj">
+      <Project>{AE98C42F-E999-43D6-A7CD-D18196ED4EA6}</Project>
+      <Name>Ngol.XcAnalyze.Persistence</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.NUnit\Ngol.Utilities.NUnit.csproj">
       <Project>{60ED6A54-F0A6-4AFC-9E81-C783C935980C}</Project>
@@ -67,5 +85,12 @@
       <Project>{7A78C95A-2060-4617-AD21-34E3A84668E8}</Project>
       <Name>Ngol.XcAnalyze.SampleData</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Utilities\Ngol.Utilities.NHibernate\Ngol.Utilities.NHibernate.csproj">
+      <Project>{61454F0F-30AA-40F8-9328-77A861A30A89}</Project>
+      <Name>Ngol.Utilities.NHibernate</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ExistingSchema\" />
   </ItemGroup>
 </Project>

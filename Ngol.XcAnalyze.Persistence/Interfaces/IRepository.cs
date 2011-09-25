@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ngol.XcAnalyze.Model.Interfaces
+namespace Ngol.XcAnalyze.Persistence.Interfaces
 {
     /// <summary>
     /// Generic interface to be implemented by all repository classes.

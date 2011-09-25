@@ -1,29 +1,33 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
-using Ngol.XcAnalyze.Model.Collections;
-using Ngol.XcAnalyze.Model.Interfaces;
+using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.Persistence.Collections;
+using Ngol.XcAnalyze.Persistence.Interfaces;
+using Ngol.XcAnalyze.SampleData;
+using NHibernate;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
-namespace Ngol.XcAnalyze.Model.Tests
+namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
     [TestFixture]
-    public class TestCityRepository : TestRepository<City>
+    public class TestTeamRepository : TestRepository<Team>
     {
         #region Properties
 
-        public IRepository<State> StateRepository
+        public override IEnumerable<Team> TestData
+        {
+            get { return Data.Teams; }
+        }
+
+        protected IRepository<Conference> ConferenceRepository
         {
             get;
             set;
-        }
-
-        public override IEnumerable<City> TestData
-        {
-            get { return SampleData.Cities; }
         }
 
         #endregion
@@ -34,15 +38,15 @@ namespace Ngol.XcAnalyze.Model.Tests
         public override void SetUp()
         {
             base.SetUp();
-            StateRepository = new Repository<State>(Session);
-            StateRepository.AddRange(SampleData.States);
+            ConferenceRepository = new Repository<Conference>(Session);
+            ConferenceRepository.AddRange(Data.Conferences);
         }
 
         [TearDown]
         public override void TearDown()
         {
             base.TearDown();
-            StateRepository.SafeDispose();
+            ConferenceRepository.SafeDispose();
         }
 
         #endregion
@@ -82,18 +86,18 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Update()
         {
-            City portland = SampleData.Portland.Clone<City>();
-            Repository.Add(portland);
-            Assert.Contains(portland, Repository);
-            foreach(string newName in new List<string> { "Little Beirut", "Stumptown", "Rose City", "PDX", })
+            Team pioneers = Data.LewisAndClark.Clone<Team>();
+            Repository.Add(pioneers);
+            Assert.Contains(pioneers, Repository);
+            foreach(string newName in new List<string> { "Pioneers", "LC" })
             {
-                portland.SetProperty("Name", newName);
-                Repository.Update(portland);
-                City actual = Session.Get<City>(portland.ID);
+                pioneers.SetProperty("Name", newName);
+                Repository.Update(pioneers);
+                Team actual = Session.Get<Team>(pioneers.ID);
                 Assert.AreEqual(newName, actual.Name);
             }
         }
-
+        
         #endregion
     }
 }

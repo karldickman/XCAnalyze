@@ -2,6 +2,7 @@ using System;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
 
 namespace Ngol.XcAnalyze.Model.Tests
@@ -12,16 +13,16 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Equals()
         {
-            City estacada = SampleData.Estacada.Clone<City>();
-            Assert.AreEqual(SampleData.Estacada, estacada);
+            City estacada = Data.Estacada.Clone<City>();
+            Assert.AreEqual(Data.Estacada, estacada);
             estacada.SetProperty("Name", "Hickville");
-            Assert.AreNotEqual(SampleData.Estacada, estacada);
-            estacada = SampleData.Estacada.Clone<City>();
+            Assert.AreNotEqual(Data.Estacada, estacada);
+            estacada = Data.Estacada.Clone<City>();
             estacada.SetProperty("ID", 7);
-            Assert.AreNotEqual(SampleData.Estacada, estacada);
-            estacada = SampleData.Estacada.Clone<City>();
-            estacada.SetProperty("State", SampleData.California);
-            Assert.AreNotEqual(SampleData.Estacada, estacada);
+            Assert.AreNotEqual(Data.Estacada, estacada);
+            estacada = Data.Estacada.Clone<City>();
+            estacada.SetProperty("State", Data.California);
+            Assert.AreNotEqual(Data.Estacada, estacada);
         }
     }
 }

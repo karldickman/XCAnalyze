@@ -16,5 +16,7 @@
 			name="show_sql">true</property>
         <property
             name="query.substitutions">true=1;false=0</property>
+        <mapping assembly="Ngol.XcAnalyze.Model" />
+        <mapping assembly="Ngol.XcAnalyze.Persistence" />
 	</session-factory>
 </hibernate-configuration>
