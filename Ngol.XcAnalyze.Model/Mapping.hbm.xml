@@ -94,31 +94,6 @@
         </join>
     </class>
     <class
-        table="results"
-        name="Performance">
-        <composite-id>
-            <key-property
-                column="race_id"
-                name="RaceID" />
-            <key-property
-                column="runner_id"
-                name="RunnerID" />
-        </composite-id>
-        <join
-            table="performances"
-            optional="true">
-            <key>
-                <column
-                    name="race_id" />
-                <column
-                    name="runner_id" />
-            </key>
-            <property
-                column="time"
-                name="Time" />
-        </join>
-    </class>
-    <class
         table="races"
         name="Race">
         <id
@@ -175,20 +150,37 @@
                 column="runner_nickname"
                 type="String" />
         </set>
+        <set
+            table="did_not_finish"
+            name="UnfinishedRaces">
+            <key
+                column="runner_id" />
+            <one-to-many
+                class="Race" />
+        </set>
+        <map
+            table="performances"
+            name="Times">
+            <key
+                column="runner_id" />
+            <index-many-to-many
+                column="race_id"
+                class="Race" />
+            <element
+                column="time"
+                type="double"
+                not-null="true" />
+        </map>
         <map
             table="affiliations"
             name="Affiliations">
-            <key>
-                <column
-                    name="runner_id" />
-            </key>
+            <key
+                column="runner_id" />
             <index
                 column="season"
                 type="Int32" />
-            <element
-                column="team_id"
-                type="Int32"
-                not-null="true" />
+            <one-to-many
+                class="Team" />
         </map>
         <map
             table="performances_unknown_race"

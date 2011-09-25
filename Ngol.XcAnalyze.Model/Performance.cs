@@ -13,8 +13,8 @@ namespace Ngol.XcAnalyze.Model
 
         #region Physical implementation
 
-        private int _raceID;
-        private int _runnerID;
+        private Race _race;
+        private Runner _runner;
 
         #endregion
 
@@ -31,10 +31,22 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The race whereat the time was run.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property <see langword="null" />.
+        /// </exception>
         public virtual Race Race
         {
-            get;
-            set;
+            get { return _race; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(Race != value)
+                {
+                    _race = value;
+                }
+            }
         }
 
         /// <summary>
@@ -42,25 +54,27 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual int RaceID
         {
-            get { return _raceID; }
-
-            set
-            {
-                if(RaceID != value)
-                {
-                    _raceID = value;
-                    Race = Race.Instances.Single(r => r.ID == RaceID);
-                }
-            }
+            get { return Race.ID; }
         }
 
         /// <summary>
         /// The runner who ran the time.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property <see langword="null" />.
+        /// </exception>
         public virtual Runner Runner
         {
-            get;
-            set;
+            get { return _runner; }
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(Runner != value)
+                {
+                    _runner = value;
+                }
+            }
         }
 
         /// <summary>
@@ -68,16 +82,7 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual int RunnerID
         {
-            get { return _runnerID; }
-
-            set
-            {
-                if(RunnerID != value)
-                {
-                    _runnerID = value;
-                    Runner = Runner.Instances.Single(r => r.ID == RunnerID);
-                }
-            }
+            get { return Runner.ID; }
         }
 
         /// <summary>
@@ -86,7 +91,7 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual Team Team
         {
-            get { return Runner.GetTeam(Race.Date.Year); }
+            get { return Runner.Affiliations[Race.Date.Year]; }
         }
 
         /// <summary>
@@ -119,14 +124,8 @@ namespace Ngol.XcAnalyze.Model
         /// </exception>
         public Performance(Runner runner, Race race, double? time) : this()
         {
-            if(runner == null)
-                throw new ArgumentNullException("runner");
-            if(race == null)
-                throw new ArgumentNullException("race");
             Runner = runner;
-            Runner.PropertyChanged += HandleRunnerPropertyChanged;
             Race = race;
-            Race.PropertyChanged += HandleRacePropertyChanged;
             Time = time;
         }
 
@@ -272,28 +271,5 @@ namespace Ngol.XcAnalyze.Model
 
         #endregion
 
-        #region Event handlers
-
-        private void HandleRacePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            // Should always be a race.  See constructor.
-            Race race = (Race)sender;
-            if(e.PropertyName == "ID")
-            {
-                _raceID = race.ID;
-            }
-        }
-
-        private void HandleRunnerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            // Should always be a runner.  See constructor.
-            Runner runner = (Runner)sender;
-            if(e.PropertyName == "ID")
-            {
-                _runnerID = runner.ID;
-            }
-        }
-        
-        #endregion
     }
 }

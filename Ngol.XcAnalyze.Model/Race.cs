@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Iesi.Collections.Generic;
-using MoreLinq;
 using Ngol.Utilities.Collections.Extensions;
 
 namespace Ngol.XcAnalyze.Model
@@ -11,23 +10,9 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// An instance of a meet.
     /// </summary>
-    public class Race : ICloneable, INotifyPropertyChanged
+    public class Race : ICloneable
     {
         #region Properties
-
-        #region Physical implementation
-
-        private int _id;
-
-        #endregion
-
-        /// <summary>
-        /// DELETE ME!!
-        /// </summary>
-        public static IEnumerable<Race> Instances
-        {
-            get { return InstanceCollection; }
-        }
 
         /// <summary>
         /// The date on which this <see cref="Race" /> was held.
@@ -60,16 +45,8 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual int ID
         {
-            get { return _id; }
-
-            set
-            {
-                if(ID != value)
-                {
-                    _id = value;
-                    OnPropertyChanged("ID");
-                }
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -108,11 +85,6 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
-        /// DELETE ME!
-        /// </summary>
-        protected static readonly ICollection<Race> InstanceCollection;
-
-        /// <summary>
         /// The score of this meet.
         /// </summary>
         protected virtual ICollection<TeamScore> ScoresCollection
@@ -124,11 +96,6 @@ namespace Ngol.XcAnalyze.Model
         #endregion
 
         #region Constructors
-
-        static Race()
-        {
-            InstanceCollection = new List<Race>();
-        }
 
         /// <summary>
         /// Create a new race.
@@ -163,7 +130,6 @@ namespace Ngol.XcAnalyze.Model
         /// </remarks>
         protected Race()
         {
-            InstanceCollection.Add(this);
         }
 
         #endregion
@@ -292,7 +258,7 @@ namespace Ngol.XcAnalyze.Model
                 return;
             firstRunnerOnCompleteTeam.Points = 1;
             // Tag each runner with their points
-            Results.Where(r => r.Points != null).ForEach(1, (runner, previous, points) =>
+            Results.Where(r => r.Points != null).ForEachIndexedPair(1, (runner, previous, points) =>
             {
                 if(runner.Time != previous.Time)
                 {
@@ -317,33 +283,6 @@ namespace Ngol.XcAnalyze.Model
             return MemberwiseClone();
         }
 
-        #endregion
-
-        #region INotifyPropertyChanged implementation
-
-        /// <inheritdoc />
-        public virtual event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Event invoker for <see cref="PropertyChanged" />.
-        /// </summary>
-        protected void OnPropertyChanged(string propertyName)
-        {
-            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        /// Event invoker for <see cref="PropertyChanged" />.
-        /// </summary>
-        protected void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if(handler != null)
-            {
-                handler(this, e);
-            }
-        }
-        
         #endregion
     }
 }

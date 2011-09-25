@@ -197,12 +197,12 @@ namespace Ngol.XcAnalyze.Model.Tests
             {
                 for(int i = 0; i < 4; i++)
                 {
-                    runner.Affiliations[year + i] = team.ID;
+                    runner.Affiliations[year + i] = team;
                 }
             });
             foreach(int year in new List<int> { 2006, 2008, 2009, 2010 })
             {
-                Hannah.Affiliations[year] = LewisAndClark.ID;
+                Hannah.Affiliations[year] = LewisAndClark;
             }
             // Meets
             LCInvite = new Meet("Lewis & Clark Invitational");

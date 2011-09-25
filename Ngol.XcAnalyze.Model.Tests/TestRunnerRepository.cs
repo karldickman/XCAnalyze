@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.System.Extensions;
+using Ngol.XcAnalyze.Model.Collections;
+using Ngol.XcAnalyze.Model.Interfaces;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
@@ -14,6 +17,40 @@ namespace Ngol.XcAnalyze.Model.Tests
         public override IEnumerable<Runner> TestData
         {
             get { return SampleData.Runners; }
+        }
+
+        protected IRepository<Conference> ConferenceRepository
+        {
+            get;
+            set;
+        }
+
+        protected IRepository<Team> TeamRepository
+        {
+            get;
+            set;
+        }
+
+        #endregion
+
+        #region Set up
+
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            ConferenceRepository = new Repository<Conference>(Session);
+            ConferenceRepository.AddRange(SampleData.Conferences);
+            TeamRepository = new Repository<Team>(Session);
+            TeamRepository.AddRange(SampleData.Teams);
+        }
+
+        [TearDown]
+        public override void TearDown()
+        {
+            base.SetUp();
+            ConferenceRepository.SafeDispose();
+            TeamRepository.SafeDispose();
         }
 
         #endregion
@@ -60,7 +97,7 @@ namespace Ngol.XcAnalyze.Model.Tests
             Runner actual = Session.Get<Runner>(karl.ID);
             Assert.AreEqual(actual.Surname, karl.Surname);
         }
-
+        
         #endregion
     }
 }

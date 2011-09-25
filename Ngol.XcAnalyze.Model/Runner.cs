@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Iesi.Collections.Generic;
+using Ngol.Utilities.Collections.Extensions;
 using Ngol.XcAnalyze.Model.Interfaces;
 
 namespace Ngol.XcAnalyze.Model
@@ -10,27 +11,15 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// All the information about a runner.
     /// </summary>
-    public class Runner : ICloneable, INotifyPropertyChanged
+    public class Runner : ICloneable
     {
         #region Properties
-
-        #region Physical implementation
-
-        private int _id;
-
-        #endregion
-
-        /// TODO DELETE
-        public static IEnumerable<Runner> Instances
-        {
-            get { return InstanceCollection; }
-        }
 
         /// <summary>
         /// The <see cref="Team" />s this <see cref="Runner" /> has
         /// been affiliated with, indexed by year.
         /// </summary>
-        public virtual IDictionary<int, int> Affiliations
+        public virtual IDictionary<int, Team> Affiliations
         {
             get;
             protected set;
@@ -68,16 +57,8 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual int ID
         {
-            get { return _id; }
-
-            set
-            {
-                if(ID != value)
-                {
-                    _id = value;
-                    OnPropertyChanged("ID");
-                }
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -107,6 +88,46 @@ namespace Ngol.XcAnalyze.Model
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// The <see cref="Performance"/>s the <see cref="Runner" /> has under their belt,
+        /// indexed by <see cref="Race.ID" />.
+        /// </summary>
+        public virtual IDictionary<Race, Performance> Performances
+        {
+            get
+            {
+                IDictionary<Race, Performance> performances = new Dictionary<Race, Performance>(Times.Count + UnfinishedRaces.Count);
+                foreach(Race race in UnfinishedRaces)
+                {
+                    performances[race] = new Performance(this, race, null);
+                }
+                Times.ForEach((race, time) =>
+                {
+                    performances[race] = new Performance(this, race, time);
+                });
+                return performances;
+            }
+        }
+
+        /// <summary>
+        /// The times the <see cref="Runner" /> has under their belt,
+        /// indexed by <see cref="Race.ID" />.
+        /// </summary>
+        public virtual IDictionary<Race, double> Times
+        {
+            get;
+            protected set;
+        }
+
+        /// <summary>
+        /// <see cref="Race"/>s that the <see cref="Runner" /> started but did not finish.
+        /// </summary>
+        public virtual ISet<Race> UnfinishedRaces
+        {
+            get;
+            protected set;
         }
 
         /// <summary>
@@ -147,7 +168,9 @@ namespace Ngol.XcAnalyze.Model
             Surname = surname;
             GivenName = givenName;
             Gender = gender;
-            Affiliations = new Dictionary<int, int>();
+            Affiliations = new Dictionary<int, Team>();
+            Times = new Dictionary<Race, double>();
+            UnfinishedRaces = new HashedSet<Race>();
         }
 
         /// <summary>
@@ -159,16 +182,6 @@ namespace Ngol.XcAnalyze.Model
         protected Runner()
         {
             InstanceCollection.Add(this);
-        }
-
-        #endregion
-
-        #region Methods
-
-        /// TODO DELETE
-        public virtual Team GetTeam(int season)
-        {
-            return Team.Instances.Single(t => t.ID == Affiliations[season]);
         }
 
         #endregion
@@ -226,33 +239,6 @@ namespace Ngol.XcAnalyze.Model
             return MemberwiseClone();
         }
 
-        #endregion
-
-        #region INotifyPropertyChanged
-
-        /// <inheritdoc />
-        public virtual event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Event invoker for <see cref="PropertyChanged" />.
-        /// </summary>
-        protected void OnPropertyChanged(string propertyName)
-        {
-            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        /// Event invoker for <see cref="PropertyChanged" />.
-        /// </summary>
-        protected void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if(handler != null)
-            {
-                handler(this, e);
-            }
-        }
-        
         #endregion
     }
 }

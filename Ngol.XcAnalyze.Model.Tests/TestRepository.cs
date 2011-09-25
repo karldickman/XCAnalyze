@@ -126,7 +126,7 @@ namespace Ngol.XcAnalyze.Model.Tests
         protected void TestCount(IEnumerable<T> testWith)
         {
             Assert.IsEmpty(Repository);
-            testWith.ForEach(1, (item, index) =>
+            testWith.ForEachIndexed(1, (item, index) =>
             {
                 Repository.Add(item);
                 Assert.AreEqual(index, Repository.Count);
