@@ -15,6 +15,13 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private string _givenName;
+        private string _surname;
+
+        #endregion
+
         /// <summary>
         /// The <see cref="Team" />s this <see cref="Runner" /> has
         /// been affiliated with, indexed by year.
@@ -46,10 +53,19 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The <see cref="Runner" />'s given or Christian name.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual string GivenName
         {
-            get;
-            set;
+            get { return _givenName; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _givenName = value;
+            }
         }
 
         /// <summary>
@@ -84,10 +100,19 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The runner's surname.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual string Surname
         {
-            get;
-            set;
+            get { return _surname; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _surname = value;
+            }
         }
 
         /// <summary>
@@ -130,19 +155,9 @@ namespace Ngol.XcAnalyze.Model
             protected set;
         }
 
-        /// <summary>
-        /// TODO DELETE
-        /// </summary>
-        protected static readonly ICollection<Runner> InstanceCollection;
-
         #endregion
 
         #region Constructors
-
-        static Runner()
-        {
-            InstanceCollection = new List<Runner>();
-        }
 
         /// <summary>
         /// Create a new <see cref="Runner" />.
@@ -161,10 +176,6 @@ namespace Ngol.XcAnalyze.Model
         /// </exception>
         public Runner(string surname, string givenName, Gender gender) : this()
         {
-            if(surname == null)
-                throw new ArgumentNullException("surname");
-            if(givenName == null)
-                throw new ArgumentNullException("givenName");
             Surname = surname;
             GivenName = givenName;
             Gender = gender;
@@ -181,7 +192,6 @@ namespace Ngol.XcAnalyze.Model
         /// </remarks>
         protected Runner()
         {
-            InstanceCollection.Add(this);
         }
 
         #endregion

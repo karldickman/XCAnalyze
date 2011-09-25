@@ -10,13 +10,29 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private City _city;
+        private string _name;
+
+        #endregion
+
         /// <summary>
         /// The city in which the venue is.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual City City
         {
-            get;
-            set;
+            get { return _city; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _city = value;
+            }
         }
 
         /// <summary>
@@ -31,19 +47,20 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The name of the venue.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual string Name
         {
-            get;
-            set;
-        }
+            get { return _name; }
 
-        /// <summary>
-        /// The state where the venue is.
-        /// </summary>
-        /*public State State
-        {
-            get { return City.State; }
-        }*/
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _name = value;
+            }
+        }
 
         #endregion
 
@@ -63,10 +80,6 @@ namespace Ngol.XcAnalyze.Model
         /// </exception>
         public Venue(string name, City city) : this()
         {
-            if(name == null)
-                throw new ArgumentNullException("name");
-            if(city == null)
-                throw new ArgumentNullException("city");
             Name = name;
             City = city;
         }

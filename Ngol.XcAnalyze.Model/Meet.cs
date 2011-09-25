@@ -12,7 +12,7 @@ namespace Ngol.XcAnalyze.Model
         #region Properties
 
         #region Physical implementation
-
+        
         private string _name;
 
         #endregion

@@ -21,6 +21,9 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The team which earned the score.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public Team Team
         {
             get { return _team; }
@@ -28,9 +31,7 @@ namespace Ngol.XcAnalyze.Model
             protected set
             {
                 if(value == null)
-                {
                     throw new ArgumentNullException("value");
-                }
                 _team = value;
             }
         }
@@ -38,6 +39,9 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The race to which this score belongs.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public Race Race
         {
             get { return _race; }
@@ -45,9 +49,7 @@ namespace Ngol.XcAnalyze.Model
             protected set
             {
                 if(value == null)
-                {
                     throw new ArgumentNullException("value");
-                }
                 _race = value;
             }
         }
@@ -98,8 +100,6 @@ namespace Ngol.XcAnalyze.Model
         /// </param>
         protected TeamScore(Race race, Team team, IEnumerable<Performance> runners)
         {
-            if(race == null)
-                throw new ArgumentNullException("race");
             Race = race;
             Team = team;
             if(runners == null)

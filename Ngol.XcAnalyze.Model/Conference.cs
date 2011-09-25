@@ -11,18 +11,40 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private string _acronym;
+        private string _name;
+
+        #endregion
+
         /// <summary>
         /// The acronym conventionally used for the conference.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property <see langword="null" />.
+        /// </exception>
         public virtual string Acronym
         {
-            get;
-            set;
+            get { return _acronym; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(Acronym != value)
+                {
+                    _acronym = value;
+                }
+            }
         }
 
         /// <summary>
         /// The number that identifies this conference.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property <see langword="null" />.
+        /// </exception>
         public virtual int ID
         {
             get;
@@ -32,10 +54,22 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The name of the conference.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property <see langword="null" />.
+        /// </exception>
         public virtual string Name
         {
-            get;
-            set;
+            get { return _name; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(Name != value)
+                {
+                    _name = value;
+                }
+            }
         }
 
         #endregion
@@ -57,10 +91,6 @@ namespace Ngol.XcAnalyze.Model
         /// </exception>
         public Conference(string name, string acronym)
         {
-            if(name == null)
-                throw new ArgumentNullException("name");
-            if(acronym == null)
-                throw new ArgumentNullException("acronym");
             Name = name;
             Acronym = acronym;
         }

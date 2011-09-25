@@ -214,17 +214,17 @@ namespace Ngol.XcAnalyze.Model.Tests
             PluInvite = new Meet("Pacific Lutheran Invitational");
             Meets = new List<Meet> { LCInvite, CharlesBowles, NwcChampionships, SciacMultiDuals, Sundodger, Regionals, PluInvite };
             // Meet instances
-            LCInvite09 = new MeetInstance(LCInvite, new DateTime(2009, 9, 12), McIver, LewisAndClark);
-            LCInvite10 = new MeetInstance(LCInvite, new DateTime(2010, 9, 27), McIver, LewisAndClark);
-            CharlesBowles09 = new MeetInstance(CharlesBowles, new DateTime(2009, 10, 3), BushPark, Willamette);
-            NwcChampionships10 = new MeetInstance(NwcChampionships, new DateTime(2010, 10, 30), FortSteilacoom, PugetSound);
-            NwcChampionships09 = new MeetInstance(NwcChampionships, new DateTime(2009, 10, 31), McIver, LewisAndClark);
-            NwcChampionships08 = new MeetInstance(NwcChampionships, new DateTime(2008, 11, 1), VeteransGolfCourse, Whitman);
-            PluInvite10 = new MeetInstance(PluInvite, new DateTime(2010, 10, 16), PluGolfCourse, PacificLutheran);
-            SciacMultiDuals09 = new MeetInstance(SciacMultiDuals, new DateTime(2009, 10, 17), PradoPark, ClaremontMuddScripps);
-            Sundodger09 = new MeetInstance(Sundodger, new DateTime(2009, 9, 19), LincolnPark, UniversityOfWashington);
-            Regionals08 = new MeetInstance(Regionals, new DateTime(2009, 11, 15), BushPark, Willamette);
-            Regionals09 = new MeetInstance(Regionals, new DateTime(2009, 11, 14), PomonaCampus, Pomona);
+            LCInvite09 = new MeetInstance(LCInvite, new DateTime(2009, 9, 12), McIver) { Host = LewisAndClark };
+            LCInvite10 = new MeetInstance(LCInvite, new DateTime(2010, 9, 27), McIver) { Host = LewisAndClark };
+            CharlesBowles09 = new MeetInstance(CharlesBowles, new DateTime(2009, 10, 3), BushPark) { Host = Willamette };
+            NwcChampionships10 = new MeetInstance(NwcChampionships, new DateTime(2010, 10, 30), FortSteilacoom) { Host = PugetSound };
+            NwcChampionships09 = new MeetInstance(NwcChampionships, new DateTime(2009, 10, 31), McIver) { Host = LewisAndClark };
+            NwcChampionships08 = new MeetInstance(NwcChampionships, new DateTime(2008, 11, 1), VeteransGolfCourse) { Host = Whitman };
+            PluInvite10 = new MeetInstance(PluInvite, new DateTime(2010, 10, 16), PluGolfCourse) { Host = PacificLutheran };
+            SciacMultiDuals09 = new MeetInstance(SciacMultiDuals, new DateTime(2009, 10, 17), PradoPark) { Host = ClaremontMuddScripps };
+            Sundodger09 = new MeetInstance(Sundodger, new DateTime(2009, 9, 19), LincolnPark) { Host = UniversityOfWashington };
+            Regionals08 = new MeetInstance(Regionals, new DateTime(2009, 11, 15), BushPark) { Host = Willamette };
+            Regionals09 = new MeetInstance(Regionals, new DateTime(2009, 11, 14), PomonaCampus) { Host = Pomona };
             MeetInstances = new List<MeetInstance> { LCInvite09, LCInvite10, CharlesBowles09, NwcChampionships10, NwcChampionships09, NwcChampionships08, PluInvite10, SciacMultiDuals09, Sundodger09, Regionals08,
             Regionals09 };
             // Races

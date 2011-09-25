@@ -11,6 +11,12 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private string _name;
+
+        #endregion
+
         /// <summary>
         /// The athletic <see cref="Conference" /> with which the school is affiliated.
         /// </summary>
@@ -30,20 +36,21 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
-        /// TODO DELETE
-        /// </summary>
-        public static IEnumerable<Team> Instances
-        {
-            get { return InstanceCollection; }
-        }
-
-        /// <summary>
         /// The name of the school (Linfield, Willamette, etc.)
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual string Name
         {
-            get;
-            set;
+            get { return _name; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _name = value;
+            }
         }
 
         /// <summary>
@@ -55,19 +62,9 @@ namespace Ngol.XcAnalyze.Model
             protected set;
         }
 
-        /// <summary>
-        /// TODO DELETE
-        /// </summary>
-        protected static readonly ICollection<Team> InstanceCollection;
-
         #endregion
 
         #region Constructors
-
-        static Team()
-        {
-            InstanceCollection = new List<Team>();
-        }
 
         /// <summary>
         /// Create a new team.
@@ -81,8 +78,6 @@ namespace Ngol.XcAnalyze.Model
         /// </exception>
         public Team(string name) : this()
         {
-            if(name == null)
-                throw new ArgumentNullException("name");
             Name = name;
             Nicknames = new HashedSet<string>();
         }
@@ -95,7 +90,6 @@ namespace Ngol.XcAnalyze.Model
         /// </remarks>
         protected Team()
         {
-            InstanceCollection.Add(this);
         }
 
         #endregion

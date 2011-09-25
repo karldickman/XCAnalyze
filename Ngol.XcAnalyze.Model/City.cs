@@ -9,6 +9,13 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private string _name;
+        private State _state;
+
+        #endregion
+
         /// <summary>
         /// The identifying number of this instance.
         /// </summary>
@@ -21,19 +28,43 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The name of the city.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property <see langword="null" />.
+        /// </exception>
         public virtual string Name
         {
-            get;
-            protected set;
+            get { return _name; }
+
+            protected set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(value != Name)
+                {
+                    _name = value;
+                }
+            }
         }
 
         /// <summary>
         /// The state in which the city is located geographically.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property <see langword="null" />.
+        /// </exception>
         public virtual State State
         {
-            get;
-            protected set;
+            get { return _state; }
+
+            protected set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(value != State)
+                {
+                    _state = value;
+                }
+            }
         }
 
         #endregion
@@ -51,10 +82,6 @@ namespace Ngol.XcAnalyze.Model
         /// </param>
         public City(string name, State state) : this()
         {
-            if(name == null)
-                throw new ArgumentNullException("name");
-            if(state == null)
-                throw new ArgumentNullException("state");
             Name = name;
             State = state;
         }

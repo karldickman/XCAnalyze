@@ -12,16 +12,32 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private string _code;
+        private string _name;
+
+        #endregion
+
         /// <summary>
         /// The postal abbreviation for the state.
         /// </summary>
         /// <exception cref="ArgumentNullException">
         /// Thrown if the value is set to <see langword="null" />.
         /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual string Code
         {
-            get;
-            protected set;
+            get { return _code; }
+
+            protected set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _code = value;
+            }
         }
 
         /// <summary>
@@ -30,10 +46,19 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if the value is set to <see langword="null" />.
         /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual string Name
         {
-            get;
-            protected set;
+            get { return _name; }
+
+            protected set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _name = value;
+            }
         }
 
         /// <summary>
@@ -63,10 +88,6 @@ namespace Ngol.XcAnalyze.Model
         /// </exception>
         public State(string code, string name) : this()
         {
-            if(code == null)
-                throw new ArgumentNullException("code");
-            if(name == null)
-                throw new ArgumentNullException("name");
             Code = code;
             Name = name;
             Cities = new HashedSet<City>();

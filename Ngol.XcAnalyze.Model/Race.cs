@@ -14,6 +14,12 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private MeetInstance _meetInstance;
+
+        #endregion
+
         /// <summary>
         /// The date on which this <see cref="Race" /> was held.
         /// </summary>
@@ -61,10 +67,19 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The meet of which this race is a part.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property to <see langword="null" />.
+        /// </exception>
         public virtual MeetInstance MeetInstance
         {
-            get;
-            set;
+            get { return _meetInstance; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _meetInstance = value;
+            }
         }
 
         /// <summary>
@@ -110,7 +125,7 @@ namespace Ngol.XcAnalyze.Model
         /// Was this a men's or a women's race.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="meetInstance"/> or <paramref name="gender"/>
+        /// Thrown if <paramref name="meetInstance"/>
         /// is <see langword="null" />.
         /// </exception>
         public Race(MeetInstance meetInstance, Gender gender, int distance) : this()

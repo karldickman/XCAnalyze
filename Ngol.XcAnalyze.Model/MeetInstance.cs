@@ -12,6 +12,13 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private Meet _meet;
+        private Venue _venue;
+
+        #endregion
+
         /// <summary>
         /// The date on which this meet was held.
         /// </summary>
@@ -33,19 +40,43 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The meet of which this is an instance.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual Meet Meet
         {
-            get;
-            set;
+            get { return _meet; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(value != Meet)
+                {
+                    _meet = value;
+                }
+            }
         }
 
         /// <summary>
         /// The venue whereat the instance of this meet was held.
         /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
         public virtual Venue Venue
         {
-            get;
-            set;
+            get { return _venue; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(value != Venue)
+                {
+                    _venue = value;
+                }
+            }
         }
 
         #endregion
@@ -68,39 +99,11 @@ namespace Ngol.XcAnalyze.Model
         /// Thrown if <paramref name="meet"/> or <paramref name="venue"/>
         /// is <see langword="null" />.
         /// </exception>
-        public MeetInstance(Meet meet, DateTime date, Venue venue) : this(meet, date, venue, null)
+        public MeetInstance(Meet meet, DateTime date, Venue venue) : this()
         {
-        }
-
-        /// <summary>
-        /// Create a new meet instance.
-        /// </summary>
-        /// <param name="meet">
-        /// The meet of which this is an instance.
-        /// </param>
-        /// <param name="date">
-        /// The date on which the meet was held.
-        /// </param>
-        /// <param name="venue">
-        /// The <see cref="Venue" /> whereat the meet was held.
-        /// </param>
-        /// <param name="host">
-        /// The host of the meet.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="meet"/> or <paramref name="venue"/>
-        /// is <see langword="null" />.
-        /// </exception>
-        public MeetInstance(Meet meet, DateTime date, Venue venue, Team host) : this()
-        {
-            if(meet == null)
-                throw new ArgumentNullException("meet");
-            if(venue == null)
-                throw new ArgumentNullException("venue");
             Meet = meet;
             Date = date;
             Venue = venue;
-            Host = host;
         }
 
         /// <summary>
