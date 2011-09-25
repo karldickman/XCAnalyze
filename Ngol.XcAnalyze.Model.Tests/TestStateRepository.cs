@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
-using NHibernate;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
@@ -14,10 +11,16 @@ namespace Ngol.XcAnalyze.Model.Tests
     [TestFixture]
     public class TestStateRepository : TestRepository<State>
     {
+        #region Properties
+
         public override IEnumerable<State> TestData
         {
             get { return SampleData.States; }
         }
+
+        #endregion
+
+        #region Tests
 
         [Test]
         public void Add()
@@ -59,13 +62,12 @@ namespace Ngol.XcAnalyze.Model.Tests
             {
                 oregon.SetProperty("Name", newName);
                 Repository.Update(oregon);
-                using(ISession session = SessionFactory.OpenSession())
-                {
-                    State actual = session.Get<State>(oregon.Code);
-                    Assert.AreEqual(newName, actual.Name);
-                }
+                State actual = Session.Get<State>(oregon.Code);
+                Assert.AreEqual(newName, actual.Name);
             }
         }
+
+        #endregion
     }
 }
 

@@ -15,7 +15,9 @@ namespace Ngol.XcAnalyze.Model.Tests
             Configuration configuration = new Configuration();
             configuration.Configure();
             configuration.AddAssembly(typeof(State).Assembly);
-            new SchemaExport(configuration).Execute(false, true, false);
+            SchemaExport schemaExport = new SchemaExport(configuration);
+            schemaExport.SetOutputFile("schema.sql");
+            schemaExport.Execute(false, true, false);
         }
     }
 }

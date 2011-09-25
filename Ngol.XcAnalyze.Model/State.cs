@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Iesi.Collections.Generic;
-using Ngol.XcAnalyze.Model.Interfaces;
+using Ngol.Utilities.Collections.Extensions;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -18,20 +18,32 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if the value is set to <see langword="null" />.
         /// </exception>
-        public virtual string Code { get; protected set; }
-        
+        public virtual string Code
+        {
+            get;
+            protected set;
+        }
+
         /// <summary>
         /// The name of the state.
         /// </summary>
         /// <exception cref="ArgumentNullException">
         /// Thrown if the value is set to <see langword="null" />.
         /// </exception>
-        public virtual string Name { get; protected set; }
+        public virtual string Name
+        {
+            get;
+            protected set;
+        }
 
         /// <summary>
         /// The cities recorded as being within this state.
         /// </summary>
-        // TODO public readonly IEnumerable<City> Cities;
+        public virtual ISet<City> Cities
+        {
+            get;
+            protected set;
+        }
 
         #endregion
 
@@ -47,18 +59,39 @@ namespace Ngol.XcAnalyze.Model
         /// The name of the state.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown if any argument is null.
+        /// Thrown if any argument is <see langword="null" />.
         /// </exception>
-        public State(string code, string name)
-            : this()
+        public State(string code, string name) : this()
         {
             if(code == null)
                 throw new ArgumentNullException("code");
-
             if(name == null)
                 throw new ArgumentNullException("name");
             Code = code;
             Name = name;
+            Cities = new HashedSet<City>();
+        }
+
+        /// <summary>
+        /// Construct a new <see cref="State" />.
+        /// </summary>
+        /// <param name="code">
+        /// The postal abbreviation for the <see cref="State" />.
+        /// </param>
+        /// <param name="name">
+        /// The name of the <see cref="State" />.
+        /// </param>
+        /// <param name="cities">
+        /// The <see cref="City"/>s that are in this <see cref="State" />.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if any argument is <see langword="null" />.
+        /// </exception>
+        public State(string code, string name, IEnumerable<City> cities) : this(code, name)
+        {
+            if(cities == null)
+                throw new ArgumentNullException("cities");
+            Cities.AddRange(cities);
         }
 
         /// <summary>
@@ -119,7 +152,7 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override string ToString()
         {
-            return string.Format("{1}", Code, Name);
+            return Name;
         }
 
         private bool Equals(State that)
@@ -140,7 +173,7 @@ namespace Ngol.XcAnalyze.Model
         {
             return MemberwiseClone();
         }
-
+        
         #endregion
     }
 }

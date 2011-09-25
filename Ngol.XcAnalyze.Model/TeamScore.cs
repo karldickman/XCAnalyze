@@ -275,7 +275,7 @@ namespace Ngol.XcAnalyze.Model
                     //sum += Runners[i].Time.Value;
                 }
             }
-            return new Performance(-1, null, Race, sum / number);
+            return new Performance(null, Race, sum / number);
         }
 
         #endregion

@@ -43,23 +43,18 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// Construct a new city.
         /// </summary>
-        /// <param name="id">
-        /// The ID number for the city.
-        /// </param>
         /// <param name="name">
         /// The name of the city.
         /// </param>
         /// <param name="state">
         /// The state in which the city is located geographically..
         /// </param>
-        public City(int id, string name, State state)
-            : this()
+        public City(string name, State state) : this()
         {
             if(name == null)
                 throw new ArgumentNullException("name");
             if(state == null)
                 throw new ArgumentNullException("state");
-            ID = id;
             Name = name;
             State = state;
         }
@@ -147,7 +142,7 @@ namespace Ngol.XcAnalyze.Model
         {
             return MemberwiseClone();
         }
-
+        
         #endregion
     }
 }

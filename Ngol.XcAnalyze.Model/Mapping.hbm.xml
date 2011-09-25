@@ -4,113 +4,286 @@
     assembly="Ngol.XcAnalyze.Model"
     namespace="Ngol.XcAnalyze.Model">
     <class
-        name="Affiliation">
-        <id
-            name="ID">
-            <generator
-                class="native" />
-        </id>
-        <property
-            name="Season"
-            not-null="true" />
-    </class>
-    <class
+        table="cities"
         name="City">
         <id
+            column="city_id"
             name="ID">
             <generator
                 class="native" />
         </id>
         <property
+            column="city_name"
             name="Name"
+            not-null="true" />
+        <many-to-one
+            column="state_code"
+            name="State"
             not-null="true" />
     </class>
     <class
+        table="conferences"
         name="Conference">
         <id
+            column="conference_id"
             name="ID">
             <generator
                 class="native" />
         </id>
         <property
+            column="conference_name"
             name="Name"
+            unique="true"
             not-null="true" />
         <property
+            column="acronym"
             name="Acronym"
+            unique="true"
             not-null="true" />
     </class>
     <class
+        table="meets"
         name="Meet">
         <id
+            column="meet_id"
             name="ID">
             <generator
                 class="native" />
         </id>
         <property
+            column="meet_name"
             name="Name"
+            unique="true"
             not-null="true" />
+        <join
+            table="meet_hosts">
+            <key
+                column="meet_id" />
+            <many-to-one
+                column="team_id"
+                name="Host" />
+        </join>
     </class>
     <class
+        table="meet_instances"
         name="MeetInstance">
-        <id
-            name="ID">
-            <generator
-                class="native" />
-        </id>
-        <property
-            name="Date"
+        <composite-id>
+            <key-property
+                column="meet_id"
+                name="MeetID" />
+            <key-property
+                column="meet_date"
+                name="Date" />
+        </composite-id>
+        <many-to-one
+            column="venue_id"
+            name="Venue"
             not-null="true" />
+        <join
+            table="meet_instance_hosts"
+            optional="true">
+            <key>
+                <column
+                    name="meet_id" />
+                <column
+                    name="meet_date" />
+            </key>
+            <many-to-one
+                column="team_id"
+                name="Host" />
+        </join>
     </class>
     <class
+        table="results"
         name="Performance">
-        <id
-            name="ID">
-            <generator
-                class="native" />
-        </id>
-        <property
-            name="Time" />
+        <composite-id>
+            <key-property
+                column="race_id"
+                name="RaceID" />
+            <key-property
+                column="runner_id"
+                name="RunnerID" />
+        </composite-id>
+        <join
+            table="performances"
+            optional="true">
+            <key>
+                <column
+                    name="race_id" />
+                <column
+                    name="runner_id" />
+            </key>
+            <property
+                column="time"
+                name="Time" />
+        </join>
     </class>
     <class
+        table="races"
         name="Race">
         <id
+            column="race_id"
             name="ID">
             <generator
                 class="native" />
         </id>
         <property
+            column="distance"
             name="Distance"
             not-null="true" />
+        <property
+            column="gender"
+            name="Gender"
+            not-null="true" />
+        <many-to-one
+            name="MeetInstance">
+            <column
+                name="meet_id"
+                not-null="true" />
+            <column
+                name="meet_date"
+                not-null="true" />
+        </many-to-one>
     </class>
     <class
+        table="runners"
+        name="Runner">
+        <id
+            column="runner_id"
+            name="ID">
+            <generator
+                class="native" />
+        </id>
+        <property
+            column="surname"
+            name="Surname"
+            not-null="true" />
+        <property
+            column="given_name"
+            name="GivenName"
+            not-null="true" />
+        <property
+            column="gender"
+            name="Gender"
+            not-null="true" />
+        <set
+            table="runner_nicknames"
+            name="Nicknames">
+            <key
+                column="runner_id" />
+            <element
+                column="runner_nickname"
+                type="String" />
+        </set>
+        <map
+            table="affiliations"
+            name="Affiliations">
+            <key>
+                <column
+                    name="runner_id" />
+            </key>
+            <index
+                column="season"
+                type="Int32" />
+            <element
+                column="team_id"
+                type="Int32"
+                not-null="true" />
+        </map>
+        <map
+            table="performances_unknown_race"
+            name="SeasonsBestsUnknownRace">
+            <key>
+                <column
+                    name="runner_id" />
+            </key>
+            <index
+                column="season"
+                type="Int32" />
+            <element
+                column="time"
+                not-null="true" />
+        </map>
+        <join
+            table="college_enrollment_years">
+            <key
+                column="runner_id" />
+            <property
+                column="enrollment_year"
+                name="EnrollmentYear"
+                not-null="true" />
+        </join>
+    </class>
+    <class
+        table="states"
         name="State">
         <id
-            name="Code" />
+            column="state_code"
+            name="Code">
+            <generator
+                class="assigned" />
+        </id>
         <property
+            column="state_name"
             name="Name"
             not-null="true"
             unique="true" />
+        <set
+            name="Cities">
+            <key
+                column="state_code" />
+            <one-to-many
+                class="City" />
+        </set>
     </class>
     <class
+        table="teams"
         name="Team">
         <id
+            column="team_id"
             name="ID">
             <generator
                 class="native" />
         </id>
         <property
+            column="team_name"
             name="Name"
             not-null="true" />
+        <set
+            table="team_nicknames"
+            name="Nicknames">
+            <key
+                column="team_id" />
+            <element
+                column="team_nickname"
+                type="String" />
+        </set>
+        <join
+            optional="true"
+            table="conference_affiliations">
+            <key
+                column="team_id" />
+            <many-to-one
+                column="conference_id"
+                name="Conference" />
+        </join>
     </class>
     <class
+        table="venues"
         name="Venue">
         <id
+            column="venue_id"
             name="ID">
             <generator
-                class="native" />&gt;
+                class="native" />
         </id>
         <property
+            column="venue_name"
             name="Name"
-            not-null="true" />&gt;
+            not-null="true" />
+        <many-to-one
+            column="city_id"
+            name="City"
+            not-null="true" />
     </class>
 </hibernate-mapping>

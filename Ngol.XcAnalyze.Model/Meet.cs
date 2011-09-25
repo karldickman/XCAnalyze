@@ -1,14 +1,29 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A recurring Cross-Country competition.
     /// </summary>
-    public class Meet : ICloneable
+    public class Meet : ICloneable, INotifyPropertyChanged
     {
         #region Properties
+
+        #region Physical implementation
+
+        private int _id;
+
+        #endregion
+
+        /// <summary>
+        /// DELETE ME
+        /// </summary>
+        public static IEnumerable<Meet> Instances
+        {
+            get { return InstancesCollection; }
+        }
 
         /// <summary>
         /// The team that hosts the meet.
@@ -24,8 +39,16 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual int ID
         {
-            get;
-            set;
+            get { return _id; }
+
+            set
+            {
+                if(ID != value)
+                {
+                    _id = value;
+                    OnPropertyChanged("ID");
+                }
+            }
         }
 
         /// <summary>
@@ -37,33 +60,36 @@ namespace Ngol.XcAnalyze.Model
             set;
         }
 
+        /// <summary>
+        /// DELETE ME
+        /// </summary>
+        protected static readonly ICollection<Meet> InstancesCollection;
+
         #endregion
 
         #region Constructors
 
+        static Meet()
+        {
+            InstancesCollection = new List<Meet>();
+        }
+
         /// <summary>
         /// Create a new meet.
         /// </summary>
-        /// <param name="id">
-        /// The number used to identify the meet.
-        /// </param>
         /// <param name="name">
         /// The name of the meet.
         /// </param>
         /// <exception cref="ArgumentNullException">
         /// Thrown if name is null.
         /// </exception>
-        public Meet(int id, string name)
-            : this(id, name, null)
+        public Meet(string name) : this(name, null)
         {
         }
 
         /// <summary>
         /// Create a new meet.
         /// </summary>
-        /// <param name="id">
-        /// The number used to identify the meet.
-        /// </param>
         /// <param name="name">
         /// The name of the meet.
         /// </param>
@@ -73,9 +99,10 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if name is null.
         /// </exception>
-        protected Meet(int id, string name, Team host)
+        protected Meet(string name, Team host) : this()
         {
-            ID = id;
+            if(name == null)
+                throw new ArgumentNullException("name");
             Name = name;
             Host = host;
         }
@@ -88,6 +115,7 @@ namespace Ngol.XcAnalyze.Model
         /// </remarks>
         protected Meet()
         {
+            InstancesCollection.Add(this);
         }
 
         #endregion
@@ -167,6 +195,33 @@ namespace Ngol.XcAnalyze.Model
         object ICloneable.Clone()
         {
             return MemberwiseClone();
+        }
+        
+        #endregion
+
+        #region INotifyPropertyChanged
+
+        /// <inheritdoc />
+        public virtual event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Event invoker for <see cref="PropertyChanged" />.
+        /// </summary>
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// Event invoker for <see cref="PropertyChanged" />.
+        /// </summary>
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if(handler != null)
+            {
+                handler(this, e);
+            }
         }
 
         #endregion

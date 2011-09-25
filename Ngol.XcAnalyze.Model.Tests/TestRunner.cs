@@ -28,8 +28,8 @@ namespace Ngol.XcAnalyze.Model.Tests
             Assert.AreNotEqual(karl, florian);
             Assert.AreNotEqual(florian, karl);
             Assert.AreEqual(Karl, karl);
-            Runner zim1 = new Runner(2, "Zimmerman", "Elizabeth");//, Gender.Female, 2007);
-            Runner zim2 = new Runner(5, "Zimmerman", "Elizabeth");//, Gender.Female, null);
+            Runner zim1 = new Runner("Zimmerman", "Elizabeth", Gender.Female) { EnrollmentYear = 2007 };
+            Runner zim2 = new Runner("Zimmerman", "Elizabeth", Gender.Female);
             Assert.AreNotEqual(zim1, zim2);
         }
     }

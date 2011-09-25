@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Ngol.Utilities.Collections.Extensions;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
-using NHibernate;
+using Ngol.XcAnalyze.Model.Collections;
+using Ngol.XcAnalyze.Model.Interfaces;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
@@ -13,10 +13,41 @@ namespace Ngol.XcAnalyze.Model.Tests
     [TestFixture]
     public class TestCityRepository : TestRepository<City>
     {
+        #region Properties
+
+        public IRepository<State> StateRepository
+        {
+            get;
+            set;
+        }
+
         public override IEnumerable<City> TestData
         {
             get { return SampleData.Cities; }
         }
+
+        #endregion
+
+        #region Set up
+
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            StateRepository = new Repository<State>(Session);
+            StateRepository.AddRange(SampleData.States);
+        }
+
+        [TearDown]
+        public override void TearDown()
+        {
+            base.TearDown();
+            StateRepository.SafeDispose();
+        }
+
+        #endregion
+
+        #region Tests
 
         [Test]
         public void Add()
@@ -58,13 +89,12 @@ namespace Ngol.XcAnalyze.Model.Tests
             {
                 portland.SetProperty("Name", newName);
                 Repository.Update(portland);
-                using(ISession session = SessionFactory.OpenSession())
-                {
-                    City actual = session.Get<City>(portland.ID);
-                    Assert.AreEqual(newName, actual.Name);
-                }
+                City actual = Session.Get<City>(portland.ID);
+                Assert.AreEqual(newName, actual.Name);
             }
         }
+
+        #endregion
     }
 }
 

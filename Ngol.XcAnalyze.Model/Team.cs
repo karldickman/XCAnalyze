@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using Iesi.Collections.Generic;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -12,7 +12,7 @@ namespace Ngol.XcAnalyze.Model
         #region Properties
 
         /// <summary>
-        /// The athletic conference with which the school is affiliated.
+        /// The athletic <see cref="Conference" /> with which the school is affiliated.
         /// </summary>
         public virtual Conference Conference
         {
@@ -30,6 +30,14 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
+        /// TODO DELETE
+        /// </summary>
+        public static IEnumerable<Team> Instances
+        {
+            get { return InstanceCollection; }
+        }
+
+        /// <summary>
         /// The name of the school (Linfield, Willamette, etc.)
         /// </summary>
         public virtual string Name
@@ -38,51 +46,45 @@ namespace Ngol.XcAnalyze.Model
             set;
         }
 
+        /// <summary>
+        /// The nicknames of the school (UPS for University of Puget Sound, z.B.).
+        /// </summary>
+        public virtual ISet<string> Nicknames
+        {
+            get;
+            protected set;
+        }
+
+        /// <summary>
+        /// TODO DELETE
+        /// </summary>
+        protected static readonly ICollection<Team> InstanceCollection;
+
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        /// Create a new team.
-        /// </summary>
-        /// <param name="id">
-        /// The number used to identify this team.
-        /// </param>
-        /// <param name="name">
-        /// The name of the team (Linfield, Willamette, etc.).  This value
-        /// cannot be null.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="name"/> is <see langword="null" />.
-        /// </exception>
-        public Team(int id, string name)
-            : this(id, name, null)
+        static Team()
         {
+            InstanceCollection = new List<Team>();
         }
 
         /// <summary>
         /// Create a new team.
         /// </summary>
-        /// <param name="id">
-        /// The number used to identify this team.
-        /// </param>
         /// <param name="name">
         /// The name of the team (Linfield, Willamette, etc.).  This value
         /// cannot be null.
         /// </param>
-        /// <param name="conference">
-        /// The conference with which this team is affiliated.
-        /// </param>
         /// <exception cref="ArgumentNullException">
         /// Thrown if <paramref name="name"/> is <see langword="null" />.
         /// </exception>
-        public Team(int id, string name, Conference conference)
+        public Team(string name) : this()
         {
             if(name == null)
                 throw new ArgumentNullException("name");
-            ID = id;
             Name = name;
-            Conference = conference;
+            Nicknames = new HashedSet<string>();
         }
 
         /// <summary>
@@ -93,6 +95,7 @@ namespace Ngol.XcAnalyze.Model
         /// </remarks>
         protected Team()
         {
+            InstanceCollection.Add(this);
         }
 
         #endregion
@@ -134,7 +137,8 @@ namespace Ngol.XcAnalyze.Model
             {
                 return true;
             }
-            return Name == other.Name;// && (Conference == other.Conference);
+            return Name == other.Name;
+            // && (Conference == other.Conference);
         }
 
         #endregion
@@ -146,7 +150,7 @@ namespace Ngol.XcAnalyze.Model
         {
             return MemberwiseClone();
         }
-
+        
         #endregion
     }
 }

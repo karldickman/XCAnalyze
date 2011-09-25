@@ -18,7 +18,11 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// <summary>
         /// The NHibernate session to use to communicate with the database.
         /// </summary>
-        protected readonly ISession Session;
+        protected ISession Session
+        {
+            get;
+            set;
+        }
 
         #endregion
 
@@ -27,12 +31,17 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// <summary>
         /// Construct a new repository.
         /// </summary>
-        /// <param name="sessionFactory">
-        /// The <see cref="ISessionFactory"/> to use.
+        /// <param name="session">
+        /// The <see cref="ISession"/> to use.
         /// </param>
-        public Repository(ISessionFactory sessionFactory)
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="session"/> is <see langword="null" />.
+        /// </exception>
+        public Repository(ISession session)
         {
-            Session = sessionFactory.OpenSession();
+            if(session == null)
+                throw new ArgumentNullException("session");
+            Session = session;
         }
 
         #endregion
@@ -66,19 +75,13 @@ namespace Ngol.XcAnalyze.Model.Collections
         /// <inheritdoc />
         public int Count
         {
-            get
-            {
-                return Query().Count();
-            }
+            get { return Query().Count(); }
         }
 
         /// <inheritdoc />
         public bool IsReadOnly
         {
-            get
-            {
-                return false;
-            }
+            get { return false; }
         }
 
         /// <inheritdoc />
@@ -140,9 +143,9 @@ namespace Ngol.XcAnalyze.Model.Collections
         {
             return GetEnumerator();
         }
-        
+
         #endregion
-        
+
         #endregion
 
         #endregion
@@ -169,9 +172,9 @@ namespace Ngol.XcAnalyze.Model.Collections
                 }
             }
         }
-
+        
         #endregion
-
+        
         #endregion
     }
 }

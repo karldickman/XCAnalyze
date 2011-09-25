@@ -53,11 +53,11 @@
     <Compile Include="TestVenueRepository.cs" />
     <Compile Include="TestConferenceRepository.cs" />
     <Compile Include="TestTeamRepository.cs" />
-    <Compile Include="TestAffiliationRepository.cs" />
     <Compile Include="TestMeetRepository.cs" />
     <Compile Include="TestMeetInstanceRepository.cs" />
     <Compile Include="TestRaceRepository.cs" />
     <Compile Include="TestPerformanceRepository.cs" />
+    <Compile Include="TestRunnerRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

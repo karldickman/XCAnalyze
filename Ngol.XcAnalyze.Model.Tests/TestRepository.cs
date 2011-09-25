@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Ngol.Utilities.Collections.Extensions;
+using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model.Collections;
 using Ngol.XcAnalyze.Model.Interfaces;
 using NHibernate;
@@ -35,7 +36,16 @@ namespace Ngol.XcAnalyze.Model.Tests
             set;
         }
 
-        public abstract IEnumerable<T> TestData { get; }
+        protected ISession Session
+        {
+            get;
+            set;
+        }
+
+        public abstract IEnumerable<T> TestData
+        {
+            get;
+        }
 
         #endregion
 
@@ -44,22 +54,25 @@ namespace Ngol.XcAnalyze.Model.Tests
         [TestFixtureSetUp]
         public void InitialSetUp()
         {
+        }
+
+        [SetUp]
+        public virtual void SetUp()
+        {
             Configuration = new Configuration();
             Configuration.Configure();
             Configuration.AddAssembly(typeof(State).Assembly);
             SessionFactory = Configuration.BuildSessionFactory();
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
+            // Export the schema
             new SchemaExport(Configuration).Execute(false, true, false);
-            Repository = new Repository<T>(SessionFactory);
+            Session = SessionFactory.OpenSession();
+            Repository = new Repository<T>(Session);
         }
 
         [TearDown]
-        public void TearDown()
+        public virtual void TearDown()
         {
+            Repository.SafeDispose();
             File.Delete("xcanalyze.db");
         }
 
@@ -156,8 +169,8 @@ namespace Ngol.XcAnalyze.Model.Tests
                     Assert.Contains(nonRemovedItem, Repository);
                 }
             }
-     }
-
+        }
+        
         #endregion
     }
 }

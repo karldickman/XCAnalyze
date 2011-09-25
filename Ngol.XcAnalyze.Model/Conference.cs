@@ -45,9 +45,6 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// Create a new conference.
         /// </summary>
-        /// <param name="id">
-        /// The identification number for the conference.
-        /// </param>
         /// <param name="name">
         /// The name of the conference.
         /// </param>
@@ -58,13 +55,12 @@ namespace Ngol.XcAnalyze.Model
         /// Thrown if <paramref name="name"/> or <paramref name="acronym"/>
         /// is <see langword="null" />.
         /// </exception>
-        public Conference(int id, string name, string acronym)
+        public Conference(string name, string acronym)
         {
             if(name == null)
                 throw new ArgumentNullException("name");
             if(acronym == null)
                 throw new ArgumentNullException("acronym");
-            ID = id;
             Name = name;
             Acronym = acronym;
         }

@@ -1,15 +1,41 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using Iesi.Collections.Generic;
+using MoreLinq;
+using Ngol.Utilities.Collections.Extensions;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// An instance of a meet.
     /// </summary>
-    public class Race : ICloneable
+    public class Race : ICloneable, INotifyPropertyChanged
     {
         #region Properties
+
+        #region Physical implementation
+
+        private int _id;
+
+        #endregion
+
+        /// <summary>
+        /// DELETE ME!!
+        /// </summary>
+        public static IEnumerable<Race> Instances
+        {
+            get { return InstanceCollection; }
+        }
+
+        /// <summary>
+        /// The date on which this <see cref="Race" /> was held.
+        /// </summary>
+        public virtual DateTime Date
+        {
+            get { return MeetInstance.Date; }
+        }
 
         /// <summary>
         /// The length of the race.
@@ -34,18 +60,26 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual int ID
         {
-            get;
-            set;
+            get { return _id; }
+
+            set
+            {
+                if(ID != value)
+                {
+                    _id = value;
+                    OnPropertyChanged("ID");
+                }
+            }
         }
 
-        /*/// <summary>
+        /// <summary>
         /// Has the race been scored?
         /// </summary>
-        public bool IsScored
+        public virtual bool IsScored
         {
             get;
             set;
-        }*/
+        }
 
         /// <summary>
         /// The meet of which this race is a part.
@@ -56,39 +90,49 @@ namespace Ngol.XcAnalyze.Model
             set;
         }
 
-        /*/// <summary>
+        /// <summary>
         /// The results of the meet.
         /// </summary>
-        public IList<Performance> Results
+        public virtual ISet<Performance> Results
         {
             get;
             set;
-        }*/
+        }
 
-        /*/// <summary>
+        /// <summary>
         /// The team scores of the meet.
         /// </summary>
-        public IEnumerable<TeamScore> Scores
+        public virtual IEnumerable<TeamScore> Score
         {
             get { return ScoresCollection; }
-        }*/
+        }
 
-        /*protected readonly ICollection<TeamScore> ScoresCollection
+        /// <summary>
+        /// DELETE ME!
+        /// </summary>
+        protected static readonly ICollection<Race> InstanceCollection;
+
+        /// <summary>
+        /// The score of this meet.
+        /// </summary>
+        protected virtual ICollection<TeamScore> ScoresCollection
         {
             get;
             set;
-        }*/
+        }
 
         #endregion
 
         #region Constructors
 
+        static Race()
+        {
+            InstanceCollection = new List<Race>();
+        }
+
         /// <summary>
         /// Create a new race.
         /// </summary>
-        /// <param name="id">
-        /// The number used to identify the race.
-        /// </param>
         /// <param name="meetInstance">
         /// The <see cref="MeetInstance"/> of which this race is a part.
         /// </param>
@@ -102,13 +146,13 @@ namespace Ngol.XcAnalyze.Model
         /// Thrown if <paramref name="meetInstance"/> or <paramref name="gender"/>
         /// is <see langword="null" />.
         /// </exception>
-        public Race(int id, MeetInstance meetInstance, Gender gender, int distance)
+        public Race(MeetInstance meetInstance, Gender gender, int distance) : this()
         {
-            ID = id;
             MeetInstance = meetInstance;
             Distance = distance;
             Gender = gender;
-            //IsScored = false;
+            IsScored = false;
+            ScoresCollection = new List<TeamScore>();
         }
 
         /// <summary>
@@ -119,6 +163,7 @@ namespace Ngol.XcAnalyze.Model
         /// </remarks>
         protected Race()
         {
+            InstanceCollection.Add(this);
         }
 
         #endregion
@@ -198,86 +243,69 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// Score the race.
         /// </summary>
-        public virtual void Score()
+        public virtual void ComputeScore()
         {
-            //if(IsScored)
-            //{
-            //    return;
-            //}
-            Dictionary<Team, TeamScore> scores;
-            //if(Results.Count == 0)
-            //{
-            //    _scores = new XList<TeamScore>();
-            //    return;
-            //}
-            scores = new Dictionary<Team, TeamScore>();
-            //Add the runners to the school
-            /*foreach(Performance result in Results)
+            if(IsScored)
             {
-                if(result.School != null)
+                return;
+            }
+            Dictionary<Team, TeamScore> scores;
+            if(Results.Count == 0)
+                return;
+            scores = new Dictionary<Team, TeamScore>();
+            // Add the runners to the school
+            foreach(Performance result in Results)
+            {
+                if(result.Team != null)
                 {
                     result.Points = 0;
-                    if(!scores.ContainsKey(result.School))
+                    if(!scores.ContainsKey(result.Team))
                     {
-                        scores[result.School] = new TeamScore(this, result.School);
+                        scores[result.Team] = new TeamScore(this, result.Team);
                     }
-                    scores[result.School].AddRunner(result);
+                    scores[result.Team].AddRunner(result);
                 }
-            }*/
+            }
             //Tag runners on teams with fewer than five as scoreless
             //Tag runner 8 and beyond on each team as scorelss
             foreach(TeamScore score in scores.Values)
             {
                 if(score.Runners.Count() < 5)
                 {
-                    //foreach(Performance runner in score.Runners)
+                    foreach(Performance runner in score.Runners)
                     {
-                        //runner.Points = null;
+                        runner.Points = null;
                     }
                 }
 
                 else if(score.Runners.Count() > 7)
                 {
-                    for(int i = 7; i < score.Runners.Count(); i++)
+                    foreach(Performance runner in score.Runners.Skip(7))
                     {
-                        //score.Runners[i].Points = null;
+                        runner.Points = null;
                     }
                 }
             }
-            //Find first runner with a score
-            //int firstWithScore;
-            //for(firstWithScore = 0; firstWithScore < Results.Count; firstWithScore++)
+            // Tag first runner on a complete team with a score as the winner
+            Performance firstRunnerOnCompleteTeam = Results.FirstOrDefault(r => r.Points != null);
+            if(firstRunnerOnCompleteTeam == default(Performance))
+                return;
+            firstRunnerOnCompleteTeam.Points = 1;
+            // Tag each runner with their points
+            Results.Where(r => r.Points != null).ForEach(1, (runner, previous, points) =>
             {
-                //if(Results[firstWithScore].Points != null)
+                if(runner.Time != previous.Time)
                 {
-                    //Results[firstWithScore].Points = 1;
-                    //break;
+                    runner.Points = points;
                 }
-            }
-            //Tag each runner with their points
-            //if(firstWithScore < Results.Count)
-            {
-                //Performance previous = Results[firstWithScore];
-                int points = 2;
-                //for(int i = firstWithScore + 1; i < Results.Count; i++)
+                else
                 {
-                    //if(Results[i].Points != null)
-                    {
-                        //if(Results[i].Time != previous.Time)
-                        {
-                            //Results[i].Points = points;
-                        }
-                        //else
-                        {
-                            //Results[i].Points = previous.Points;
-                        }
-                        points++;
-                    }
+                    runner.Points = previous.Points;
                 }
-            }
+            });
             //Create the final list
-            // ScoresCollection = scores.Values.Sort();
-            //IsScored = true;
+            ScoresCollection = scores.Values.Sorted().ToList();
+            IsScored = true;
         }
 
         #endregion
@@ -287,6 +315,33 @@ namespace Ngol.XcAnalyze.Model
         object ICloneable.Clone()
         {
             return MemberwiseClone();
+        }
+
+        #endregion
+
+        #region INotifyPropertyChanged implementation
+
+        /// <inheritdoc />
+        public virtual event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Event invoker for <see cref="PropertyChanged" />.
+        /// </summary>
+        protected void OnPropertyChanged(string propertyName)
+        {
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// Event invoker for <see cref="PropertyChanged" />.
+        /// </summary>
+        protected void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if(handler != null)
+            {
+                handler(this, e);
+            }
         }
         
         #endregion

@@ -52,9 +52,6 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// Create a new venue.
         /// </summary>
-        /// <param name="id">
-        /// The number used to identify the venue;
-        /// </param>
         /// <param name="name">
         /// The name of the venue.
         /// </param>
@@ -64,13 +61,12 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if any argument is <see langword="null" />.
         /// </exception>
-        public Venue(int id, string name, City city)
+        public Venue(string name, City city) : this()
         {
             if(name == null)
                 throw new ArgumentNullException("name");
             if(city == null)
                 throw new ArgumentNullException("city");
-            ID = id;
             Name = name;
             City = city;
         }

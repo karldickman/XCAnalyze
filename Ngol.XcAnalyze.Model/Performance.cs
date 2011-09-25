@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Linq;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -9,20 +11,18 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
+        #region Physical implementation
+
+        private int _raceID;
+        private int _runnerID;
+
+        #endregion
+
         /// <summary>
         /// The number of points the runner earned in the race for this
         /// performance.
         /// </summary>
-        /*public int? Points
-        {
-            get;
-            set;
-        }*/
-
-        /// <summary>
-        /// TODO DELETE
-        /// </summary>
-        public virtual int ID
+        public virtual int? Points
         {
             get;
             set;
@@ -38,12 +38,55 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
+        /// The <see cref="Race.ID" /> of the <see cref="Performance.Race" />.
+        /// </summary>
+        public virtual int RaceID
+        {
+            get { return _raceID; }
+
+            set
+            {
+                if(RaceID != value)
+                {
+                    _raceID = value;
+                    Race = Race.Instances.Single(r => r.ID == RaceID);
+                }
+            }
+        }
+
+        /// <summary>
         /// The runner who ran the time.
         /// </summary>
         public virtual Runner Runner
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// The <see cref="Runner.ID" /> of the <see cref="Performance.Runner" />.
+        /// </summary>
+        public virtual int RunnerID
+        {
+            get { return _runnerID; }
+
+            set
+            {
+                if(RunnerID != value)
+                {
+                    _runnerID = value;
+                    Runner = Runner.Instances.Single(r => r.ID == RunnerID);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The <see cref="Team" /> with which the <see cref="Performance.Runner" />
+        /// was associated when they ran tis <see cref="Time" />.
+        /// </summary>
+        public virtual Team Team
+        {
+            get { return Runner.GetTeam(Race.Date.Year); }
         }
 
         /// <summary>
@@ -62,9 +105,6 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// Create a new performance.
         /// </summary>
-        /// <param name="id">
-        /// DELETE
-        /// </param>
         /// <param name="runner">
         /// The <see cref="Runner"/> who owns the performance.
         /// </param>
@@ -77,15 +117,16 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="runner" /> or <paramref name="race" /> is null.
         /// </exception>
-        public Performance(int id, Runner runner, Race race, double? time)
+        public Performance(Runner runner, Race race, double? time) : this()
         {
             if(runner == null)
                 throw new ArgumentNullException("runner");
             if(race == null)
                 throw new ArgumentNullException("race");
-            ID = id;
             Runner = runner;
+            Runner.PropertyChanged += HandleRunnerPropertyChanged;
             Race = race;
+            Race.PropertyChanged += HandleRacePropertyChanged;
             Time = time;
         }
 
@@ -140,13 +181,16 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return string.Format("{0} {1}", Runner.ID, Race.ID).GetHashCode();
+            int runnerHashCode = Runner == null ? 0 : Runner.GetHashCode();
+            int raceHashCode = Race == null ? 0 : Race.GetHashCode();
+            return runnerHashCode + raceHashCode;
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return string.Format("{0} run by {1}", Time, string.Empty);//Runner.Name);
+            return string.Format("{0} run by {1}", Time, string.Empty);
+            //Runner.Name);
         }
 
         /// <summary>
@@ -226,6 +270,30 @@ namespace Ngol.XcAnalyze.Model
             return Race.Distance.CompareTo(that.Race.Distance);
         }
 
+        #endregion
+
+        #region Event handlers
+
+        private void HandleRacePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Should always be a race.  See constructor.
+            Race race = (Race)sender;
+            if(e.PropertyName == "ID")
+            {
+                _raceID = race.ID;
+            }
+        }
+
+        private void HandleRunnerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Should always be a runner.  See constructor.
+            Runner runner = (Runner)sender;
+            if(e.PropertyName == "ID")
+            {
+                _runnerID = runner.ID;
+            }
+        }
+        
         #endregion
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -9,6 +11,12 @@ namespace Ngol.XcAnalyze.Model
     public class MeetInstance : ICloneable
     {
         #region Properties
+
+        #region Physical implementation
+
+        private int _meetID;
+
+        #endregion
 
         /// <summary>
         /// The date on which this meet was held.
@@ -28,13 +36,6 @@ namespace Ngol.XcAnalyze.Model
             set;
         }
 
-        /// <summary>TODO DELETE</summary>
-        public virtual int ID
-        {
-            get;
-            set;
-        }
-
         /// <summary>
         /// The meet of which this is an instance.
         /// </summary>
@@ -42,6 +43,22 @@ namespace Ngol.XcAnalyze.Model
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// The <see cref="Meet.ID" /> of the <see cref="MeetInstance.Meet" />.
+        /// </summary>
+        public virtual int MeetID
+        {
+            get { return _meetID; }
+            set
+            {
+                if(MeetID != value)
+                {
+                    _meetID = value;
+                    Meet = Meet.Instances.Single(meet => meet.ID == MeetID);
+                }
+            }
         }
 
         /// <summary>
@@ -60,9 +77,26 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// Create a new meet instance.
         /// </summary>
-        /// <param name="id">
-        /// Delete this stupid fucking parameter!
+        /// <param name="meet">
+        /// The meet of which this is an instance.
         /// </param>
+        /// <param name="date">
+        /// The date on which the meet was held.
+        /// </param>
+        /// <param name="venue">
+        /// The <see cref="Venue" /> whereat the meet was held.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="meet"/> or <paramref name="venue"/>
+        /// is <see langword="null" />.
+        /// </exception>
+        public MeetInstance(Meet meet, DateTime date, Venue venue) : this(meet, date, venue, null)
+        {
+        }
+
+        /// <summary>
+        /// Create a new meet instance.
+        /// </summary>
         /// <param name="meet">
         /// The meet of which this is an instance.
         /// </param>
@@ -79,14 +113,15 @@ namespace Ngol.XcAnalyze.Model
         /// Thrown if <paramref name="meet"/> or <paramref name="venue"/>
         /// is <see langword="null" />.
         /// </exception>
-        public MeetInstance(int id, Meet meet, DateTime date, Venue venue, Team host)
+        public MeetInstance(Meet meet, DateTime date, Venue venue, Team host) : this()
         {
             if(meet == null)
                 throw new ArgumentNullException("meet");
             if(venue == null)
                 throw new ArgumentNullException("venue");
-            ID = id;
             Meet = meet;
+            MeetID = Meet.ID;
+            Meet.PropertyChanged += HandleMeetPropertyChanged;
             Date = date;
             Venue = venue;
             Host = host;
@@ -143,13 +178,13 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return string.Format("{0} {1}", Meet.ID, Date).GetHashCode();
+            return string.Format("{0} {1}", MeetID, Date).GetHashCode();
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return string.Format("{0} ({1})", Meet.Name, Date);
+            return string.Format("{0} ({1:yyyy-MM-dd})", Meet.Name, Date);
         }
 
         /// <inheritdoc />
@@ -173,6 +208,24 @@ namespace Ngol.XcAnalyze.Model
         object ICloneable.Clone()
         {
             return MemberwiseClone();
+        }
+
+        #endregion
+
+        #region Event handlers
+
+        /// <summary>
+        /// Handler for when a property on <see cref="Meet" /> changes.
+        /// </summary>
+        private void HandleMeetPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Sender should always be a meet; see the subscription above
+            Meet meet = (Meet)sender;
+            if(e.PropertyName == "ID")
+            {
+                // Bypass the logic that appears in MeetID
+                _meetID = meet.ID;
+            }
         }
 
         #endregion
