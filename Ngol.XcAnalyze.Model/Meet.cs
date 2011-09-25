@@ -7,23 +7,15 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// A recurring Cross-Country competition.
     /// </summary>
-    public class Meet : ICloneable, INotifyPropertyChanged
+    public class Meet : ICloneable
     {
         #region Properties
 
         #region Physical implementation
 
-        private int _id;
+        private string _name;
 
         #endregion
-
-        /// <summary>
-        /// DELETE ME
-        /// </summary>
-        public static IEnumerable<Meet> Instances
-        {
-            get { return InstancesCollection; }
-        }
 
         /// <summary>
         /// The team that hosts the meet.
@@ -39,40 +31,34 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual int ID
         {
-            get { return _id; }
-
-            set
-            {
-                if(ID != value)
-                {
-                    _id = value;
-                    OnPropertyChanged("ID");
-                }
-            }
-        }
-
-        /// <summary>
-        /// The name of the meet.
-        /// </summary>
-        public virtual string Name
-        {
             get;
             set;
         }
 
         /// <summary>
-        /// DELETE ME
+        /// The name of the meet.
         /// </summary>
-        protected static readonly ICollection<Meet> InstancesCollection;
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set this property to <see langword="null" />.
+        /// </exception>
+        public virtual string Name
+        {
+            get { return _name; }
+
+            set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                if(Name != value)
+                {
+                    _name = value;
+                }
+            }
+        }
 
         #endregion
 
         #region Constructors
-
-        static Meet()
-        {
-            InstancesCollection = new List<Meet>();
-        }
 
         /// <summary>
         /// Create a new meet.
@@ -101,8 +87,6 @@ namespace Ngol.XcAnalyze.Model
         /// </exception>
         protected Meet(string name, Team host) : this()
         {
-            if(name == null)
-                throw new ArgumentNullException("name");
             Name = name;
             Host = host;
         }
@@ -115,7 +99,6 @@ namespace Ngol.XcAnalyze.Model
         /// </remarks>
         protected Meet()
         {
-            InstancesCollection.Add(this);
         }
 
         #endregion
@@ -197,33 +180,6 @@ namespace Ngol.XcAnalyze.Model
             return MemberwiseClone();
         }
         
-        #endregion
-
-        #region INotifyPropertyChanged
-
-        /// <inheritdoc />
-        public virtual event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Event invoker for <see cref="PropertyChanged" />.
-        /// </summary>
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-        }
-
-        /// <summary>
-        /// Event invoker for <see cref="PropertyChanged" />.
-        /// </summary>
-        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if(handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
         #endregion
     }
 }

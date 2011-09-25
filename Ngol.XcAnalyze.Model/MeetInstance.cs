@@ -12,12 +12,6 @@ namespace Ngol.XcAnalyze.Model
     {
         #region Properties
 
-        #region Physical implementation
-
-        private int _meetID;
-
-        #endregion
-
         /// <summary>
         /// The date on which this meet was held.
         /// </summary>
@@ -43,22 +37,6 @@ namespace Ngol.XcAnalyze.Model
         {
             get;
             set;
-        }
-
-        /// <summary>
-        /// The <see cref="Meet.ID" /> of the <see cref="MeetInstance.Meet" />.
-        /// </summary>
-        public virtual int MeetID
-        {
-            get { return _meetID; }
-            set
-            {
-                if(MeetID != value)
-                {
-                    _meetID = value;
-                    Meet = Meet.Instances.Single(meet => meet.ID == MeetID);
-                }
-            }
         }
 
         /// <summary>
@@ -120,8 +98,6 @@ namespace Ngol.XcAnalyze.Model
             if(venue == null)
                 throw new ArgumentNullException("venue");
             Meet = meet;
-            MeetID = Meet.ID;
-            Meet.PropertyChanged += HandleMeetPropertyChanged;
             Date = date;
             Venue = venue;
             Host = host;
@@ -178,7 +154,7 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return string.Format("{0} {1}", MeetID, Date).GetHashCode();
+            return string.Format("{0} {1}", Meet, Date).GetHashCode();
         }
 
         /// <inheritdoc />
@@ -208,24 +184,6 @@ namespace Ngol.XcAnalyze.Model
         object ICloneable.Clone()
         {
             return MemberwiseClone();
-        }
-
-        #endregion
-
-        #region Event handlers
-
-        /// <summary>
-        /// Handler for when a property on <see cref="Meet" /> changes.
-        /// </summary>
-        private void HandleMeetPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            // Sender should always be a meet; see the subscription above
-            Meet meet = (Meet)sender;
-            if(e.PropertyName == "ID")
-            {
-                // Bypass the logic that appears in MeetID
-                _meetID = meet.ID;
-            }
         }
 
         #endregion

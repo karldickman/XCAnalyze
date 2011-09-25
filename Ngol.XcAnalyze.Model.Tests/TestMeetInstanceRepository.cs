@@ -137,7 +137,7 @@ namespace Ngol.XcAnalyze.Model.Tests
                 originalMeetInstance.Venue = venue;
                 Repository.Update(originalMeetInstance);
                 IEnumerable<MeetInstance> matches = Session.Query<MeetInstance>()
-                                                           .Where(m => m.MeetID == originalMeetInstance.MeetID
+                                                           .Where(m => m.Meet == originalMeetInstance.Meet
                                                                 && m.Date == originalMeetInstance.Date);
                 Assert.HasCount(1, matches);
                 MeetInstance actual = matches.First();

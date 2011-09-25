@@ -68,9 +68,9 @@
         table="meet_instances"
         name="MeetInstance">
         <composite-id>
-            <key-property
+            <key-many-to-one
                 column="meet_id"
-                name="MeetID" />
+                name="Meet" />
             <key-property
                 column="meet_date"
                 name="Date" />
