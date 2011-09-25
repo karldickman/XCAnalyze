@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Iesi.Collections.Generic;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -45,6 +46,16 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
+        /// The <see cref="MeetInstance" />s that have been held at this
+        /// <see cref="Venue" />.
+        /// </summary>
+        public virtual ISet<MeetInstance> MeetInstances
+        {
+            get;
+            protected set;
+        }
+
+        /// <summary>
         /// The name of the venue.
         /// </summary>
         /// <exception cref="ArgumentNullException">
@@ -82,6 +93,7 @@ namespace Ngol.XcAnalyze.Model
         {
             Name = name;
             City = city;
+            MeetInstances = new HashedSet<MeetInstance>();
         }
 
         /// <summary>

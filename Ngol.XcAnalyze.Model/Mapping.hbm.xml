@@ -20,6 +20,13 @@
             column="state_code"
             name="State"
             not-null="true" />
+        <set
+            name="Venues">
+            <key
+                column="city_id" />
+            <one-to-many
+                class="Venue" />
+        </set>
     </class>
     <class
         table="conferences"
@@ -40,6 +47,13 @@
             name="Acronym"
             unique="true"
             not-null="true" />
+        <set
+            name="Teams">
+            <key
+                column="conference_id" />
+            <one-to-many
+                class="Team" />
+        </set>
     </class>
     <class
         table="meets"
@@ -55,6 +69,13 @@
             name="Name"
             unique="true"
             not-null="true" />
+        <set
+            name="MeetInstances">
+            <key
+                column="meet_id" />
+            <one-to-many
+                class="MeetInstance" />
+        </set>
         <join
             table="meet_hosts">
             <key
@@ -110,6 +131,24 @@
             column="gender"
             name="Gender"
             not-null="true" />
+        <map
+            name="Times">
+            <key
+                column="race_id" />
+            <index-many-to-many
+                column="runner_id"
+                class="Runner" />
+            <element
+                column="time"
+                not-null="true" />
+        </map>
+        <set
+            name="DidNotFinish">
+            <key
+                column="race_id" />
+            <one-to-many
+                class="Runner" />
+        </set>
         <many-to-one
             name="MeetInstance">
             <column
@@ -250,6 +289,22 @@
                 column="team_nickname"
                 type="String" />
         </set>
+        <set
+            table="meet_hosts"
+            name="HostedMeets">
+            <key
+                column="team_id" />
+            <one-to-many
+                class="Meet" />
+        </set>
+        <set
+            table="meet_instance_hosts"
+            name="HostedMeetInstances">
+            <key
+                column="team_id" />
+            <one-to-many
+                class="MeetInstance" />
+        </set>
         <join
             optional="true"
             table="conference_affiliations">
@@ -277,5 +332,12 @@
             column="city_id"
             name="City"
             not-null="true" />
+        <set
+            name="MeetInstances">
+            <key
+                column="venue_id" />
+            <one-to-many
+                class="MeetInstance" />
+        </set>
     </class>
 </hibernate-mapping>

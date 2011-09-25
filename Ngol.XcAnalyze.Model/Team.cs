@@ -27,6 +27,24 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
+        /// The <see cref="MeetInstance"/>s hosted by this <see cref="Team" />.
+        /// </summary>
+        public virtual ISet<MeetInstance> HostedMeetInstances
+        {
+            get;
+            protected set;
+        }
+
+        /// <summary>
+        /// The <see cref="Meet"/>s hosted by this <see cref="Team" />.
+        /// </summary>
+        public virtual ISet<Meet> HostedMeets
+        {
+            get;
+            protected set;
+        }
+
+        /// <summary>
         /// The number that identifies this team.
         /// </summary>
         public virtual int ID

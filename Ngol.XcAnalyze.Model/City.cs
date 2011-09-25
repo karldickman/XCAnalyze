@@ -1,4 +1,5 @@
 using System;
+using Iesi.Collections.Generic;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -67,6 +68,15 @@ namespace Ngol.XcAnalyze.Model
             }
         }
 
+        /// <summary>
+        /// The <see cref="Venue" />s in this <see cref="City" />.
+        /// </summary>
+        public virtual ISet<Venue> Venues
+        {
+            get;
+            protected set;
+        }
+
         #endregion
 
         #region Constructors
@@ -84,6 +94,7 @@ namespace Ngol.XcAnalyze.Model
         {
             Name = name;
             State = state;
+            Venues = new HashedSet<Venue>();
         }
 
         /// <summary>

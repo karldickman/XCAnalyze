@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Iesi.Collections.Generic;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -33,6 +34,15 @@ namespace Ngol.XcAnalyze.Model
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// The instances of this <see cref="Meet" />.
+        /// </summary>
+        public virtual ISet<MeetInstance> MeetInstances
+        {
+            get;
+            protected set;
         }
 
         /// <summary>
@@ -89,6 +99,7 @@ namespace Ngol.XcAnalyze.Model
         {
             Name = name;
             Host = host;
+            MeetInstances = new HashedSet<MeetInstance>();
         }
 
         /// <summary>

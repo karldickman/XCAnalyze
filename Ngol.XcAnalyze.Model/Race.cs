@@ -29,6 +29,15 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
+        /// The <see cref="Runner" />s who started the <see cref="Race" /> but did not finish.
+        /// </summary>
+        public virtual ISet<Runner> DidNotFinish
+        {
+            get;
+            protected set;
+        }
+
+        /// <summary>
         /// The length of the race.
         /// </summary>
         public virtual int Distance
@@ -85,10 +94,21 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The results of the meet.
         /// </summary>
-        public virtual ISet<Performance> Results
+        public virtual IDictionary<Runner, Performance> Results
         {
-            get;
-            set;
+            get
+            {
+                IDictionary<Runner, Performance> results = new Dictionary<Runner, Performance>(DidNotFinish.Count + Times.Count);
+                foreach(Runner runner in DidNotFinish)
+                {
+                    results[runner] = new Performance(runner, this, null);
+                }
+                Times.ForEach((runner, time) =>
+                {
+                    results[runner] = new Performance(runner, this, time);
+                });
+                return results;
+            }
         }
 
         /// <summary>
@@ -100,13 +120,18 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
-        /// The score of this meet.
+        /// The times run at the <see cref="Race" />, keyed by the <see cref="Runner" /> who ran the time.
         /// </summary>
-        protected virtual ICollection<TeamScore> ScoresCollection
+        public virtual IDictionary<Runner, double> Times
         {
             get;
-            set;
+            protected set;
         }
+
+        /// <summary>
+        /// The score of this meet.
+        /// </summary>
+        protected readonly ICollection<TeamScore> ScoresCollection;
 
         #endregion
 
@@ -134,6 +159,8 @@ namespace Ngol.XcAnalyze.Model
             Distance = distance;
             Gender = gender;
             IsScored = false;
+            DidNotFinish = new HashedSet<Runner>();
+            Times = new Dictionary<Runner, double>();
             ScoresCollection = new List<TeamScore>();
         }
 
@@ -235,7 +262,9 @@ namespace Ngol.XcAnalyze.Model
                 return;
             scores = new Dictionary<Team, TeamScore>();
             // Add the runners to the school
-            foreach(Performance result in Results)
+            // Sort the results
+            IEnumerable<Performance> results = Results.Values.Sorted();
+            foreach(Performance result in results)
             {
                 if(result.Team != null)
                 {
@@ -268,12 +297,12 @@ namespace Ngol.XcAnalyze.Model
                 }
             }
             // Tag first runner on a complete team with a score as the winner
-            Performance firstRunnerOnCompleteTeam = Results.FirstOrDefault(r => r.Points != null);
+            Performance firstRunnerOnCompleteTeam = results.FirstOrDefault(r => r.Points != null);
             if(firstRunnerOnCompleteTeam == default(Performance))
                 return;
             firstRunnerOnCompleteTeam.Points = 1;
             // Tag each runner with their points
-            Results.Where(r => r.Points != null).ForEachIndexedPair(1, (runner, previous, points) =>
+            results.Where(r => r.Points != null).ForEachIndexedPair(1, (runner, previous, points) =>
             {
                 if(runner.Time != previous.Time)
                 {
@@ -285,7 +314,8 @@ namespace Ngol.XcAnalyze.Model
                 }
             });
             //Create the final list
-            ScoresCollection = scores.Values.Sorted().ToList();
+            ScoresCollection.Clear();
+            ScoresCollection.AddRange(scores.Values.Sorted());
             IsScored = true;
         }
 

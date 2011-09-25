@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Iesi.Collections.Generic;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -72,6 +73,15 @@ namespace Ngol.XcAnalyze.Model
             }
         }
 
+        /// <summary>
+        /// The <see cref="Team" />s affiliated with this <see cref="Conference" />.
+        /// </summary>
+        public virtual ISet<Team> Teams
+        {
+            get;
+            protected set;
+        }
+
         #endregion
 
         #region Constructors
@@ -93,6 +103,7 @@ namespace Ngol.XcAnalyze.Model
         {
             Name = name;
             Acronym = acronym;
+            Teams = new HashedSet<Team>();
         }
 
         /// <summary>
