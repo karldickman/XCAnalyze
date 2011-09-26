@@ -24,10 +24,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             get { return Data.Teams; }
         }
 
-        protected IRepository<Conference> ConferenceRepository
+        protected override IPersistentCollection<Team> Collection
         {
-            get;
-            set;
+            get { return Container.Teams; }
         }
 
         #endregion
@@ -38,15 +37,8 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public override void SetUp()
         {
             base.SetUp();
-            ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(Data.Conferences);
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            ConferenceRepository.SafeDispose();
+            Container.Conferences.QueueInserts(Data.Conferences);
+            Container.SaveChanges();
         }
 
         #endregion
@@ -57,12 +49,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Add()
         {
             base.TestAdd();
-        }
-
-        [Test]
-        public void Clear()
-        {
-            base.TestClear();
         }
 
         [Test]
@@ -87,12 +73,14 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Update()
         {
             Team pioneers = Data.LewisAndClark.Clone<Team>();
-            Repository.Add(pioneers);
-            Assert.Contains(pioneers, Repository);
+            Collection.QueueInsert(pioneers);
+            Container.SaveChanges();
+            Assert.That(Collection.IsPersisted(pioneers));
             foreach(string newName in new List<string> { "Pioneers", "LC" })
             {
                 pioneers.SetProperty("Name", newName);
-                Repository.Update(pioneers);
+                Collection.QueueUpdate(pioneers);
+                Container.SaveChanges();
                 Team actual = Session.Get<Team>(pioneers.ID);
                 Assert.AreEqual(newName, actual.Name);
             }

@@ -23,40 +23,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             get { return Data.MeetInstances; }
         }
 
-        protected IRepository<City> CityRepository
+        protected override IPersistentCollection<MeetInstance> Collection
         {
-            get;
-            set;
-        }
-
-        protected IRepository<Conference> ConferenceRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<Meet> MeetRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<State> StateRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<Team> TeamRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<Venue> VenueRepository
-        {
-            get;
-            set;
+            get { return Container.MeetInstances; }
         }
 
         #endregion
@@ -67,30 +36,13 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public override void SetUp()
         {
             base.SetUp();
-            ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(Data.Conferences);
-            TeamRepository = new Repository<Team>(Session);
-            TeamRepository.AddRange(Data.Teams);
-            MeetRepository = new Repository<Meet>(Session);
-            MeetRepository.AddRange(Data.Meets);
-            StateRepository = new Repository<State>(Session);
-            StateRepository.AddRange(Data.States);
-            CityRepository = new Repository<City>(Session);
-            CityRepository.AddRange(Data.Cities);
-            VenueRepository = new Repository<Venue>(Session);
-            VenueRepository.AddRange(Data.Venues);
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            ConferenceRepository.SafeDispose();
-            TeamRepository.SafeDispose();
-            MeetRepository.SafeDispose();
-            StateRepository.SafeDispose();
-            CityRepository.SafeDispose();
-            VenueRepository.SafeDispose();
+            Container.Conferences.QueueInserts(Data.Conferences);
+            Container.Teams.QueueInserts(Data.Teams);
+            Container.Meets.QueueInserts(Data.Meets);
+            Container.States.QueueInserts(Data.States);
+            Container.Cities.QueueInserts(Data.Cities);
+            Container.Venues.QueueInserts(Data.Venues);
+            Container.SaveChanges();
         }
 
         #endregion
@@ -101,12 +53,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Add()
         {
             base.TestAdd();
-        }
-
-        [Test]
-        public void Clear()
-        {
-            base.TestClear();
         }
 
         [Test]
@@ -131,12 +77,14 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Update()
         {
             MeetInstance originalMeetInstance = Data.LCInvite09.Clone<MeetInstance>();
-            Repository.Add(originalMeetInstance);
-            Assert.Contains(originalMeetInstance, Repository);
+            Collection.QueueInsert(originalMeetInstance);
+            Container.SaveChanges();
+            Assert.That(Collection.IsPersisted(originalMeetInstance));
             foreach(Venue venue in Data.MeetInstances.Select(meet => meet.Venue))
             {
                 originalMeetInstance.Venue = venue;
-                Repository.Update(originalMeetInstance);
+                Collection.QueueInsert(originalMeetInstance);
+                Container.SaveChanges();
                 IEnumerable<MeetInstance> matches = Session.Query<MeetInstance>()
                                                            .Where(m => m.Meet == originalMeetInstance.Meet
                                                                 && m.Date == originalMeetInstance.Date);

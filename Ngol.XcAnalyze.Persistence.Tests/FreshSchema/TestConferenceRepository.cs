@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.Persistence.Interfaces;
 using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
 using Assert = Ngol.Utilities.NUnit.MoreAssert;
@@ -19,6 +20,11 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             get { return Data.Conferences; }
         }
 
+        protected override IPersistentCollection<Conference> Collection
+        {
+            get { return Container.Conferences; }
+        }
+
         #endregion
 
         #region Tests
@@ -27,12 +33,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Add()
         {
             base.TestAdd();
-        }
-
-        [Test]
-        public void Clear()
-        {
-            base.TestClear();
         }
 
         [Test]
@@ -57,12 +57,14 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Update()
         {
             Conference nwc = Data.Nwc.Clone<Conference>();
-            Repository.Add(nwc);
-            Assert.Contains(nwc, Repository);
+            Collection.QueueInsert(nwc);
+            Container.SaveChanges();
+            Assert.Contains(nwc, Collection);
             foreach(string newName in new List<string> { "NCIC", "WCIC" })
             {
                 nwc.SetProperty("Name", newName);
-                Repository.Update(nwc);
+                Collection.QueueUpdate(nwc);
+                Container.SaveChanges();
                 Conference actual = Session.Get<Conference>(nwc.ID);
                 Assert.AreEqual(newName, actual.Name);
             }

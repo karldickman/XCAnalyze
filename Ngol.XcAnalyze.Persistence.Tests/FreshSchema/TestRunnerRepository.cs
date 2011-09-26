@@ -21,16 +21,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             get { return Data.Runners; }
         }
 
-        protected IRepository<Conference> ConferenceRepository
+        protected override IPersistentCollection<Runner> Collection
         {
-            get;
-            set;
-        }
-
-        protected IRepository<Team> TeamRepository
-        {
-            get;
-            set;
+            get { return Container.Runners; }
         }
 
         #endregion
@@ -41,18 +34,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public override void SetUp()
         {
             base.SetUp();
-            ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(Data.Conferences);
-            TeamRepository = new Repository<Team>(Session);
-            TeamRepository.AddRange(Data.Teams);
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.SetUp();
-            ConferenceRepository.SafeDispose();
-            TeamRepository.SafeDispose();
+            Container.Conferences.QueueInserts(Data.Conferences);
+            Container.Teams.QueueInserts(Data.Teams);
+            Container.SaveChanges();
         }
 
         #endregion
@@ -63,12 +47,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Add()
         {
             base.TestAdd();
-        }
-
-        [Test]
-        public void Clear()
-        {
-            base.TestClear();
         }
 
         [Test]
@@ -93,8 +71,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Update()
         {
             Runner karl = Data.Karl.Clone<Runner>();
-            Repository.Add(karl);
-            Assert.Contains(karl, Repository);
+            Collection.QueueInsert(karl);
+            Container.SaveChanges();
+            Assert.That(Collection.IsPersisted(karl));
             karl.Surname = "Diechmann";
             Runner actual = Session.Get<Runner>(karl.ID);
             Assert.AreEqual(actual.Surname, karl.Surname);

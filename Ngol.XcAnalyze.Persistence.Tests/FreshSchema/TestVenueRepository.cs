@@ -22,16 +22,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             get { return Data.Venues; }
         }
 
-        protected IRepository<City> CityRepository
+        protected override IPersistentCollection<Venue> Collection
         {
-            get;
-            set;
-        }
-
-        protected IRepository<State> StateRepository
-        {
-            get;
-            set;
+            get { return Container.Venues; }
         }
 
         #endregion
@@ -42,17 +35,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public override void SetUp()
         {
             base.SetUp();
-            StateRepository = new Repository<State>(Session);
-            StateRepository.AddRange(Data.States);
-            CityRepository = new Repository<City>(Session);
-            CityRepository.AddRange(Data.Cities);
-        }
-
-        public override void TearDown()
-        {
-            base.TearDown();
-            CityRepository.SafeDispose();
-            StateRepository.SafeDispose();
+            Container.States.QueueInserts(Data.States);
+            Container.Cities.QueueInserts(Data.Cities);
+            Container.SaveChanges();
         }
 
         #endregion
@@ -63,12 +48,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Add()
         {
             base.TestAdd();
-        }
-
-        [Test]
-        public void Clear()
-        {
-            base.TestClear();
         }
 
         [Test]
@@ -93,12 +72,14 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Update()
         {
             Venue mcIver = Data.McIver.Clone<Venue>();
-            Repository.Add(mcIver);
-            Assert.Contains(mcIver, Repository);
+            Collection.QueueInsert(mcIver);
+            Container.SaveChanges();
+            Assert.That(Collection.IsPersisted(mcIver));
             foreach(string newName in new List<string> { "The Vortex" })
             {
                 mcIver.SetProperty("Name", newName);
-                Repository.Update(mcIver);
+                Collection.QueueUpdate(mcIver);
+                Container.SaveChanges();
                 Venue actual = Session.Get<Venue>(mcIver.ID);
                 Assert.AreEqual(newName, actual.Name);
             }

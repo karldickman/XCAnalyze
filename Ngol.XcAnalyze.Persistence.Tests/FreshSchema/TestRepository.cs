@@ -25,7 +25,12 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             set;
         }
 
-        protected IRepository<T> Repository
+        protected abstract IPersistentCollection<T> Collection
+        {
+            get;
+        }
+
+        protected PersistenceContainer Container
         {
             get;
             set;
@@ -66,13 +71,13 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             // Export the schema
             new SchemaExport(Configuration).Execute(false, true, false);
             Session = SessionFactory.OpenSession();
-            Repository = new Repository<T>(Session);
+            Container = new PersistenceContainer(Session);
         }
 
         [TearDown]
-        public virtual void TearDown()
+        public void TearDown()
         {
-            Repository.SafeDispose();
+            Container.SafeDispose();
             File.Delete("xcanalyze.db");
         }
 
@@ -90,18 +95,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             TestContains(TestData);
         }
 
-        public void TestClear()
-        {
-            try
-            {
-                Repository.Clear();
-                Assert.Fail("The clear method should not be supported on repositories.");
-            }
-            catch(NotSupportedException)
-            {
-            }
-        }
-
         public void TestCount()
         {
             TestCount(TestData);
@@ -114,59 +107,64 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 
         protected void TestAdd(IEnumerable<T> testWith)
         {
-            Assert.IsEmpty(Repository);
-            Repository.AddRange(testWith);
-            Assert.AreEqual(testWith.Count(), Repository.Count);
+            Assert.IsEmpty(Collection);
+            Collection.QueueInserts(testWith);
+            Container.SaveChanges();
+            Assert.HasCount(testWith.Count(), Collection);
             foreach(T item in testWith)
             {
-                Assert.Contains(item, Repository);
+                Assert.That(Collection.IsPersisted(item));
             }
         }
 
         protected void TestCount(IEnumerable<T> testWith)
         {
-            Assert.IsEmpty(Repository);
+            Assert.IsEmpty(Collection);
             testWith.ForEachIndexed(1, (item, index) =>
             {
-                Repository.Add(item);
-                Assert.AreEqual(index, Repository.Count);
+                Collection.QueueInsert(item);
+                Container.SaveChanges();
+                Assert.HasCount(index, Collection);
             });
         }
 
         protected void TestContains(IEnumerable<T> testWith)
         {
-            Assert.IsEmpty(Repository);
+            Assert.IsEmpty(Collection);
             ICollection<T> addedItems = new List<T>();
             foreach(T item in testWith)
             {
                 addedItems.Add(item);
-                Repository.Add(item);
+                Collection.QueueInsert(item);
+                Container.SaveChanges();
                 foreach(T addedItem in addedItems)
                 {
-                    Assert.Contains(addedItem, Repository);
+                    Assert.That(Collection.IsPersisted(addedItem));
                 }
                 foreach(T nonAddedItem in testWith.Except(addedItems))
                 {
-                    Assert.DoesNotContain(nonAddedItem, Repository);
+                    Assert.IsFalse(Collection.IsPersisted(nonAddedItem));
                 }
             }
         }
 
         protected void TestRemove(IEnumerable<T> testWith)
         {
-            Repository.AddRange(testWith);
+            Collection.QueueInserts(testWith);
+            Container.SaveChanges();
             ICollection<T> removedItems = new List<T>();
             foreach(T item in testWith)
             {
                 removedItems.Add(item);
-                Repository.Remove(item);
+                Collection.QueueDelete(item);
+                Container.SaveChanges();
                 foreach(T removedItem in removedItems)
                 {
-                    Assert.DoesNotContain(removedItem, Repository);
+                    Assert.IsFalse(Collection.IsPersisted(removedItem));
                 }
                 foreach(T nonRemovedItem in testWith.Except(removedItems))
                 {
-                    Assert.Contains(nonRemovedItem, Repository);
+                    Assert.That(Collection.IsPersisted(nonRemovedItem));
                 }
             }
         }

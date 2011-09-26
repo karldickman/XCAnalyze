@@ -22,46 +22,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             get { return Data.Races.Values; }
         }
 
-        protected IRepository<City> CityRepository
+        protected override IPersistentCollection<Race> Collection
         {
-            get;
-            set;
-        }
-
-        protected IRepository<Conference> ConferenceRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<Meet> MeetRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<MeetInstance> MeetInstanceRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<State> StateRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<Team> TeamRepository
-        {
-            get;
-            set;
-        }
-
-        protected IRepository<Venue> VenueRepository
-        {
-            get;
-            set;
+            get { return Container.Races; }
         }
 
         #endregion
@@ -72,33 +35,14 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public override void SetUp()
         {
             base.SetUp();
-            ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(Data.Conferences);
-            TeamRepository = new Repository<Team>(Session);
-            TeamRepository.AddRange(Data.Teams);
-            MeetRepository = new Repository<Meet>(Session);
-            MeetRepository.AddRange(Data.Meets);
-            StateRepository = new Repository<State>(Session);
-            StateRepository.AddRange(Data.States);
-            CityRepository = new Repository<City>(Session);
-            CityRepository.AddRange(Data.Cities);
-            VenueRepository = new Repository<Venue>(Session);
-            VenueRepository.AddRange(Data.Venues);
-            MeetInstanceRepository = new Repository<MeetInstance>(Session);
-            MeetInstanceRepository.AddRange(Data.MeetInstances);
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            ConferenceRepository.SafeDispose();
-            TeamRepository.SafeDispose();
-            MeetRepository.SafeDispose();
-            StateRepository.SafeDispose();
-            CityRepository.SafeDispose();
-            VenueRepository.SafeDispose();
-            MeetInstanceRepository.SafeDispose();
+            Container.Conferences.QueueInserts(Data.Conferences);
+            Container.Teams.QueueInserts(Data.Teams);
+            Container.Meets.QueueInserts(Data.Meets);
+            Container.States.QueueInserts(Data.States);
+            Container.Cities.QueueInserts(Data.Cities);
+            Container.Venues.QueueInserts(Data.Venues);
+            Container.MeetInstances.QueueInserts(Data.MeetInstances);
+            Container.SaveChanges();
         }
 
         #endregion
@@ -109,12 +53,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Add()
         {
             base.TestAdd();
-        }
-
-        [Test]
-        public void Clear()
-        {
-            base.TestClear();
         }
 
         [Test]
@@ -141,14 +79,16 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             Random random = new Random();
             foreach(Race race in TestData)
             {
-                Repository.Add(race);
-                Assert.Contains(race, Repository);
+                Collection.QueueInsert(race);
+                Container.SaveChanges();
+                Assert.That(Collection.IsPersisted(race));
             }
             foreach(Race race in TestData)
             {
                 int expected = random.Next();
                 race.Distance = expected;
-                Repository.Update(race);
+                Collection.QueueUpdate(race);
+                Container.SaveChanges();
                 Race actual = Session.Get<Race>(race.ID);
                 Assert.AreEqual(expected, actual.Distance);
             }

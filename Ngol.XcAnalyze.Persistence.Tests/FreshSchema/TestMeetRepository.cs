@@ -23,16 +23,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             get { return Data.Meets; }
         }
 
-        protected IRepository<Conference> ConferenceRepository
+        protected override IPersistentCollection<Meet> Collection
         {
-            get;
-            set;
-        }
-
-        protected IRepository<Team> TeamRepository
-        {
-            get;
-            set;
+            get { return Container.Meets; }
         }
 
         #endregion
@@ -43,18 +36,9 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public override void SetUp()
         {
             base.SetUp();
-            ConferenceRepository = new Repository<Conference>(Session);
-            ConferenceRepository.AddRange(Data.Conferences);
-            TeamRepository = new Repository<Team>(Session);
-            TeamRepository.AddRange(Data.Teams);
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            ConferenceRepository.SafeDispose();
-            TeamRepository.SafeDispose();
+            Container.Conferences.QueueInserts(Data.Conferences);
+            Container.Teams.QueueInserts(Data.Teams);
+            Container.SaveChanges();
         }
 
         #endregion
@@ -65,12 +49,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Add()
         {
             base.TestAdd();
-        }
-
-        [Test]
-        public void Clear()
-        {
-            base.TestClear();
         }
 
         [Test]
@@ -95,12 +73,14 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Update()
         {
             Meet originalMeet = Data.SciacMultiDuals.Clone<Meet>();
-            Repository.Add(originalMeet);
-            Assert.Contains(originalMeet, Repository);
+            Collection.QueueInsert(originalMeet);
+            Container.SaveChanges();
+            Assert.Contains(originalMeet, Collection);
             foreach(string newName in Data.Meets.Select(meet => meet.Name))
             {
                 originalMeet.SetProperty("Name", newName);
-                Repository.Update(originalMeet);
+                Collection.QueueUpdate(originalMeet);
+                Container.SaveChanges();
                 Meet actual = Session.Get<Meet>(originalMeet.ID);
                 Assert.AreEqual(newName, actual.Name);
             }

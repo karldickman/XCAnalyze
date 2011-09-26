@@ -17,15 +17,14 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
     {
         #region Properties
 
-        public IRepository<State> StateRepository
-        {
-            get;
-            set;
-        }
-
         public override IEnumerable<City> TestData
         {
             get { return Data.Cities; }
+        }
+
+        protected override IPersistentCollection<City> Collection
+        {
+            get { return Container.Cities; }
         }
 
         #endregion
@@ -36,15 +35,8 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public override void SetUp()
         {
             base.SetUp();
-            StateRepository = new Repository<State>(Session);
-            StateRepository.AddRange(Data.States);
-        }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-            StateRepository.SafeDispose();
+            Container.States.QueueInserts(Data.States);
+            Container.SaveChanges();
         }
 
         #endregion
@@ -55,12 +47,6 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Add()
         {
             base.TestAdd();
-        }
-
-        [Test]
-        public void Clear()
-        {
-            base.TestClear();
         }
 
         [Test]
@@ -85,12 +71,14 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void Update()
         {
             City portland = Data.Portland.Clone<City>();
-            Repository.Add(portland);
-            Assert.Contains(portland, Repository);
+            Collection.QueueInsert(portland);
+            Container.SaveChanges();
+            Assert.Contains(portland, Collection);
             foreach(string newName in new List<string> { "Little Beirut", "Stumptown", "Rose City", "PDX", })
             {
                 portland.SetProperty("Name", newName);
-                Repository.Update(portland);
+                Collection.QueueUpdate(portland);
+                Container.SaveChanges();
                 City actual = Session.Get<City>(portland.ID);
                 Assert.AreEqual(newName, actual.Name);
             }
