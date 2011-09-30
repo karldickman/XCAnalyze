@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Iesi.Collections.Generic;
+using Ngol.Hytek.Interfaces;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A meet has a mens race and a womens race and occurs at a particular time.
     /// </summary>
-    public class MeetInstance : ICloneable
+    public class MeetInstance : ICloneable, IMeet
     {
         #region Properties
 
@@ -59,6 +61,23 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
+        /// The <see cref="Meet.Name" /> of this <see cref="MeetInstance" />.
+        /// </summary>
+        public virtual string Name
+        {
+            get { return Meet.Name; }
+        }
+
+        /// <summary>
+        /// The <see cref="Race" />s that were run as part of this <see cref="MeetInstance" />.
+        /// </summary>
+        public virtual ISet<Race> Races
+        {
+            get;
+            protected set;
+        }
+
+        /// <summary>
         /// The venue whereat the instance of this meet was held.
         /// </summary>
         /// <exception cref="ArgumentNullException">
@@ -77,6 +96,11 @@ namespace Ngol.XcAnalyze.Model
                     _venue = value;
                 }
             }
+        }
+
+        string IMeet.Venue
+        {
+            get { return Venue.Name; }
         }
 
         #endregion
@@ -104,6 +128,7 @@ namespace Ngol.XcAnalyze.Model
             Meet = meet;
             Date = date;
             Venue = venue;
+            Races = new HashedSet<Race>();
         }
 
         /// <summary>
@@ -188,7 +213,7 @@ namespace Ngol.XcAnalyze.Model
         {
             return MemberwiseClone();
         }
-
+        
         #endregion
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Ngol.Hytek.Interfaces;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
 using Ngol.XcAnalyze.SampleData;

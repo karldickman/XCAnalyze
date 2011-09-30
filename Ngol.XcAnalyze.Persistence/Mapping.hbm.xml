@@ -20,13 +20,13 @@
             column="state_code"
             name="State"
             not-null="true" />
-        <!--<set
+        <set
             name="Venues">
             <key
                 column="city_id" />
             <one-to-many
                 class="Venue" />
-        </set>-->
+        </set>
     </class>
     <class
         table="conferences"
@@ -96,6 +96,17 @@
                 column="meet_date"
                 name="Date" />
         </composite-id>
+        <set
+            name="Races">
+            <key>
+                <column
+                    name="meet_id" />
+                <column
+                    name="meet_date" />
+            </key>
+            <one-to-many
+                class="Race" />
+        </set>
         <many-to-one
             column="venue_id"
             name="Venue"
@@ -115,6 +126,22 @@
         </join>
     </class>
     <class
+        table="performances"
+        name="Performance">
+        <composite-id>
+            <key-many-to-one
+                column="runner_id"
+                name="Runner" />
+            <key-many-to-one
+                column="race_id"
+                name="Race" />
+        </composite-id>
+        <property
+            column="time"
+            name="Time"
+            not-null="true" />
+    </class>
+    <class
         table="races"
         name="Race">
         <id
@@ -132,15 +159,14 @@
             name="Gender"
             not-null="true" />
         <map
-            name="Times">
+            name="Results">
             <key
                 column="race_id" />
             <index-many-to-many
                 column="runner_id"
                 class="Runner" />
-            <element
-                column="time"
-                not-null="true" />
+            <one-to-many
+                class="Performance" />
         </map>
         <set
             name="DidNotFinish">
@@ -199,16 +225,14 @@
         </set>
         <map
             table="performances"
-            name="Times">
+            name="Performances">
             <key
                 column="runner_id" />
             <index-many-to-many
                 column="race_id"
                 class="Race" />
-            <element
-                column="time"
-                type="double"
-                not-null="true" />
+            <one-to-many
+                class="Performance" />
         </map>
         <map
             table="affiliations"

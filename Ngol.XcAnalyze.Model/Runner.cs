@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Iesi.Collections.Generic;
+using Ngol.Hytek.Interfaces;
 using Ngol.Utilities.Collections.Extensions;
 
 namespace Ngol.XcAnalyze.Model
@@ -10,7 +11,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// All the information about a runner.
     /// </summary>
-    public class Runner : ICloneable
+    public class Runner : ICloneable, IRunner
     {
         #region Properties
 
@@ -38,6 +39,14 @@ namespace Ngol.XcAnalyze.Model
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// The full name of the <see cref="Runner" />.
+        /// </summary>
+        public virtual string FullName
+        {
+            get { return string.Format("{0} {1}", GivenName, Surname); }
         }
 
         /// <summary>
@@ -120,27 +129,6 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual IDictionary<Race, Performance> Performances
         {
-            get
-            {
-                IDictionary<Race, Performance> performances = new Dictionary<Race, Performance>(Times.Count + UnfinishedRaces.Count);
-                foreach(Race race in UnfinishedRaces)
-                {
-                    performances[race] = new Performance(this, race, null);
-                }
-                Times.ForEach((race, time) =>
-                {
-                    performances[race] = new Performance(this, race, time);
-                });
-                return performances;
-            }
-        }
-
-        /// <summary>
-        /// The times the <see cref="Runner" /> has under their belt,
-        /// indexed by <see cref="Race.ID" />.
-        /// </summary>
-        public virtual IDictionary<Race, double> Times
-        {
             get;
             protected set;
         }
@@ -152,6 +140,11 @@ namespace Ngol.XcAnalyze.Model
         {
             get;
             protected set;
+        }
+
+        string IRunner.Name
+        {
+            get { return FullName; }
         }
 
         #endregion
@@ -179,7 +172,7 @@ namespace Ngol.XcAnalyze.Model
             GivenName = givenName;
             Gender = gender;
             Affiliations = new Dictionary<int, Team>();
-            Times = new Dictionary<Race, double>();
+            Performances = new Dictionary<Race, Performance>();
             UnfinishedRaces = new HashedSet<Race>();
         }
 
@@ -235,7 +228,7 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override string ToString()
         {
-            return string.Format("{0} {1}", GivenName, Surname);
+            return FullName;
         }
 
         #endregion

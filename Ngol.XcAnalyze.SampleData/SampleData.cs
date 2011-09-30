@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ngol.Hytek.Interfaces;
 using Ngol.Utilities.Collections.Extensions;
-using Ngol.Utilities.System.Collections.Generic;
+using Ngol.Utilities.Collections.Generic;
 using Ngol.XcAnalyze.Model;
 
 namespace Ngol.XcAnalyze.SampleData

@@ -74,7 +74,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             Collection.QueueInsert(portland);
             Container.SaveChanges();
             Assert.Contains(portland, Collection);
-            foreach(string newName in new List<string> { "Little Beirut", "Stumptown", "Rose City", "PDX", })
+            foreach(string newName in new List<string> { "Little Beirut", "Stumptown", "Rose City", "PDX" })
             {
                 portland.SetProperty("Name", newName);
                 Collection.QueueUpdate(portland);
@@ -83,7 +83,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
                 Assert.AreEqual(newName, actual.Name);
             }
         }
-
+        
         #endregion
     }
 }

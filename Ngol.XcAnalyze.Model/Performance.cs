@@ -1,13 +1,14 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+using Ngol.Hytek.Interfaces;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A runners time (in seconds) at a particular race.
     /// </summary>
-    public class Performance : IComparable<Performance>
+    public class Performance : IComparable<Performance>, IPerformance
     {
         #region Properties
 
@@ -50,14 +51,6 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
-        /// The <see cref="Race.ID" /> of the <see cref="Performance.Race" />.
-        /// </summary>
-        public virtual int RaceID
-        {
-            get { return Race.ID; }
-        }
-
-        /// <summary>
         /// The runner who ran the time.
         /// </summary>
         /// <exception cref="ArgumentNullException">
@@ -78,14 +71,6 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
-        /// The <see cref="Runner.ID" /> of the <see cref="Performance.Runner" />.
-        /// </summary>
-        public virtual int RunnerID
-        {
-            get { return Runner.ID; }
-        }
-
-        /// <summary>
         /// The <see cref="Team" /> with which the <see cref="Performance.Runner" />
         /// was associated when they ran tis <see cref="Time" />.
         /// </summary>
@@ -101,6 +86,21 @@ namespace Ngol.XcAnalyze.Model
         {
             get;
             set;
+        }
+
+        int IPerformance.Points
+        {
+            get { return Points.Value; }
+        }
+
+        IRunner IPerformance.Runner
+        {
+            get { return Runner; }
+        }
+
+        ITeam IPerformance.Team
+        {
+            get { return Team; }
         }
 
         #endregion
@@ -254,6 +254,7 @@ namespace Ngol.XcAnalyze.Model
                 comparison = 0;
             }
 
+
             else if(otherMilePace == null)
             {
                 return -1;
@@ -268,8 +269,8 @@ namespace Ngol.XcAnalyze.Model
             }
             return Race.Distance.CompareTo(that.Race.Distance);
         }
-
+        
         #endregion
-
+        
     }
 }

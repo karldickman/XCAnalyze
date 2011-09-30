@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ngol.Hytek.Interfaces;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A team's score at a race.
     /// </summary>
-    public class TeamScore : IComparable<TeamScore>
+    public class TeamScore : IComparable<TeamScore>, ITeamScore
     {
         #region Properties
 
@@ -17,24 +18,6 @@ namespace Ngol.XcAnalyze.Model
         private Team _team;
 
         #endregion
-
-        /// <summary>
-        /// The team which earned the score.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if an attempt is made to set the property to <see langword="null" />.
-        /// </exception>
-        public Team Team
-        {
-            get { return _team; }
-
-            protected set
-            {
-                if(value == null)
-                    throw new ArgumentNullException("value");
-                _team = value;
-            }
-        }
 
         /// <summary>
         /// The race to which this score belongs.
@@ -62,11 +45,59 @@ namespace Ngol.XcAnalyze.Model
             get { return RunnerCollection; }
         }
 
+        /// <inheritdoc />
+        public int? Score
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// The team which earned the score.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if an attempt is made to set the property to <see langword="null" />.
+        /// </exception>
+        public Team Team
+        {
+            get { return _team; }
+
+            protected set
+            {
+                if(value == null)
+                    throw new ArgumentNullException("value");
+                _team = value;
+            }
+        }
+
+        /// <inheritdoc />
+        public double TopFiveAverage
+        {
+            get { return CalculateTopFiveAverage().Time.Value; }
+        }
+
+
+        /// <inheritdoc />
+        public double TopSevenAverage
+        {
+            get { return CalculateTopSevenAverage().Time.Value; }
+        }
+
         /// <summary>
         /// The collection of runners that can be manipulated externally
         /// to this class.
         /// </summary>
         protected readonly ICollection<Performance> RunnerCollection;
+
+        IEnumerable<IPerformance> ITeamScore.Performances
+        {
+            get { return Runners.Cast<IPerformance>(); }
+        }
+
+        ITeam ITeamScore.Team
+        {
+            get { return Team; }
+        }
 
         #endregion
 
@@ -81,8 +112,7 @@ namespace Ngol.XcAnalyze.Model
         /// <param name="team">
         /// The <see cref="Team"/> to whome the score belongs.
         /// </param>
-        public TeamScore(Race race, Team team)
-            : this(race, team, null)
+        public TeamScore(Race race, Team team) : this(race, team, null)
         {
         }
 
@@ -106,6 +136,7 @@ namespace Ngol.XcAnalyze.Model
             {
                 runners = new List<Performance>();
             }
+
             else
             {
                 RunnerCollection = runners.ToList();
@@ -200,7 +231,11 @@ namespace Ngol.XcAnalyze.Model
             {
                 return -1;
             }
-            return int.MaxValue;//item1.Runners[breakAt - 1].Points.Value.CompareTo(item2.Runners[breakAt - 1].Points.Value);
+            Performance xThPerformance1 = item1.Runners.ElementAt(breakAt - 1);
+            Performance xThPerformance2 = item2.Runners.ElementAt(breakAt - 1);
+            int points1 = xThPerformance1.Points.Value;
+            int points2 = xThPerformance2.Points.Value;
+            return points1.CompareTo(points2);
         }
 
         /// <summary>
@@ -216,7 +251,7 @@ namespace Ngol.XcAnalyze.Model
             int? score = 0;
             for(int i = 0; i < 5; i++)
             {
-                //score += Runners[i].Points;
+                score += Runners.ElementAt(i).Points;
             }
             return score;
         }
@@ -259,22 +294,12 @@ namespace Ngol.XcAnalyze.Model
         protected Performance CalculateTopXAverage(int x)
         {
             double sum = 0.0;
-            int number;
+            int number = x;
             if(Runners.Count() < x)
             {
                 number = Runners.Count();
             }
-            else
-            {
-                number = x;
-            }
-            for(int i = 0; i < number; i++)
-            {
-                //if(Runners[i].Time != null)
-                {
-                    //sum += Runners[i].Time.Value;
-                }
-            }
+            sum = Runners.Take(number).Sum(r => r.Time.Value);
             return new Performance(null, Race, sum / number);
         }
 
@@ -323,7 +348,7 @@ namespace Ngol.XcAnalyze.Model
             {
                 return comparison;
             }
-            return int.MaxValue;//TopFiveAverage().CompareTo(that.CalculateTopFiveAverage());
+            return CalculateTopFiveAverage().CompareTo(that.CalculateTopFiveAverage());
         }
         
         #endregion

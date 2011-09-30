@@ -51,7 +51,6 @@
     <Compile Include="Team.cs" />
     <Compile Include="Meet.cs" />
     <Compile Include="MeetInstance.cs" />
-    <Compile Include="Gender.cs" />
     <Compile Include="Race.cs" />
     <Compile Include="TeamScore.cs" />
     <Compile Include="Performance.cs" />
@@ -64,6 +63,10 @@
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.System\Ngol.Utilities.System.csproj">
       <Project>{B53B9249-70AC-4414-95A8-0E7838885C2B}</Project>
       <Name>Ngol.Utilities.System</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Hytek\Ngol.Hytek\Ngol.Hytek.csproj">
+      <Project>{537cf629-fa3c-4039-8941-13ba15278b2f}</Project>
+      <Name>Ngol.Hytek</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

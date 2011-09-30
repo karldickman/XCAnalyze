@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Iesi.Collections.Generic;
+using Ngol.Hytek.Interfaces;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A college or university that fields a Cross-Country team.
     /// </summary>
-    public class Team : ICloneable
+    public class Team : ICloneable, ITeam
     {
         #region Properties
 

@@ -233,6 +233,10 @@ namespace Ngol.XcAnalyze.Persistence.Collections
                 SaveUpdates(RaceCollection.UpdateQueue);
                 SaveInserts(RaceCollection.InsertQueue);
                 SaveDeletes(RaceCollection.DeleteQueue);
+                // Performances
+                SaveUpdates(PerformanceCollection.UpdateQueue);
+                SaveInserts(PerformanceCollection.InsertQueue);
+                SaveDeletes(PerformanceCollection.DeleteQueue);
                 // Commit transaction
                 transaction.Commit();
             }

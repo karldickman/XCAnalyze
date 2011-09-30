@@ -59,6 +59,7 @@
     <Compile Include="FreshSchema\TestStateRepository.cs" />
     <Compile Include="FreshSchema\TestTeamRepository.cs" />
     <Compile Include="FreshSchema\TestVenueRepository.cs" />
+    <Compile Include="FreshSchema\TestPerformanceRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.System\Ngol.Utilities.System.csproj">

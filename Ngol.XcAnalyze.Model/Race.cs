@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Iesi.Collections.Generic;
+using Ngol.Hytek.Interfaces;
 using Ngol.Utilities.Collections.Extensions;
 
 namespace Ngol.XcAnalyze.Model
@@ -10,7 +11,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// An instance of a meet.
     /// </summary>
-    public class Race : ICloneable
+    public class Race : ICloneable, IRace
     {
         #region Properties
 
@@ -96,19 +97,8 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual IDictionary<Runner, Performance> Results
         {
-            get
-            {
-                IDictionary<Runner, Performance> results = new Dictionary<Runner, Performance>(DidNotFinish.Count + Times.Count);
-                foreach(Runner runner in DidNotFinish)
-                {
-                    results[runner] = new Performance(runner, this, null);
-                }
-                Times.ForEach((runner, time) =>
-                {
-                    results[runner] = new Performance(runner, this, time);
-                });
-                return results;
-            }
+            get;
+            protected set;
         }
 
         /// <summary>
@@ -120,18 +110,24 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
-        /// The times run at the <see cref="Race" />, keyed by the <see cref="Runner" /> who ran the time.
-        /// </summary>
-        public virtual IDictionary<Runner, double> Times
-        {
-            get;
-            protected set;
-        }
-
-        /// <summary>
         /// The score of this meet.
         /// </summary>
         protected readonly ICollection<TeamScore> ScoresCollection;
+
+        IMeet IRace.Meet
+        {
+            get { return MeetInstance; }
+        }
+
+        IEnumerable<IPerformance> IRace.Results
+        {
+            get { return Results.Values.Sorted().Cast<IPerformance>(); }
+        }
+
+        IEnumerable<ITeamScore> IRace.Scores
+        {
+            get { return Score.Cast<ITeamScore>(); }
+        }
 
         #endregion
 
@@ -160,7 +156,7 @@ namespace Ngol.XcAnalyze.Model
             Gender = gender;
             IsScored = false;
             DidNotFinish = new HashedSet<Runner>();
-            Times = new Dictionary<Runner, double>();
+            Results = new Dictionary<Runner, Performance>();
             ScoresCollection = new List<TeamScore>();
         }
 

@@ -46,5 +46,9 @@
       <Project>{03F68573-C451-45CF-A666-BACF76B57BBD}</Project>
       <Name>Ngol.XcAnalyze.Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Hytek\Ngol.Hytek\Ngol.Hytek.csproj">
+      <Project>{537cf629-fa3c-4039-8941-13ba15278b2f}</Project>
+      <Name>Ngol.Hytek</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
