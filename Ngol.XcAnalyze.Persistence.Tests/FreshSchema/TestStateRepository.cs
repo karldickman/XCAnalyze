@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Ngol.Utilities.NUnit;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.Persistence.Interfaces;
 using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
-using Assert = Ngol.Utilities.NUnit.MoreAssert;
-using Ngol.XcAnalyze.Persistence.Interfaces;
 
 namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {

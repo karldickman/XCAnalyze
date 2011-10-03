@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ngol.Utilities.Collections.Extensions;
+using Ngol.Utilities.NUnit;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
 using Ngol.XcAnalyze.Persistence.Collections;
@@ -9,7 +10,6 @@ using Ngol.XcAnalyze.Persistence.Interfaces;
 using Ngol.XcAnalyze.SampleData;
 using NHibernate.Linq;
 using NUnit.Framework;
-using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
 namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {

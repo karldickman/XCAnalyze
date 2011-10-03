@@ -112,7 +112,11 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The score of this meet.
         /// </summary>
-        protected readonly ICollection<TeamScore> ScoresCollection;
+        protected ICollection<TeamScore> ScoresCollection
+        {
+            get;
+            set;
+        }
 
         IMeet IRace.Meet
         {
@@ -121,7 +125,7 @@ namespace Ngol.XcAnalyze.Model
 
         IEnumerable<IPerformance> IRace.Results
         {
-            get { return Results.Values.Sorted().Cast<IPerformance>(); }
+            get { return Results.Values.Cast<IPerformance>().Sorted(); }
         }
 
         IEnumerable<ITeamScore> IRace.Scores
@@ -157,7 +161,6 @@ namespace Ngol.XcAnalyze.Model
             IsScored = false;
             DidNotFinish = new HashedSet<Runner>();
             Results = new Dictionary<Runner, Performance>();
-            ScoresCollection = new List<TeamScore>();
         }
 
         /// <summary>
@@ -253,6 +256,7 @@ namespace Ngol.XcAnalyze.Model
             {
                 return;
             }
+            ScoresCollection = new List<TeamScore>();
             Dictionary<Team, TeamScore> scores;
             if(Results.Count == 0)
                 return;

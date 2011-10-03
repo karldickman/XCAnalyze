@@ -13,7 +13,7 @@
                 class="native" />
         </id>
         <property
-            column="city_name"
+            column="name"
             name="Name"
             not-null="true" />
         <many-to-one
@@ -38,7 +38,7 @@
                 class="native" />
         </id>
         <property
-            column="conference_name"
+            column="name"
             name="Name"
             unique="true"
             not-null="true" />
@@ -65,7 +65,7 @@
                 class="native" />
         </id>
         <property
-            column="meet_name"
+            column="name"
             name="Name"
             unique="true"
             not-null="true" />
@@ -77,7 +77,8 @@
                 class="MeetInstance" />
         </set>
         <join
-            table="meet_hosts">
+            table="meet_hosts"
+            optional="true">
             <key
                 column="meet_id" />
             <many-to-one
@@ -93,7 +94,7 @@
                 column="meet_id"
                 name="Meet" />
             <key-property
-                column="meet_date"
+                column="date"
                 name="Date" />
         </composite-id>
         <set
@@ -102,7 +103,7 @@
                 <column
                     name="meet_id" />
                 <column
-                    name="meet_date" />
+                    name="date" />
             </key>
             <one-to-many
                 class="Race" />
@@ -118,7 +119,7 @@
                 <column
                     name="meet_id" />
                 <column
-                    name="meet_date" />
+                    name="date" />
             </key>
             <many-to-one
                 column="team_id"
@@ -126,7 +127,7 @@
         </join>
     </class>
     <class
-        table="performances"
+        table="results"
         name="Performance">
         <composite-id>
             <key-many-to-one
@@ -156,6 +157,7 @@
             not-null="true" />
         <property
             column="gender"
+            type="Ngol.XcAnalyze.Persistence.Types.GenderType, Ngol.XcAnalyze.Persistence"
             name="Gender"
             not-null="true" />
         <map
@@ -181,7 +183,7 @@
                 name="meet_id"
                 not-null="true" />
             <column
-                name="meet_date"
+                name="date"
                 not-null="true" />
         </many-to-one>
     </class>
@@ -204,6 +206,7 @@
             not-null="true" />
         <property
             column="gender"
+            type="Ngol.XcAnalyze.Persistence.Types.GenderType, Ngol.XcAnalyze.Persistence"
             name="Gender"
             not-null="true" />
         <set
@@ -242,7 +245,8 @@
             <index
                 column="season"
                 type="Int32" />
-            <one-to-many
+            <many-to-many
+                column="team_id"
                 class="Team" />
         </map>
         <map
@@ -260,7 +264,8 @@
                 not-null="true" />
         </map>
         <join
-            table="college_enrollment_years">
+            table="college_enrollment_years"
+            optional="true">
             <key
                 column="runner_id" />
             <property
@@ -279,7 +284,7 @@
                 class="assigned" />
         </id>
         <property
-            column="state_name"
+            column="name"
             name="Name"
             not-null="true"
             unique="true" />
@@ -301,7 +306,7 @@
                 class="native" />
         </id>
         <property
-            column="team_name"
+            column="name"
             name="Name"
             not-null="true" />
         <set
@@ -349,7 +354,7 @@
                 class="native" />
         </id>
         <property
-            column="venue_name"
+            column="name"
             name="Name"
             not-null="true" />
         <many-to-one

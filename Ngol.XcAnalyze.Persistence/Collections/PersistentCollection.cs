@@ -198,14 +198,14 @@ namespace Ngol.XcAnalyze.Persistence.Collections
         /// <inheritdoc />
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return InnerQueryable.GetEnumerator();
         }
 
         #region IEnumerable implementation
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return InnerQueryable.GetEnumerator();
         }
         
         #endregion

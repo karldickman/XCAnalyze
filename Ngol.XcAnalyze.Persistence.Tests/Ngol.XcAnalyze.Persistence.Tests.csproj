@@ -43,7 +43,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="hibernate.cfg.xml">
+    <None Include="sqlite-hibernate.cfg.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="mysql-hibernate.cfg.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -60,6 +63,7 @@
     <Compile Include="FreshSchema\TestTeamRepository.cs" />
     <Compile Include="FreshSchema\TestVenueRepository.cs" />
     <Compile Include="FreshSchema\TestPerformanceRepository.cs" />
+    <Compile Include="ExistingSchema\TestContainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Utilities\Ngol.Utilities.System\Ngol.Utilities.System.csproj">

@@ -5,6 +5,7 @@ using Ngol.XcAnalyze.Persistence.Interfaces;
 using NHibernate;
 using NHibernate.Linq;
 using System.Collections.Generic;
+using NHibernate.Cfg;
 
 namespace Ngol.XcAnalyze.Persistence.Collections
 {
@@ -14,6 +15,12 @@ namespace Ngol.XcAnalyze.Persistence.Collections
     public class PersistenceContainer : IDisposable
     {
         #region Properties
+
+        #region Physical implementation
+
+        private readonly ISession _session;
+
+        #endregion
 
         /// <summary>
         /// The <see cref="City" />s.
@@ -148,12 +155,19 @@ namespace Ngol.XcAnalyze.Persistence.Collections
         /// <summary>
         /// Has <see cref="IDisposable.Dispose" /> been called on this instance yet.
         /// </summary>
-        protected bool IsDisposed { get; set; }
+        protected bool IsDisposed
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// The <see cref="ISession" /> used to communicate with the database.
         /// </summary>
-        protected readonly ISession Session;
+        protected ISession Session
+        {
+            get { return _session; }
+        }
 
         #endregion
 
@@ -162,17 +176,37 @@ namespace Ngol.XcAnalyze.Persistence.Collections
         /// <summary>
         /// Construct a new <see cref="PersistenceContainer" />.
         /// </summary>
-        /// <param name="session">
-        /// The <see cref="ISession"/> to use.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="session"/> is <see langword="null" />.
-        /// </exception>
-        public PersistenceContainer(ISession session)
+        public PersistenceContainer()
         {
-            if(session == null)
-                throw new ArgumentNullException("session");
-            Session = session;
+            Configuration configuration = new Configuration();
+            configuration.Configure();
+            ISessionFactory sessionFactory = configuration.BuildSessionFactory();
+            _session = sessionFactory.OpenSession();
+            CityCollection = new PersistentCollection<City>(Session.Query<City>());
+            ConferenceCollection = new PersistentCollection<Conference>(Session.Query<Conference>());
+            MeetCollection = new PersistentCollection<Meet>(Session.Query<Meet>());
+            MeetInstanceCollection = new PersistentCollection<MeetInstance>(Session.Query<MeetInstance>());
+            PerformanceCollection = new PersistentCollection<Performance>(Session.Query<Performance>());
+            RaceCollection = new PersistentCollection<Race>(Session.Query<Race>());
+            RunnerCollection = new PersistentCollection<Runner>(Session.Query<Runner>());
+            StateCollection = new PersistentCollection<State>(Session.Query<State>());
+            TeamCollection = new PersistentCollection<Team>(Session.Query<Team>());
+            VenueCollection = new PersistentCollection<Venue>(Session.Query<Venue>());
+            IsDisposed = false;
+        }
+
+        /// <summary>
+        /// Construct a new <see cref="PersistenceContainer" />.
+        /// </summary>
+        /// <param name="fileName">
+        /// The name of the file from which to read the configuration information.
+        /// </param>
+        public PersistenceContainer(string fileName)
+        {
+            Configuration configuration = new Configuration();
+            configuration.Configure(fileName);
+            ISessionFactory sessionFactory = configuration.BuildSessionFactory();
+            _session = sessionFactory.OpenSession();
             CityCollection = new PersistentCollection<City>(Session.Query<City>());
             ConferenceCollection = new PersistentCollection<Conference>(Session.Query<Conference>());
             MeetCollection = new PersistentCollection<Meet>(Session.Query<Meet>());
@@ -331,7 +365,7 @@ namespace Ngol.XcAnalyze.Persistence.Collections
                 }
             }
         }
-
+        
         #endregion
     }
 }

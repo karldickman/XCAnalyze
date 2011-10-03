@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Ngol.Utilities.NUnit;
 using Ngol.Utilities.Collections.Extensions;
+using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
-using Ngol.XcAnalyze.Model;
 using Ngol.XcAnalyze.Persistence.Collections;
 using Ngol.XcAnalyze.Persistence.Interfaces;
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
 using NUnit.Framework;
-using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
 namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
@@ -61,8 +61,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         public void InitialSetUp()
         {
             Configuration = new Configuration();
-            Configuration.Configure();
-            SessionFactory = Configuration.BuildSessionFactory();
+            Configuration.Configure("sqlite-hibernate.cfg.xml");
         }
 
         [SetUp]
@@ -70,8 +69,8 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         {
             // Export the schema
             new SchemaExport(Configuration).Execute(false, true, false);
-            Session = SessionFactory.OpenSession();
-            Container = new PersistenceContainer(Session);
+            Container = new PersistenceContainer("sqlite-hibernate.cfg.xml");
+            Session = (ISession)Container.GetProperty("Session");
         }
 
         [TearDown]
@@ -107,10 +106,10 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 
         protected void TestAdd(IEnumerable<T> testWith)
         {
-            Assert.IsEmpty(Collection);
+            MoreAssert.IsEmpty(Collection);
             Collection.QueueInserts(testWith);
             Container.SaveChanges();
-            Assert.HasCount(testWith.Count(), Collection);
+            MoreAssert.HasCount(testWith.Count(), Collection);
             foreach(T item in testWith)
             {
                 Assert.That(Collection.IsPersisted(item));
@@ -119,18 +118,18 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 
         protected void TestCount(IEnumerable<T> testWith)
         {
-            Assert.IsEmpty(Collection);
+            MoreAssert.IsEmpty(Collection);
             testWith.ForEachIndexed(1, (item, index) =>
             {
                 Collection.QueueInsert(item);
                 Container.SaveChanges();
-                Assert.HasCount(index, Collection);
+                MoreAssert.HasCount(index, Collection);
             });
         }
 
         protected void TestContains(IEnumerable<T> testWith)
         {
-            Assert.IsEmpty(Collection);
+            MoreAssert.IsEmpty(Collection);
             ICollection<T> addedItems = new List<T>();
             foreach(T item in testWith)
             {

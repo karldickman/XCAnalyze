@@ -171,7 +171,7 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override string ToString()
         {
-            return Name + ", " + City;
+            return string.Format("{0}, {1}", Name, City);
         }
 
         #endregion

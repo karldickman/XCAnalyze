@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Ngol.Utilities.NUnit;
 using Ngol.Utilities.Reflection.Extensions;
 using Ngol.Utilities.System.Extensions;
 using Ngol.XcAnalyze.Model;
 using Ngol.XcAnalyze.Persistence.Interfaces;
 using Ngol.XcAnalyze.SampleData;
 using NUnit.Framework;
-using Assert = Ngol.Utilities.NUnit.MoreAssert;
 
 namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
 {
@@ -59,7 +59,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             Conference nwc = Data.Nwc.Clone<Conference>();
             Collection.QueueInsert(nwc);
             Container.SaveChanges();
-            Assert.Contains(nwc, Collection);
+            MoreAssert.Contains(nwc, Collection);
             foreach(string newName in new List<string> { "NCIC", "WCIC" })
             {
                 nwc.SetProperty("Name", newName);

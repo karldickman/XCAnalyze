@@ -59,6 +59,7 @@ namespace Ngol.XcAnalyze.Model
         public virtual Runner Runner
         {
             get { return _runner; }
+
             set
             {
                 if(value == null)
@@ -72,11 +73,23 @@ namespace Ngol.XcAnalyze.Model
 
         /// <summary>
         /// The <see cref="Team" /> with which the <see cref="Performance.Runner" />
-        /// was associated when they ran tis <see cref="Time" />.
+        /// was associated when they ran this <see cref="Time" />.
         /// </summary>
+        /// <value>
+        /// <see langword="null" /> if the <see cref="Performance.Runner" />
+        /// was not affiliated with a team.
+        /// </value>
         public virtual Team Team
         {
-            get { return Runner.Affiliations[Race.Date.Year]; }
+            get
+            {
+                Team team;
+                if(Runner.Affiliations.TryGetValue(Race.Date.Year, out team))
+                {
+                    return team;
+                }
+                return null;
+            }
         }
 
         /// <summary>
@@ -88,9 +101,9 @@ namespace Ngol.XcAnalyze.Model
             set;
         }
 
-        int IPerformance.Points
+        int IPerformance.RaceDistance
         {
-            get { return Points.Value; }
+            get { return Race.Distance; }
         }
 
         IRunner IPerformance.Runner
@@ -108,23 +121,41 @@ namespace Ngol.XcAnalyze.Model
         #region Constructors
 
         /// <summary>
-        /// Create a new performance.
+        /// Create a new <see cref="Performance" />.
         /// </summary>
         /// <param name="runner">
         /// The <see cref="Runner"/> who owns the performance.
         /// </param>
         /// <param name="race">
-        /// The <see cref="Race"/> at which the performance was ran.
+        /// The <see cref="Race"/> at which the performance was run.
         /// </param>
         /// <param name="time">
-        /// The <see cref="Time"/> in which teh race was run.
+        /// The <see cref="Time"/> in which the race was run.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="runner" /> or <paramref name="race" /> is null.
+        /// Thrown when <paramref name="runner" /> or <paramref name="race" /> is <see langword="null" />.
         /// </exception>
         public Performance(Runner runner, Race race, double? time) : this()
         {
             Runner = runner;
+            Race = race;
+            Time = time;
+        }
+
+        /// <summary>
+        /// Construct a new <see cref="Performance" /> without a <see cref="Runner" />.
+        /// </summary>
+        /// <param name="race">
+        /// The <see cref="Race"/> at which the performance was run.
+        /// </param>
+        /// <param name="time">
+        /// The <see cref="Time"/> in which the race was run.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="race" /> is <see langword="null" />.
+        /// </exception>
+        internal Performance(Race race, double time) : this()
+        {
             Race = race;
             Time = time;
         }
@@ -188,8 +219,9 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override string ToString()
         {
-            return string.Format("{0} run by {1}", Time, string.Empty);
-            //Runner.Name);
+            int minutes = Convert.ToInt32(Math.Floor(Time.Value / 60.0));
+            double seconds = Time.Value - 60 * minutes;
+            return string.Format("{0}:{1:00.00} run by {2}", minutes, seconds, Runner.FullName);
         }
 
         /// <summary>
@@ -210,22 +242,6 @@ namespace Ngol.XcAnalyze.Model
 
         #endregion
 
-        #region Methods
-
-        /// <summary>
-        /// The pace in minutes per mile of the performance.
-        /// </summary>
-        public virtual double? MilePace()
-        {
-            if(Time == null)
-            {
-                return null;
-            }
-            return Time.Value / Race.Distance * 60 * 1609.344;
-        }
-
-        #endregion
-
         #region IComparable implementation
 
         /// <inheritdoc />
@@ -236,15 +252,20 @@ namespace Ngol.XcAnalyze.Model
         /// </remarks>
         public virtual int CompareTo(Performance that)
         {
+            return ((IComparable<IPerformance>)this).CompareTo(that);
+        }
+
+        int IComparable<IPerformance>.CompareTo(IPerformance that)
+        {
             if(that == null)
                 throw new ArgumentNullException("that");
-            int comparison;
-            if(this == that)
+            if(ReferenceEquals(this, that))
             {
                 return 0;
             }
-            double? milePace = MilePace();
-            double? otherMilePace = that.MilePace();
+            double? milePace = this.GetMilePace();
+            double? otherMilePace = that.GetMilePace();
+            int comparison;
             if(milePace == null)
             {
                 if(otherMilePace != null)
@@ -253,8 +274,6 @@ namespace Ngol.XcAnalyze.Model
                 }
                 comparison = 0;
             }
-
-
             else if(otherMilePace == null)
             {
                 return -1;
@@ -267,10 +286,9 @@ namespace Ngol.XcAnalyze.Model
             {
                 return comparison;
             }
-            return Race.Distance.CompareTo(that.Race.Distance);
+            return ((IPerformance)this).RaceDistance.CompareTo(that.RaceDistance);
         }
-        
+
         #endregion
-        
     }
 }

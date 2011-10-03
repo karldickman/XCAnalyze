@@ -73,14 +73,14 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public double TopFiveAverage
         {
-            get { return CalculateTopFiveAverage().Time.Value; }
+            get { return GetTopXAverage(5).Time.Value; }
         }
 
 
         /// <inheritdoc />
         public double TopSevenAverage
         {
-            get { return CalculateTopSevenAverage().Time.Value; }
+            get { return GetTopXAverage(7).Time.Value; }
         }
 
         /// <summary>
@@ -88,6 +88,11 @@ namespace Ngol.XcAnalyze.Model
         /// to this class.
         /// </summary>
         protected readonly ICollection<Performance> RunnerCollection;
+
+        int ITeamScore.FinisherCount
+        {
+            get { return Runners.Count(); }
+        }
 
         IEnumerable<IPerformance> ITeamScore.Performances
         {
@@ -134,9 +139,8 @@ namespace Ngol.XcAnalyze.Model
             Team = team;
             if(runners == null)
             {
-                runners = new List<Performance>();
+                RunnerCollection = new List<Performance>();
             }
-
             else
             {
                 RunnerCollection = runners.ToList();
@@ -217,22 +221,22 @@ namespace Ngol.XcAnalyze.Model
         /// Compares the breakAt runner of this team with the the breakAt runner
         /// of the other team.
         /// </summary>
-        protected static int BreakTie(TeamScore item1, TeamScore item2, int breakAt)
+        protected static int BreakTie(ITeamScore item1, ITeamScore item2, int breakAt)
         {
-            if(item1.Runners.Count() < breakAt && item2.Runners.Count() < breakAt)
+            if(item1.FinisherCount < breakAt && item2.FinisherCount < breakAt)
             {
                 return 0;
             }
-            if(item1.Runners.Count() < breakAt)
+            if(item1.FinisherCount < breakAt)
             {
                 return 1;
             }
-            if(item2.Runners.Count() < breakAt)
+            if(item2.FinisherCount < breakAt)
             {
                 return -1;
             }
-            Performance xThPerformance1 = item1.Runners.ElementAt(breakAt - 1);
-            Performance xThPerformance2 = item2.Runners.ElementAt(breakAt - 1);
+            IPerformance xThPerformance1 = item1.Performances.ElementAt(breakAt - 1);
+            IPerformance xThPerformance2 = item2.Performances.ElementAt(breakAt - 1);
             int points1 = xThPerformance1.Points.Value;
             int points2 = xThPerformance2.Points.Value;
             return points1.CompareTo(points2);
@@ -257,22 +261,6 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
-        /// The averate time of the top 5 runners on the team.
-        /// </summary>
-        public Performance CalculateTopFiveAverage()
-        {
-            return CalculateTopXAverage(5);
-        }
-
-        /// <summary>
-        /// The average time of the top 7 runners on the team.
-        /// </summary>
-        public Performance CalculateTopSevenAverage()
-        {
-            return CalculateTopXAverage(7);
-        }
-
-        /// <summary>
         /// Add a new runner from the race results.
         /// </summary>
         /// <param name="runner">
@@ -291,7 +279,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The average time of the top x runners on the team.
         /// </summary>
-        protected Performance CalculateTopXAverage(int x)
+        protected Performance GetTopXAverage(int x)
         {
             double sum = 0.0;
             int number = x;
@@ -300,7 +288,7 @@ namespace Ngol.XcAnalyze.Model
                 number = Runners.Count();
             }
             sum = Runners.Take(number).Sum(r => r.Time.Value);
-            return new Performance(null, Race, sum / number);
+            return new Performance(Race, sum / number);
         }
 
         #endregion
@@ -310,45 +298,33 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public int CompareTo(TeamScore that)
         {
-            if(ReferenceEquals(that, null))
-            {
+            return ((IComparable<ITeamScore>)this).CompareTo(that);
+        }
+
+        int IComparable<ITeamScore>.CompareTo(ITeamScore that)
+        {
+            if(that == null)
                 throw new ArgumentNullException("that");
-            }
-            int comparison;
-            int? score, otherScore;
             if(ReferenceEquals(this, that))
-            {
                 return 0;
-            }
-            score = CalculateScore();
-            otherScore = that.CalculateScore();
-            if(score != otherScore)
+            if(Score.HasValue && !that.Score.HasValue)
+                return 1;
+            if(!Score.HasValue && that.Score.HasValue)
+                return -1;
+            int comparison;
+            if(Score.HasValue && that.Score.HasValue)
             {
-                if(score == null)
-                {
-                    return 1;
-                }
-                if(otherScore == null)
-                {
-                    return -1;
-                }
-                comparison = score.Value.CompareTo(otherScore.Value);
+                comparison = Score.Value.CompareTo(that.Score.Value);
                 if(comparison != 0)
-                {
                     return comparison;
-                }
             }
             comparison = BreakTie(this, that, 6);
             if(comparison != 0)
-            {
                 return comparison;
-            }
             comparison = BreakTie(this, that, 7);
             if(comparison != 0)
-            {
                 return comparison;
-            }
-            return CalculateTopFiveAverage().CompareTo(that.CalculateTopFiveAverage());
+            return TopFiveAverage.CompareTo(that.TopFiveAverage);
         }
         
         #endregion

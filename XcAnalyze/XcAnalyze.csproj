@@ -6,7 +6,7 @@
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2E660B00-8976-4DF2-8CA6-0443250B70B5}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>Ngol.XcAnalyze</RootNamespace>
     <AssemblyName>XcAnalyze</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
@@ -22,6 +22,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
     <GenerateDocumentation>true</GenerateDocumentation>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
@@ -61,15 +62,8 @@
     <Reference Include="Mono.Posix" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="gtk-gui\gui.stetic">
-      <LogicalName>gui.stetic</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MainClass.cs" />
-    <Compile Include="gtk-gui\Ngol.XcAnalyze.MainWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -80,6 +74,26 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ngol.XcAnalyze.Model\Ngol.XcAnalyze.Model.csproj">
+      <Project>{03F68573-C451-45CF-A666-BACF76B57BBD}</Project>
+      <Name>Ngol.XcAnalyze.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ngol.XcAnalyze.Persistence\Ngol.XcAnalyze.Persistence.csproj">
+      <Project>{AE98C42F-E999-43D6-A7CD-D18196ED4EA6}</Project>
+      <Name>Ngol.XcAnalyze.Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ngol.XcAnalyze.UI.Views\Ngol.XcAnalyze.UI.Views.Gtk.csproj">
+      <Project>{DD9F653F-B50A-4341-A428-1C25D0F2C255}</Project>
+      <Name>Ngol.XcAnalyze.UI.Views.Gtk</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ngol.XcAnalyze.UI.ViewModels\Ngol.XcAnalyze.UI.ViewModels.csproj">
+      <Project>{117E8F9D-9E92-46C5-B467-0C75C504B0E4}</Project>
+      <Name>Ngol.XcAnalyze.UI.ViewModels</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
