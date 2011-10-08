@@ -56,7 +56,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            State oregon = Data.Oregon.Clone<State>();
+            State oregon = new State(Data.Oregon.Code, Data.Oregon.Name);
             Collection.QueueInsert(oregon);
             Container.SaveChanges();
             Assert.That(Collection.IsPersisted(oregon));

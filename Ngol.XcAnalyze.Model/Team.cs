@@ -8,7 +8,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// A college or university that fields a Cross-Country team.
     /// </summary>
-    public class Team : ICloneable, ITeam
+    public class Team : ITeam
     {
         #region Properties
 
@@ -118,11 +118,30 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(this, other))
+            return this == other ? true : Equals(other as Team);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="Team"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Team"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="Team"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Team"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="Team"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.Team"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(Team that)
+        {
+            if(that == null)
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, that))
             {
                 return true;
             }
-            return Equals(other as Team);
+            return Name == that.Name && Conference.Equals(that.Conference);
         }
 
         /// <inheritdoc />
@@ -137,33 +156,6 @@ namespace Ngol.XcAnalyze.Model
             return Name;
         }
 
-        /// <summary>
-        /// Check whether two schools are equal.
-        /// </summary>
-        protected bool Equals(Team other)
-        {
-            if(ReferenceEquals(other, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return Name == other.Name;
-            // && (Conference == other.Conference);
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        /// <inheritdoc />
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
-        }
-        
         #endregion
     }
 }

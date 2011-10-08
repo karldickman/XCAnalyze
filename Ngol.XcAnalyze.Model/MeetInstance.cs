@@ -10,7 +10,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// A meet has a mens race and a womens race and occurs at a particular time.
     /// </summary>
-    public class MeetInstance : ICloneable, IMeet
+    public class MeetInstance : IMeet
     {
         #region Properties
 
@@ -145,38 +145,33 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited methods
 
-        /// <summary>
-        /// Overload of == operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(MeetInstance instance1, MeetInstance instance2)
-        {
-            if(ReferenceEquals(instance1, instance2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(instance1, null) || ReferenceEquals(instance2, null))
-            {
-                return false;
-            }
-            return instance1.Equals(instance2);
-        }
-
-        /// <summary>
-        /// Overload of != operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(MeetInstance instance1, MeetInstance instance2)
-        {
-            return !(instance1 == instance2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(this, other))
+            return this == other ? true : Equals(other as MeetInstance);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="MeetInstance"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.MeetInstance"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="MeetInstance"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.MeetInstance"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="MeetInstance"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.MeetInstance"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(MeetInstance that)
+        {
+            if(that == null)
+            {
+                return false;
+            }
+            if(this == that)
             {
                 return true;
             }
-            return Equals(other as MeetInstance);
+            return Date.Year == that.Date.Year && Date.Month == that.Date.Month && Date.Day == that.Date.Day && Meet == that.Meet && Venue == that.Venue;
         }
 
         /// <inheritdoc />
@@ -191,29 +186,6 @@ namespace Ngol.XcAnalyze.Model
             return string.Format("{0} ({1:yyyy-MM-dd})", Meet.Name, Date);
         }
 
-        /// <inheritdoc />
-        protected bool Equals(MeetInstance that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return Date.Year == that.Date.Year && Date.Month == that.Date.Month && Date.Day == that.Date.Day && Meet == that.Meet && Venue == that.Venue;
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
-        }
-        
         #endregion
     }
 }

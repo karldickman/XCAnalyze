@@ -8,7 +8,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// One of the fifty states in the United States.
     /// </summary>
-    public class State : ICloneable
+    public class State
     {
         #region Properties
 
@@ -126,42 +126,33 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited methods
 
-        /// <summary>
-        /// Overloading of the == operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(State state1, State state2)
-        {
-            if(ReferenceEquals(state1, state2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(state1, null) || ReferenceEquals(state2, null))
-            {
-                return false;
-            }
-            return state1.Equals(state2);
-        }
-
-        /// <summary>
-        /// Overloading of the != operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(State state1, State state2)
-        {
-            return !(state1 == state2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(other == null)
+            return this == other ? true : Equals(other as State);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="State"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.State"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="State"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.State"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="State"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.State"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(State that)
+        {
+            if(that == null)
             {
                 return false;
             }
-            if(ReferenceEquals(this, other))
+            if(this == that)
             {
                 return true;
             }
-            return Equals(other as State);
+            return Code == that.Code && Name == that.Name;
         }
 
         /// <inheritdoc />
@@ -176,25 +167,6 @@ namespace Ngol.XcAnalyze.Model
             return Name;
         }
 
-        private bool Equals(State that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            return Code == that.Code && Name == that.Name;
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        /// <inheritdoc />
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
-        }
-        
         #endregion
     }
 }

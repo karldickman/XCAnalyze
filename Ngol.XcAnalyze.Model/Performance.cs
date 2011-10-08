@@ -174,38 +174,33 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited methods
 
-        /// <summary>
-        /// Overload of == operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(Performance performance1, Performance performance2)
-        {
-            if(ReferenceEquals(performance1, performance2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(performance1, null) || ReferenceEquals(performance2, null))
-            {
-                return false;
-            }
-            return performance1.Equals(performance2);
-        }
-
-        /// <summary>
-        /// Overload of != operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(Performance performance1, Performance performance2)
-        {
-            return !(performance1 == performance2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(this, other))
+            return this == other ? true : Equals(other as Performance);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="Performance"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Performance"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="Performance"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Performance"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="Performance"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.Performance"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(Performance that)
+        {
+            if(ReferenceEquals(that, null))
+            {
+                return false;
+            }
+            if(ReferenceEquals(this, that))
             {
                 return true;
             }
-            return Equals(other as Performance);
+            return Runner.Equals(that.Runner) && Race.Equals(that.Race) && Time == that.Time;
         }
 
         /// <inheritdoc />
@@ -222,22 +217,6 @@ namespace Ngol.XcAnalyze.Model
             int minutes = Convert.ToInt32(Math.Floor(Time.Value / 60.0));
             double seconds = Time.Value - 60 * minutes;
             return string.Format("{0}:{1:00.00} run by {2}", minutes, seconds, Runner.FullName);
-        }
-
-        /// <summary>
-        /// Check if two <see cref="Performance" />s are equal.
-        /// </summary>
-        protected bool Equals(Performance that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return 0 == CompareTo(that);
         }
 
         #endregion

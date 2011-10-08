@@ -18,14 +18,19 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
     {
         #region Properties
 
-        public override IEnumerable<MeetInstance> TestData
-        {
-            get { return Data.MeetInstances; }
-        }
-
         protected override IPersistentCollection<MeetInstance> Collection
         {
             get { return Container.MeetInstances; }
+        }
+
+        public MeetInstance LCInvite09
+        {
+            get { return Data.LCInvite09; }
+        }
+
+        public override IEnumerable<MeetInstance> TestData
+        {
+            get { return Data.MeetInstances; }
         }
 
         #endregion
@@ -76,7 +81,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            MeetInstance originalMeetInstance = Data.LCInvite09.Clone<MeetInstance>();
+            MeetInstance originalMeetInstance = new MeetInstance(LCInvite09.Meet, LCInvite09.Date, LCInvite09.Venue);
             Collection.QueueInsert(originalMeetInstance);
             Container.SaveChanges();
             Assert.That(Collection.IsPersisted(originalMeetInstance));

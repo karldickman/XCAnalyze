@@ -11,7 +11,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// An instance of a meet.
     /// </summary>
-    public class Race : ICloneable, IRace
+    public class Race : IRace
     {
         #region Properties
 
@@ -177,42 +177,33 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited methods
 
-        /// <summary>
-        /// Overload of == operator that delecates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(Race race1, Race race2)
-        {
-            if(ReferenceEquals(race1, race2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(race1, null) || ReferenceEquals(race2, null))
-            {
-                return false;
-            }
-            return race1.Equals(race2);
-        }
-
-        /// <summary>
-        /// Overload of != operator that delecates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(Race race1, Race race2)
-        {
-            return !(race1 == race2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(this == other)
+            return this == other ? true : Equals(other as Race);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="Race"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Race"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="Race"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Race"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="Race"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.Race"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(Race that)
+        {
+            if(that == null)
+            {
+                return false;
+            }
+            if(this == that)
             {
                 return true;
             }
-            if(other is Race)
-            {
-                return Equals((Race)other);
-            }
-            return false;
+            return MeetInstance.Equals(that.MeetInstance) && Gender == that.Gender;
         }
 
         /// <inheritdoc />
@@ -225,22 +216,6 @@ namespace Ngol.XcAnalyze.Model
         public override string ToString()
         {
             return string.Format("{0} m run.", Distance);
-        }
-
-        /// <summary>
-        /// Check whether two <see cref="Race" />s are equal.
-        /// </summary>
-        protected bool Equals(Race that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return MeetInstance == that.MeetInstance && Gender == that.Gender;
         }
 
         #endregion
@@ -317,15 +292,6 @@ namespace Ngol.XcAnalyze.Model
             ScoresCollection.Clear();
             ScoresCollection.AddRange(scores.Values.Sorted());
             IsScored = true;
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
         }
 
         #endregion

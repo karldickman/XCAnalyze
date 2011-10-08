@@ -72,7 +72,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            Team pioneers = Data.LewisAndClark.Clone<Team>();
+            Team pioneers = new Team(Data.LewisAndClark.Name);
             Collection.QueueInsert(pioneers);
             Container.SaveChanges();
             Assert.That(Collection.IsPersisted(pioneers));

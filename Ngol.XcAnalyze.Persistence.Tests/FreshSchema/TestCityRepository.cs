@@ -15,14 +15,19 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
     {
         #region Properties
 
-        public override IEnumerable<City> TestData
-        {
-            get { return Data.Cities; }
-        }
-
         protected override IPersistentCollection<City> Collection
         {
             get { return Container.Cities; }
+        }
+
+        public City Portland
+        {
+            get { return Data.Portland; }
+        }
+
+        public override IEnumerable<City> TestData
+        {
+            get { return Data.Cities; }
         }
 
         #endregion
@@ -68,7 +73,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            City portland = Data.Portland.Clone<City>();
+            City portland = new City(Portland.Name, Portland.State);
             Collection.QueueInsert(portland);
             Container.SaveChanges();
             MoreAssert.Contains(portland, Collection);

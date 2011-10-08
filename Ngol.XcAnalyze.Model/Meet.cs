@@ -8,7 +8,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// A recurring Cross-Country competition.
     /// </summary>
-    public class Meet : ICloneable
+    public class Meet
     {
         #region Properties
 
@@ -116,42 +116,33 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited methods
 
-        /// <summary>
-        /// Overload of == operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(Meet meet1, Meet meet2)
-        {
-            if(ReferenceEquals(meet1, meet2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(meet1, null) || ReferenceEquals(meet2, null))
-            {
-                return false;
-            }
-            return meet1.Equals(meet2);
-        }
-
-        /// <summary>
-        /// Overload of != operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(Meet meet1, Meet meet2)
-        {
-            return !(meet1 == meet2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(this, other))
+            return this == other ? true : Equals(other as Meet);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="Meet"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Meet"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="Meet"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Meet"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="Meet"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.Meet"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(Meet that)
+        {
+            if(that == null)
+            {
+                return false;
+            }
+            if(this == that)
             {
                 return true;
             }
-            if(other is Meet)
-            {
-                return Equals((Meet)other);
-            }
-            return Equals(other as Meet);
+            return Name == that.Name;
         }
 
         /// <inheritdoc />
@@ -166,31 +157,6 @@ namespace Ngol.XcAnalyze.Model
             return Name;
         }
 
-        /// <summary>
-        /// Determine if two <see cref="Meet" />s are equal.
-        /// </summary>
-        protected bool Equals(Meet that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return Name == that.Name;
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
-        }
-        
         #endregion
     }
 }

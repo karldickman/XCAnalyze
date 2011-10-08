@@ -7,7 +7,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// Describes a venue at which races can be held.
     /// </summary>
-    public class Venue : ICloneable
+    public class Venue
     {
         #region Properties
 
@@ -107,59 +107,26 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited Methods
 
-        /// <summary>
-        /// Overload of the == operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(Venue venue1, Venue venue2)
-        {
-            if(ReferenceEquals(venue1, venue2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(venue1, null) || ReferenceEquals(venue2, null))
-            {
-                return false;
-            }
-            return venue1.Equals(venue2);
-        }
-
-
-        /// <summary>
-        /// Overload of the != operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(Venue venue1, Venue venue2)
-        {
-            return !(venue1 == venue2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(other, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return Equals(other as Venue);
+            return this == other ? true : Equals(other as Venue);
         }
 
         /// <summary>
         /// Check whether two venues are equal.
         /// </summary>
-        protected bool Equals(Venue other)
+        public virtual bool Equals(Venue that)
         {
-            if(ReferenceEquals(other, null))
+            if(that == null)
             {
                 return false;
             }
-            if(ReferenceEquals(this, other))
+            if(this == that)
             {
                 return true;
             }
-            return City == other.City && Name == other.Name;
+            return City == that.City && Name == that.Name;
         }
 
         /// <inheritdoc />
@@ -172,16 +139,6 @@ namespace Ngol.XcAnalyze.Model
         public override string ToString()
         {
             return string.Format("{0}, {1}", Name, City);
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        /// <inheritdoc />
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
         }
 
         #endregion

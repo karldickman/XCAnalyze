@@ -11,7 +11,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// All the information about a runner.
     /// </summary>
-    public class Runner : ICloneable, IRunner
+    public class Runner : IRunner
     {
         #region Properties
 
@@ -193,25 +193,29 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(this == other)
-            {
-                return true;
-            }
-            if(other is Runner)
-            {
-                return Equals((Runner)other);
-            }
-            return false;
+            return this == other ? true : Equals(other as Runner);
         }
 
         /// <summary>
-        /// Check if two runners are equal.
+        /// Determines whether the specified <see cref="Runner"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Runner"/>.
         /// </summary>
-        /// <param name="that">
-        /// The <see cref="Runner"/> to compare with this instance.
+        /// <param name='that'>
+        /// The <see cref="Runner"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Runner"/>.
         /// </param>
-        protected bool Equals(Runner that)
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="Runner"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.Runner"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(Runner that)
         {
+            if(that == null)
+            {
+                return false;
+            }
+            if(this == that)
+            {
+                return true;
+            }
             if(ID == 0 || that.ID == 0)
             {
                 return Surname == that.Surname && GivenName == that.GivenName && EnrollmentYear == that.EnrollmentYear;
@@ -229,16 +233,6 @@ namespace Ngol.XcAnalyze.Model
         public override string ToString()
         {
             return FullName;
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        /// <inheritdoc />
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
         }
 
         #endregion

@@ -93,7 +93,6 @@ namespace Ngol.XcAnalyze.UI.Views.Gtk
         {
             if(e.PropertyName == "SelectedMeetInstance")
             {
-
                 MeetInstance meetInstance = ViewModel.SelectedMeetInstance;
                 Info.Text = string.Format("{0}\n{1:yyyy/MM/dd}\n{2}", meetInstance.Name, meetInstance.Date, meetInstance.Venue);
                 RacesView.Buffer = new RaceResultsBuffer(meetInstance.Races);

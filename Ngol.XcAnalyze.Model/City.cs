@@ -6,7 +6,7 @@ namespace Ngol.XcAnalyze.Model
     /// <summary>
     /// Represents a city or municipality within a <see cref="State" />.
     /// </summary>
-    public class City : ICloneable
+    public class City
     {
         #region Properties
 
@@ -39,7 +39,9 @@ namespace Ngol.XcAnalyze.Model
             protected set
             {
                 if(value == null)
+                {
                     throw new ArgumentNullException("value");
+                }
                 if(value != Name)
                 {
                     _name = value;
@@ -60,7 +62,9 @@ namespace Ngol.XcAnalyze.Model
             protected set
             {
                 if(value == null)
+                {
                     throw new ArgumentNullException("value");
+                }
                 if(value != State)
                 {
                     _state = value;
@@ -108,42 +112,33 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited methods
 
-        /// <summary>
-        /// Overloading of the == operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(City city1, City city2)
-        {
-            if(ReferenceEquals(city1, city2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(city1, null) || ReferenceEquals(city2, null))
-            {
-                return false;
-            }
-            return city1.Equals(city2);
-        }
-
-        /// <summary>
-        /// Overloading of the != operator that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(City city1, City city2)
-        {
-            return !(city1 == city2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(other, null))
+            return this == other ? true : Equals(other as City);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="City"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.City"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="City"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.City"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="City"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.City"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(City that)
+        {
+            if(that == null)
             {
                 return false;
             }
-            if(ReferenceEquals(this, other))
+            if(this == that)
             {
                 return true;
             }
-            return Equals(other as City);
+            return ID == that.ID && Name == that.Name && State == that.State;
         }
 
         /// <inheritdoc />
@@ -158,29 +153,6 @@ namespace Ngol.XcAnalyze.Model
             return string.Format("{0}, {1}", Name, State);
         }
 
-        private bool Equals(City that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return ID == that.ID && Name == that.Name && State == that.State;
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        /// <inheritdoc />
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
-        }
-        
         #endregion
     }
 }

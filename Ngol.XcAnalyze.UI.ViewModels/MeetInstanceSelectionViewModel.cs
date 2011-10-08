@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using Ngol.Utilities.Collections.ObjectModel;
 using Ngol.XcAnalyze.Model;
 
 namespace Ngol.XcAnalyze.UI.ViewModels
@@ -10,9 +10,9 @@ namespace Ngol.XcAnalyze.UI.ViewModels
     /// <summary>
     /// View model for browsing and selecting <see cref="MeetInstance" />s.
     /// </summary>
-    public class MeetInstanceSelectionViewModel : IEnumerable<MeetInstance>, INotifyPropertyChanged
+    public class MeetInstanceSelectionViewModel : ObservableCollection<MeetInstance>
     {
-        #region
+        #region Properties
 
         #region Physical implementation
 
@@ -44,6 +44,18 @@ namespace Ngol.XcAnalyze.UI.ViewModels
 
         #endregion
 
+        #region Events
+
+        /// <inheritdoc />
+        public new event PropertyChangedEventHandler PropertyChanged
+        {
+            add { base.PropertyChanged += value; }
+            
+            remove { base.PropertyChanged -= value; }
+        }
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -55,58 +67,24 @@ namespace Ngol.XcAnalyze.UI.ViewModels
         public MeetInstanceSelectionViewModel(IEnumerable<MeetInstance> meetInstances)
         {
             if(meetInstances == null)
+            {
                 throw new ArgumentNullException("meetInstances");
+            }
             InnerEnumerable = meetInstances;
         }
 
         #endregion
 
-        #region IEnumerable[MeetInstance]
-
-        /// <inheritdoc />
-        public IEnumerator<MeetInstance> GetEnumerator()
-        {
-            return InnerEnumerable.GetEnumerator();
-        }
-
-        #region IEnumerable implementation
-
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        #endregion
-
-        #endregion
-
-        #region INotifyPropertyChanged implementation
-
-        /// <inheritdoc />
-        public event PropertyChangedEventHandler PropertyChanged;
+        #region Methods
 
         /// <summary>
-        /// Invoker for the <see cref="PropertyChanged" /> event.
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged" /> event.
         /// </summary>
         protected void OnPropertyChanged(string propertyName)
         {
             OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
 
-        /// <summary>
-        /// Invoker for the <see cref="PropertyChanged" /> event.
-        /// </summary>
-        protected void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            var handler = PropertyChanged;
-            if(handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
         #endregion
     }
 }
-

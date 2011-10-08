@@ -15,14 +15,19 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
     {
         #region Properties
 
-        public override IEnumerable<Conference> TestData
-        {
-            get { return Data.Conferences; }
-        }
-
         protected override IPersistentCollection<Conference> Collection
         {
             get { return Container.Conferences; }
+        }
+
+        public Conference Nwc
+        {
+            get { return Data.Nwc; }
+        }
+
+        public override IEnumerable<Conference> TestData
+        {
+            get { return Data.Conferences; }
         }
 
         #endregion
@@ -56,7 +61,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            Conference nwc = Data.Nwc.Clone<Conference>();
+            Conference nwc = new Conference(Nwc.Name, Nwc.Acronym);
             Collection.QueueInsert(nwc);
             Container.SaveChanges();
             MoreAssert.Contains(nwc, Collection);

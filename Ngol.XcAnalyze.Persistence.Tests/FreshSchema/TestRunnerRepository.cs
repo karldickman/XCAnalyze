@@ -16,14 +16,19 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
     {
         #region Properties
 
-        public override IEnumerable<Runner> TestData
-        {
-            get { return Data.Runners; }
-        }
-
         protected override IPersistentCollection<Runner> Collection
         {
             get { return Container.Runners; }
+        }
+
+        public Runner Karl
+        {
+            get { return Data.Karl; }
+        }
+
+        public override IEnumerable<Runner> TestData
+        {
+            get { return Data.Runners; }
         }
 
         #endregion
@@ -70,7 +75,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            Runner karl = Data.Karl.Clone<Runner>();
+            Runner karl = new Runner(Karl.Surname, Karl.GivenName, Karl.Gender);
             Collection.QueueInsert(karl);
             Container.SaveChanges();
             Assert.That(Collection.IsPersisted(karl));

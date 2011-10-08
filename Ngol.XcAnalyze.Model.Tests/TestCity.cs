@@ -13,14 +13,14 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void Equals()
         {
-            City estacada = Data.Estacada.Clone<City>();
+            City estacada = new City(Data.Estacada.Name, Data.Estacada.State);
             Assert.AreEqual(Data.Estacada, estacada);
             estacada.SetProperty("Name", "Hickville");
             Assert.AreNotEqual(Data.Estacada, estacada);
-            estacada = Data.Estacada.Clone<City>();
+            estacada = new City(Data.Estacada.Name, Data.Estacada.State);
             estacada.SetProperty("ID", 7);
             Assert.AreNotEqual(Data.Estacada, estacada);
-            estacada = Data.Estacada.Clone<City>();
+            estacada = new City(Data.Estacada.Name, Data.Estacada.State);
             estacada.SetProperty("State", Data.California);
             Assert.AreNotEqual(Data.Estacada, estacada);
         }

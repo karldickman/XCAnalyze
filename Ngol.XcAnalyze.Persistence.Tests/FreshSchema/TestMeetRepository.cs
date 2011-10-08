@@ -72,7 +72,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            Meet originalMeet = Data.SciacMultiDuals.Clone<Meet>();
+            Meet originalMeet = new Meet(Data.SciacMultiDuals.Name);
             Collection.QueueInsert(originalMeet);
             Container.SaveChanges();
             MoreAssert.Contains(originalMeet, Collection);

@@ -151,38 +151,33 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited methods
 
-        /// <summary>
-        /// Overload of == operator that delegtes to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(TeamScore score1, TeamScore score2)
-        {
-            if(ReferenceEquals(score1, score2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(score1, null) || ReferenceEquals(score2, null))
-            {
-                return false;
-            }
-            return score1.Equals(score2);
-        }
-
-        /// <summary>
-        /// Overload of != operator that delegtes to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(TeamScore score1, TeamScore score2)
-        {
-            return !(score1 == score2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(this, other))
+            return this == other ? true : Equals(other as TeamScore);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="TeamScore"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.TeamScore"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="TeamScore"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.TeamScore"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="TeamScore"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.TeamScore"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(TeamScore that)
+        {
+            if(that == null)
+            {
+                return false;
+            }
+            if(this == that)
             {
                 return true;
             }
-            return Equals(other as TeamScore);
+            return Race.Equals(that.Race) && Team.Equals(that.Team);
         }
 
         /// <inheritdoc />
@@ -195,22 +190,6 @@ namespace Ngol.XcAnalyze.Model
         public override string ToString()
         {
             return string.Format("{0} {1}", Team.Name, CalculateScore());
-        }
-
-        /// <summary>
-        /// Check if two <see cref="TeamScore" />s are equal.
-        /// </summary>
-        protected bool Equals(TeamScore that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return 0 == CompareTo(that);
         }
 
         #endregion

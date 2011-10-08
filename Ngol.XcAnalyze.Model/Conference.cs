@@ -8,7 +8,7 @@ namespace Ngol.XcAnalyze.Model
     /// An athletic conference is the basic unit into which teams organize
     /// themselves.
     /// </summary>
-    public class Conference : ICloneable
+    public class Conference
     {
         #region Properties
 
@@ -120,42 +120,33 @@ namespace Ngol.XcAnalyze.Model
 
         #region Inherited methods
 
-        /// <summary>
-        /// Overload of operator == that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator ==(Conference conference1, Conference conference2)
-        {
-            if(ReferenceEquals(conference1, conference2))
-            {
-                return true;
-            }
-            if(ReferenceEquals(conference1, null) || ReferenceEquals(conference2, null))
-            {
-                return false;
-            }
-            return conference1.Equals(conference2);
-        }
-
-        /// <summary>
-        /// Overload of operator != that delegates to <see cref="Equals(object)" />.
-        /// </summary>
-        public static bool operator !=(Conference conference1, Conference conference2)
-        {
-            return !(conference1 == conference2);
-        }
-
         /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if(ReferenceEquals(other, null))
+            return this == other ? true : Equals(other as Conference);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="Conference"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Conference"/>.
+        /// </summary>
+        /// <param name='that'>
+        /// The <see cref="Conference"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Conference"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="Conference"/> is equal to the current
+        /// <see cref="Ngol.XcAnalyze.Model.Conference"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public virtual bool Equals(Conference that)
+        {
+            if(that == null)
             {
                 return false;
             }
-            if(ReferenceEquals(this, other))
+            if(this == that)
             {
                 return true;
             }
-            return Equals(other as Conference);
+            return Name == that.Name;
         }
 
         /// <inheritdoc />
@@ -170,32 +161,6 @@ namespace Ngol.XcAnalyze.Model
             return Name;
         }
 
-        /// <summary>
-        /// Determine if two conferences are equal.
-        /// </summary>
-        protected bool Equals(Conference that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return Name == that.Name;
-        }
-
-        #endregion
-
-        #region ICloneable implementation
-
-        /// <inheritdoc />
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
-        }
-        
         #endregion
     }
 }

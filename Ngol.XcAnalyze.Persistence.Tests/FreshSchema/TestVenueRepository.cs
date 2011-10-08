@@ -71,7 +71,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            Venue mcIver = Data.McIver.Clone<Venue>();
+            Venue mcIver = new Venue(Data.McIver.Name, Data.McIver.City);
             Collection.QueueInsert(mcIver);
             Container.SaveChanges();
             Assert.That(Collection.IsPersisted(mcIver));

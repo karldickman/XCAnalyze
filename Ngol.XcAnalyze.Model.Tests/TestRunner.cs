@@ -23,8 +23,8 @@ namespace Ngol.XcAnalyze.Model.Tests
         [Test]
         public void TestEquals()
         {
-            Runner karl = Karl.Clone<Runner>();
-            Runner florian = Florian.Clone<Runner>();
+            Runner karl = new Runner(Karl.Surname, Karl.GivenName, Karl.Gender);
+            Runner florian = new Runner(Florian.Surname, Florian.GivenName, Florian.Gender);
             Assert.AreEqual(karl, karl);
             Assert.AreEqual(florian, florian);
             Assert.AreNotEqual(karl, florian);
