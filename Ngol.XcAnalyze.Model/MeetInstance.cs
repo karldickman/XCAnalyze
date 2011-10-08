@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Iesi.Collections.Generic;
 using Ngol.Hytek.Interfaces;
 
 namespace Ngol.XcAnalyze.Model
@@ -128,7 +127,7 @@ namespace Ngol.XcAnalyze.Model
             Meet = meet;
             Date = date;
             Venue = venue;
-            Races = new HashedSet<Race>();
+            Races = new HashSet<Race>();
         }
 
         /// <summary>

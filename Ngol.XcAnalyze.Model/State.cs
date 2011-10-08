@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Iesi.Collections.Generic;
 using Ngol.Utilities.Collections.Extensions;
 
 namespace Ngol.XcAnalyze.Model
@@ -90,7 +89,7 @@ namespace Ngol.XcAnalyze.Model
         {
             Code = code;
             Name = name;
-            Cities = new HashedSet<City>();
+            Cities = new HashSet<City>();
         }
 
         /// <summary>

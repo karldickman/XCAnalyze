@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Iesi.Collections.Generic;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -103,7 +102,7 @@ namespace Ngol.XcAnalyze.Model
         {
             Name = name;
             Acronym = acronym;
-            Teams = new HashedSet<Team>();
+            Teams = new HashSet<Team>();
         }
 
         /// <summary>

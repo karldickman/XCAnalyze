@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Iesi.Collections.Generic;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -93,7 +92,7 @@ namespace Ngol.XcAnalyze.Model
         {
             Name = name;
             City = city;
-            MeetInstances = new HashedSet<MeetInstance>();
+            MeetInstances = new HashSet<MeetInstance>();
         }
 
         /// <summary>

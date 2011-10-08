@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Iesi.Collections.Generic;
 using Ngol.Hytek.Interfaces;
 using Ngol.Utilities.Collections.Extensions;
 
@@ -173,7 +172,7 @@ namespace Ngol.XcAnalyze.Model
             Gender = gender;
             Affiliations = new Dictionary<int, Team>();
             Performances = new Dictionary<Race, Performance>();
-            UnfinishedRaces = new HashedSet<Race>();
+            UnfinishedRaces = new HashSet<Race>();
         }
 
         /// <summary>

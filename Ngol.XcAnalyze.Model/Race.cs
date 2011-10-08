@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Iesi.Collections.Generic;
 using Ngol.Hytek.Interfaces;
 using Ngol.Utilities.Collections.Extensions;
 
@@ -159,7 +158,7 @@ namespace Ngol.XcAnalyze.Model
             Distance = distance;
             Gender = gender;
             IsScored = false;
-            DidNotFinish = new HashedSet<Runner>();
+            DidNotFinish = new HashSet<Runner>();
             Results = new Dictionary<Runner, Performance>();
         }
 

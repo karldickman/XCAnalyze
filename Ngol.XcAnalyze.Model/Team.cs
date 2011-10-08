@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Iesi.Collections.Generic;
 using Ngol.Hytek.Interfaces;
 
 namespace Ngol.XcAnalyze.Model
@@ -98,7 +97,7 @@ namespace Ngol.XcAnalyze.Model
         public Team(string name) : this()
         {
             Name = name;
-            Nicknames = new HashedSet<string>();
+            Nicknames = new HashSet<string>();
         }
 
         /// <summary>
