@@ -91,6 +91,10 @@
       <Project>{61454F0F-30AA-40F8-9328-77A861A30A89}</Project>
       <Name>Ngol.Utilities.NHibernate</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\External\NHibernate.SetForNet4\NHibernateSetForNet4\NHibernateSetForNet4.csproj">
+      <Project>{EEFAFFA2-1CB8-461B-AEE9-6F1B26D04D64}</Project>
+      <Name>NHibernateSetForNet4</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ExistingSchema\" />

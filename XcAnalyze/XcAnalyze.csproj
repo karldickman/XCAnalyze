@@ -95,5 +95,9 @@
       <Project>{117E8F9D-9E92-46C5-B467-0C75C504B0E4}</Project>
       <Name>Ngol.XcAnalyze.UI.ViewModels</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\External\NHibernate.SetForNet4\NHibernateSetForNet4\NHibernateSetForNet4.csproj">
+      <Project>{EEFAFFA2-1CB8-461B-AEE9-6F1B26D04D64}</Project>
+      <Name>NHibernateSetForNet4</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
