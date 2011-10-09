@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using Ngol.XcAnalyze.Model;
 
 namespace Ngol.XcAnalyze.UI.ViewModels
@@ -37,11 +38,6 @@ namespace Ngol.XcAnalyze.UI.ViewModels
             }
         }
 
-        /// <summary>
-        /// The <see cref="MeetInstance" /> in this view model.
-        /// </summary>
-        protected readonly IEnumerable<MeetInstance> InnerEnumerable;
-
         #endregion
 
         #region Events
@@ -64,13 +60,8 @@ namespace Ngol.XcAnalyze.UI.ViewModels
         /// <param name="meetInstances">
         /// The list of <see cref="MeetInstance" />s to expose.
         /// </param>
-        public MeetInstanceSelectionViewModel(IEnumerable<MeetInstance> meetInstances)
+        public MeetInstanceSelectionViewModel(IEnumerable<MeetInstance> meetInstances) : base(meetInstances.ToList())
         {
-            if(meetInstances == null)
-            {
-                throw new ArgumentNullException("meetInstances");
-            }
-            InnerEnumerable = meetInstances;
         }
 
         #endregion
