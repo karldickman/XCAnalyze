@@ -20,7 +20,7 @@ namespace Ngol.XcAnalyze
 
         #endregion
 
-        #region Constructors
+        #region Methods
 
         /// <summary>
         /// The main method for the application.
@@ -30,9 +30,7 @@ namespace Ngol.XcAnalyze
         /// </param>
         public static void Main(string[] args)
         {
-#if !DEBUG
             ExceptionManager.UnhandledException += HandleUnhandledException;
-#endif
             PersistenceContainer container = new PersistenceContainer();
             Application.Init();
             MainWindow mainWindow = new MainWindow(container);
@@ -46,18 +44,15 @@ namespace Ngol.XcAnalyze
 
         private static void HandleUnhandledException(UnhandledExceptionArgs e)
         {
-            if(!Debugger.IsAttached)
-            {
-                Exception ex = e.ExceptionObject as Exception;
-                string message = ex == null ? e.ExceptionObject.ToString() : ex.ToString();
-                string title = "Unhandled exception";
-                DialogFlags flags = DialogFlags.Modal | DialogFlags.DestroyWithParent;
-                Dialog dialog = new Dialog(title, MainWindow, flags);
-                Label label = new Label(message);
-                VBox vBox = (VBox)dialog.Child;
-                vBox.Add(label);
-                dialog.ShowAll();
-            }
+            Exception ex = e.ExceptionObject as Exception;
+            string message = ex == null ? e.ExceptionObject.ToString() : ex.ToString();
+            string title = "Unhandled exception";
+            DialogFlags flags = DialogFlags.Modal | DialogFlags.DestroyWithParent;
+            Dialog dialog = new Dialog(title, MainWindow, flags);
+            Label label = new Label(message);
+            VBox vBox = (VBox)dialog.Child;
+            vBox.Add(label);
+            dialog.ShowAll();
         }
 
         #endregion
