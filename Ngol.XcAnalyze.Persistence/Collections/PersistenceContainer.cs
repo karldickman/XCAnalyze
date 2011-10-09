@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Ngol.XcAnalyze.Model;
 using Ngol.XcAnalyze.Persistence.Interfaces;
 using NHibernate;
-using NHibernate.Linq;
-using System.Collections.Generic;
 using NHibernate.Cfg;
+using NHibernate.Linq;
 
 namespace Ngol.XcAnalyze.Persistence.Collections
 {
