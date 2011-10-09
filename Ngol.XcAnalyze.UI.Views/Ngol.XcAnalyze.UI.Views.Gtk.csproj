@@ -49,6 +49,7 @@
     <Compile Include="MeetBrowser.cs" />
     <Compile Include="MeetDetail.cs" />
     <Compile Include="MeetsList.cs" />
+    <Compile Include="RaceDetail.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ngol.XcAnalyze.Model\Ngol.XcAnalyze.Model.csproj">

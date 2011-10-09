@@ -31,47 +31,27 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The <see cref="Runner" />s who started the <see cref="Race" /> but did not finish.
         /// </summary>
-        public virtual ISet<Runner> DidNotFinish
-        {
-            get;
-            protected set;
-        }
+        public virtual ISet<Runner> DidNotFinish { get; protected set; }
 
         /// <summary>
         /// The length of the race.
         /// </summary>
-        public virtual int Distance
-        {
-            get;
-            set;
-        }
+        public virtual int Distance { get; set; }
 
         /// <summary>
         /// Was it a men's race or a women's race?
         /// </summary>
-        public virtual Gender Gender
-        {
-            get;
-            set;
-        }
+        public virtual Gender Gender { get; set; }
 
         /// <summary>
         /// The number used to identify this race.
         /// </summary>
-        public virtual int ID
-        {
-            get;
-            set;
-        }
+        public virtual int ID { get; set; }
 
         /// <summary>
         /// Has the race been scored?
         /// </summary>
-        public virtual bool IsScored
-        {
-            get;
-            set;
-        }
+        public virtual bool IsScored { get; set; }
 
         /// <summary>
         /// The meet of which this race is a part.
@@ -86,19 +66,28 @@ namespace Ngol.XcAnalyze.Model
             set
             {
                 if(value == null)
+                {
                     throw new ArgumentNullException("value");
+                }
                 _meetInstance = value;
+            }
+        }
+
+        /// <summary>
+        /// The name of the <see cref="Race" />.
+        /// </summary>
+        public virtual string Name
+        {
+            get
+            {
+                return string.Format("{0}'s {1} m", Gender == Gender.Male ? "Men" : "Women", Distance);
             }
         }
 
         /// <summary>
         /// The results of the meet.
         /// </summary>
-        public virtual IDictionary<Runner, Performance> Results
-        {
-            get;
-            protected set;
-        }
+        public virtual IDictionary<Runner, Performance> Results { get; protected set; }
 
         /// <summary>
         /// The team scores of the meet.
@@ -109,13 +98,17 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <summary>
+        /// The <see cref="Venue" /> whereat this <see cref="Race" /> was run.
+        /// </summary>
+        public virtual Venue Venue
+        {
+            get { return MeetInstance.Venue; }
+        }
+
+        /// <summary>
         /// The score of this meet.
         /// </summary>
-        protected ICollection<TeamScore> ScoresCollection
-        {
-            get;
-            set;
-        }
+        protected ICollection<TeamScore> ScoresCollection { get; set; }
 
         IMeet IRace.Meet
         {
@@ -214,7 +207,7 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override string ToString()
         {
-            return string.Format("{0} m run.", Distance);
+            return Name;
         }
 
         #endregion
@@ -231,13 +224,15 @@ namespace Ngol.XcAnalyze.Model
                 return;
             }
             ScoresCollection = new List<TeamScore>();
-            Dictionary<Team, TeamScore> scores;
+            Dictionary<Team, TeamScore > scores;
             if(Results.Count == 0)
+            {
                 return;
+            }
             scores = new Dictionary<Team, TeamScore>();
             // Add the runners to the school
             // Sort the results
-            IEnumerable<Performance> results = Results.Values.Sorted();
+            IEnumerable<Performance > results = Results.Values.Sorted();
             foreach(Performance result in results)
             {
                 if(result.Team != null)
@@ -261,7 +256,6 @@ namespace Ngol.XcAnalyze.Model
                         runner.Points = null;
                     }
                 }
-
                 else if(score.Runners.Count() > 7)
                 {
                     foreach(Performance runner in score.Runners.Skip(7))
@@ -273,7 +267,9 @@ namespace Ngol.XcAnalyze.Model
             // Tag first runner on a complete team with a score as the winner
             Performance firstRunnerOnCompleteTeam = results.FirstOrDefault(r => r.Points != null);
             if(firstRunnerOnCompleteTeam == default(Performance))
+            {
                 return;
+            }
             firstRunnerOnCompleteTeam.Points = 1;
             // Tag each runner with their points
             results.Where(r => r.Points != null).ForEachIndexedPair(1, (runner, previous, points) =>

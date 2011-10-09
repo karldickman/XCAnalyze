@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Gtk;
@@ -11,45 +13,14 @@ namespace Ngol.XcAnalyze.UI.Views.Gtk
     /// <summary>
     /// User control to look at detailed information about a <see cref="MeetInstance" />.
     /// </summary>
-    public class MeetDetail : VBox
+    public class MeetDetail : Notebook
     {
         #region Properties
 
         /// <summary>
         /// The view model for this control.
         /// </summary>
-        public MeetInstanceSelectionViewModel ViewModel
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Some information about the race.
-        /// </summary>
-        protected Label Info
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The view used to look at the races in the <see cref="MeetInstance" />.
-        /// </summary>
-        protected TextView RacesView
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// The scrolled window that contains all the races.
-        /// </summary>
-        protected ScrolledWindow Scroller
-        {
-            get;
-            set;
-        }
+        protected readonly MeetInstanceSelectionViewModel ViewModel;
 
         #endregion
 
@@ -61,25 +32,10 @@ namespace Ngol.XcAnalyze.UI.Views.Gtk
         /// <param name="viewModel">
         /// The view model to use.
         /// </param>
-        public MeetDetail(MeetInstanceSelectionViewModel viewModel) : this()
+        public MeetDetail(MeetInstanceSelectionViewModel viewModel)
         {
             ViewModel = viewModel;
             ViewModel.PropertyChanged += HandleViewModelPropertyChanged;
-        }
-
-        /// <summary>
-        /// Construct a new <see cref="MeetDetail" />.
-        /// </summary>
-        protected MeetDetail()
-        {
-            //Create the heading label
-            Info = new Label();
-            PackStart(Info, false, false, 10);
-            Info.Justify = Justification.Center;
-            Scroller = new ScrolledWindow();
-            Add(Scroller);
-            RacesView = new TextView();
-            Scroller.Add(RacesView);
         }
 
         #endregion
@@ -94,8 +50,17 @@ namespace Ngol.XcAnalyze.UI.Views.Gtk
             if(e.PropertyName == "SelectedMeetInstance")
             {
                 MeetInstance meetInstance = ViewModel.SelectedMeetInstance;
-                Info.Text = string.Format("{0}\n{1:yyyy/MM/dd}\n{2}", meetInstance.Name, meetInstance.Date, meetInstance.Venue);
-                RacesView.Buffer = new RaceResultsBuffer(meetInstance.Races);
+                IEnumerable<Race > races = meetInstance.Races;
+                while(NPages > 0)
+                {
+                    RemovePage(0);
+                }
+                foreach(Race race in races)
+                {
+                    RaceDetail raceDetail = new RaceDetail { Race = race };
+                    AppendPage(raceDetail, new Label(race.Name));
+                    raceDetail.ShowAll();
+                }
             }
         }
         

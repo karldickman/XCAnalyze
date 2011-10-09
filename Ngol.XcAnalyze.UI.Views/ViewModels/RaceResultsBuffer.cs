@@ -15,22 +15,44 @@ namespace Ngol.XcAnalyze.UI.Views.Gtk.ViewModels
     {
         #region Properties
 
+        #region Physical implementation
+
+        private Race _race;
+
+        #endregion
+
         /// <summary>
         /// The default tag used for the text.
         /// </summary>
-        public TextTag DefaultTag
-        {
-            get;
-            set;
-        }
+        public TextTag DefaultTag { get; set; }
 
         /// <summary>
         /// The object used to format the race results.
         /// </summary>
-        public RaceFormatter Formatter
+        public readonly RaceFormatter Formatter;
+
+        /// <summary>
+        /// The <see cref="Race" /> currently on display.
+        /// </summary>
+        /// <exception cref='ArgumentNullException'>
+        /// Thrown when an attempt is made to set the value of this property
+        /// to <see langword="null" />.
+        /// </exception>
+        public Race Race
         {
-            get;
-            set;
+            get { return _race; }
+
+            set
+            {
+                if(value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _race = value;
+                Race.ComputeScore();
+                Text = "\n".Join(Formatter.Format(Race));
+                ApplyTag(DefaultTag, StartIter, EndIter);
+            }
         }
 
         #endregion
@@ -40,28 +62,9 @@ namespace Ngol.XcAnalyze.UI.Views.Gtk.ViewModels
         /// <summary>
         /// Construct a new <see cref="RaceResultsBuffer" />.
         /// </summary>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="races"/> is <see langword="null" />.
-        /// </exception>
-        public RaceResultsBuffer(IEnumerable<Race> races) : this()
+        public RaceResultsBuffer() : base(null)
         {
-            if(races == null)
-                throw new ArgumentNullException("race");
-            foreach(Race race in races)
-            {
-                race.ComputeScore();
-                Text += "\n" + "\n".Join(Formatter.Format(race));
-            }
-            ApplyTag(DefaultTag, StartIter, EndIter);
-        }
-
-        /// <summary>
-        /// Construct a new <see cref="RaceResultsBuffer" />.
-        /// </summary>
-        protected RaceResultsBuffer() : base(null)
-        {
-            DefaultTag = new TextTag("default");
-            DefaultTag.Font = "courier";
+            DefaultTag = new TextTag("default") { Font = "courier", };
             TagTable.Add(DefaultTag);
             Formatter = new RaceFormatter();
         }
