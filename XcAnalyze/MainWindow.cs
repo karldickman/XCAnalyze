@@ -1,10 +1,9 @@
 using System;
-using System.IO;
+using System.Linq;
 using Gtk;
-using Ngol.XcAnalyze.Model;
+using Ngol.XcAnalyze.Persistence.Collections;
 using Ngol.XcAnalyze.UI.ViewModels;
 using Ngol.XcAnalyze.UI.Views.Gtk;
-using Ngol.XcAnalyze.Persistence.Collections;
 
 namespace Ngol.XcAnalyze
 {
@@ -53,7 +52,7 @@ namespace Ngol.XcAnalyze
         {
             Title = "XCAnalyze";
             SetPosition(WindowPosition.Center);
-            SetSizeRequest((int)(Screen.Width * 0.4), (int)(Screen.Height * 0.75));
+            SetSizeRequest(Convert.ToInt32(Screen.Width * 0.4), Convert.ToInt32(Screen.Height * 0.75));
             AllowShrink = true;
             //Create the content container
             Content = new VBox();
@@ -62,7 +61,9 @@ namespace Ngol.XcAnalyze
             MainMenu = CreateMenu();
             Content.PackStart(MainMenu, false, false, 0);
             //Create the meet browser
-            Meets = new MeetBrowser(new MeetInstanceSelectionViewModel(container.MeetInstances));
+            var viewModel = new MeetInstanceSelectionViewModel(container.MeetInstances);
+            viewModel.SelectedMeetInstance = container.MeetInstances.FirstOrDefault();
+            Meets = new MeetBrowser(viewModel);
             Content.Add(Meets);
         }
 
