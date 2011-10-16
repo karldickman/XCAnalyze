@@ -60,13 +60,13 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [TestFixtureSetUp]
         public void InitialSetUp()
         {
-            Configuration = new Configuration();
-            Configuration.Configure("sqlite-hibernate.cfg.xml");
         }
 
         [SetUp]
         public virtual void SetUp()
         {
+            Configuration = new Configuration();
+            Configuration.Configure("sqlite-hibernate.cfg.xml");
             // Export the schema
             new SchemaExport(Configuration).Execute(false, true, false);
             Container = new PersistenceContainer("sqlite-hibernate.cfg.xml");

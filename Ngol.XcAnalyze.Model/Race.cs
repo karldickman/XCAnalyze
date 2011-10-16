@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.Linq;
 using Ngol.Hytek.Interfaces;
 using Ngol.Utilities.Collections.Extensions;
+using SharpArch.Domain.DomainModel;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// An instance of a meet.
     /// </summary>
-    public class Race : IRace
+    public class Race : Entity, IRace
     {
         #region Properties
 
@@ -46,7 +47,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The number used to identify this race.
         /// </summary>
-        public virtual int ID { get; set; }
+        public override int Id { get; protected set; }
 
         /// <summary>
         /// Has the race been scored?
@@ -168,41 +169,6 @@ namespace Ngol.XcAnalyze.Model
         #endregion
 
         #region Inherited methods
-
-        /// <inheritdoc />
-        public override bool Equals(object other)
-        {
-            return this == other ? true : Equals(other as Race);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="Race"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Race"/>.
-        /// </summary>
-        /// <param name='that'>
-        /// The <see cref="Race"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Race"/>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the specified <see cref="Race"/> is equal to the current
-        /// <see cref="Ngol.XcAnalyze.Model.Race"/>; otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool Equals(Race that)
-        {
-            if(that == null)
-            {
-                return false;
-            }
-            if(this == that)
-            {
-                return true;
-            }
-            return MeetInstance.Equals(that.MeetInstance) && Gender == that.Gender;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return (MeetInstance.Meet.Name + MeetInstance.Date + Gender + Distance).ToString().GetHashCode();
-        }
 
         /// <inheritdoc />
         public override string ToString()

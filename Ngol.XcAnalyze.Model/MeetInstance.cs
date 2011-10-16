@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Ngol.Hytek.Interfaces;
+using SharpArch.Domain.DomainModel;
+using System.Reflection;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A meet has a mens race and a womens race and occurs at a particular time.
     /// </summary>
-    public class MeetInstance : IMeet
+    public class MeetInstance : BaseObject, IMeet
     {
         #region Properties
 
@@ -23,20 +25,13 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The date on which this meet was held.
         /// </summary>
-        public virtual DateTime Date
-        {
-            get;
-            set;
-        }
+        [DomainSignature]
+        public virtual DateTime Date { get; set; }
 
         /// <summary>
         /// The host of this meet instance.
         /// </summary>
-        public virtual Team Host
-        {
-            get;
-            set;
-        }
+        public virtual Team Host { get; set; }
 
         /// <summary>
         /// The meet of which this is an instance.
@@ -44,6 +39,7 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if an attempt is made to set the property to <see langword="null" />.
         /// </exception>
+        [DomainSignature]
         public virtual Meet Meet
         {
             get { return _meet; }
@@ -70,11 +66,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The <see cref="Race" />s that were run as part of this <see cref="MeetInstance" />.
         /// </summary>
-        public virtual ISet<Race> Races
-        {
-            get;
-            protected set;
-        }
+        public virtual ISet<Race> Races { get; protected set; }
 
         /// <summary>
         /// The venue whereat the instance of this meet was held.
@@ -145,44 +137,21 @@ namespace Ngol.XcAnalyze.Model
         #region Inherited methods
 
         /// <inheritdoc />
-        public override bool Equals(object other)
-        {
-            return this == other ? true : Equals(other as MeetInstance);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="MeetInstance"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.MeetInstance"/>.
-        /// </summary>
-        /// <param name='that'>
-        /// The <see cref="MeetInstance"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.MeetInstance"/>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the specified <see cref="MeetInstance"/> is equal to the current
-        /// <see cref="Ngol.XcAnalyze.Model.MeetInstance"/>; otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool Equals(MeetInstance that)
-        {
-            if(that == null)
-            {
-                return false;
-            }
-            if(this == that)
-            {
-                return true;
-            }
-            return Date.Year == that.Date.Year && Date.Month == that.Date.Month && Date.Day == that.Date.Day && Meet == that.Meet && Venue == that.Venue;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return string.Format("{0} {1}", Meet, Date).GetHashCode();
-        }
-
-        /// <inheritdoc />
         public override string ToString()
         {
             return string.Format("{0} ({1:yyyy-MM-dd})", Meet.Name, Date);
+        }
+
+        #endregion
+
+        #region BaseObject implementation
+
+        /// <inheritdoc />
+        protected override IEnumerable<PropertyInfo> GetTypeSpecificSignatureProperties()
+        {
+            Type type = GetTypeUnproxied();
+            yield return type.GetProperty("Meet");
+            yield return type.GetProperty("Date");
         }
 
         #endregion

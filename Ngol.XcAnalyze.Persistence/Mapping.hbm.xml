@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="Ngol.XcAnalyze.Model" namespace="Ngol.XcAnalyze.Model">
  <class table="cities" name="City">
-     <id column="city_id" name="ID">
+     <id column="city_id" name="Id">
          <generator class="native" />
      </id>
      <property column="name" name="Name" not-null="true" />
@@ -12,7 +12,7 @@
      </set>
  </class>
  <class table="conferences" name="Conference">
-     <id column="conference_id" name="ID">
+     <id column="conference_id" name="Id">
          <generator class="native" />
      </id>
      <property column="name" name="Name" unique="true" not-null="true" />
@@ -23,7 +23,7 @@
      </set>
  </class>
  <class table="meets" name="Meet">
-     <id column="meet_id" name="ID">
+     <id column="meet_id" name="Id">
          <generator class="native" />
      </id>
      <property column="name" name="Name" unique="true" not-null="true" />
@@ -65,7 +65,7 @@
      <property column="time" name="Time" not-null="true" />
  </class>
  <class table="races" name="Race">
-     <id column="race_id" name="ID">
+     <id column="race_id" name="Id">
          <generator class="native" />
      </id>
      <property column="distance" name="Distance" not-null="true" />
@@ -85,7 +85,7 @@
      </many-to-one>
  </class>
  <class table="runners" name="Runner">
-     <id column="runner_id" name="ID">
+     <id column="runner_id" name="Id">
          <generator class="native" />
      </id>
      <property column="surname" name="Surname" not-null="true" />
@@ -122,7 +122,7 @@
      </join>
  </class>
  <class table="states" name="State">
-     <id column="state_code" name="Code">
+     <id column="state_code" name="Id">
          <generator class="assigned" />
      </id>
      <property column="name" name="Name" not-null="true" unique="true" />
@@ -132,7 +132,7 @@
      </set>
  </class>
  <class table="teams" name="Team">
-     <id column="team_id" name="ID">
+     <id column="team_id" name="Id">
          <generator class="native" />
      </id>
      <property column="name" name="Name" not-null="true" />
@@ -154,7 +154,7 @@
      </join>
  </class>
  <class table="venues" name="Venue">
-     <id column="venue_id" name="ID">
+     <id column="venue_id" name="Id">
          <generator class="native" />
      </id>
      <property column="name" name="Name" not-null="true" />

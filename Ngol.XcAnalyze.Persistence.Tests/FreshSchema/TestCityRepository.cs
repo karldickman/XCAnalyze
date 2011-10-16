@@ -82,7 +82,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
                 portland.SetProperty("Name", newName);
                 Collection.QueueUpdate(portland);
                 Container.SaveChanges();
-                City actual = Session.Get<City>(portland.ID);
+                City actual = Session.Get<City>(portland.Id);
                 Assert.AreEqual(newName, actual.Name);
             }
         }

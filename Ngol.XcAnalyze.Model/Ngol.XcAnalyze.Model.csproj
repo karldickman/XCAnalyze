@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Ngol.XcAnalyze.Model</RootNamespace>
     <AssemblyName>Ngol.XcAnalyze.Model</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -62,6 +61,10 @@
     <ProjectReference Include="..\..\Hytek\Ngol.Hytek\Ngol.Hytek.csproj">
       <Project>{537cf629-fa3c-4039-8941-13ba15278b2f}</Project>
       <Name>Ngol.Hytek</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\External\Sharp-Architecture\Solutions\SharpArch.Domain\SharpArch.Domain.csproj">
+      <Project>{E12E99BB-8732-441F-B3A6-861F0CE23D3D}</Project>
+      <Name>SharpArch.Domain</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

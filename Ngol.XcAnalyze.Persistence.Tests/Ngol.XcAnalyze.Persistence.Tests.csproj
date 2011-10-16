@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Ngol.XcAnalyze.Persistence.Tests</RootNamespace>
     <AssemblyName>Ngol.XcAnalyze.Persistence.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

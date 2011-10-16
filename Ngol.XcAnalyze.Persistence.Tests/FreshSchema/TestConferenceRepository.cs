@@ -70,7 +70,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
                 nwc.SetProperty("Name", newName);
                 Collection.QueueUpdate(nwc);
                 Container.SaveChanges();
-                Conference actual = Session.Get<Conference>(nwc.ID);
+                Conference actual = Session.Get<Conference>(nwc.Id);
                 Assert.AreEqual(newName, actual.Name);
             }
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SharpArch.Domain.DomainModel;
 
 namespace Ngol.XcAnalyze.Model
 {
@@ -7,7 +8,7 @@ namespace Ngol.XcAnalyze.Model
     /// An athletic conference is the basic unit into which teams organize
     /// themselves.
     /// </summary>
-    public class Conference
+    public class Conference : Entity
     {
         #region Properties
 
@@ -45,10 +46,10 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if an attempt is made to set this property <see langword="null" />.
         /// </exception>
-        public virtual int ID
+        public override int Id
         {
             get;
-            set;
+            protected set;
         }
 
         /// <summary>
@@ -118,41 +119,6 @@ namespace Ngol.XcAnalyze.Model
         #endregion
 
         #region Inherited methods
-
-        /// <inheritdoc />
-        public override bool Equals(object other)
-        {
-            return this == other ? true : Equals(other as Conference);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="Conference"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Conference"/>.
-        /// </summary>
-        /// <param name='that'>
-        /// The <see cref="Conference"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Conference"/>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the specified <see cref="Conference"/> is equal to the current
-        /// <see cref="Ngol.XcAnalyze.Model.Conference"/>; otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool Equals(Conference that)
-        {
-            if(that == null)
-            {
-                return false;
-            }
-            if(this == that)
-            {
-                return true;
-            }
-            return Name == that.Name;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
 
         /// <inheritdoc />
         public override string ToString()

@@ -56,7 +56,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
         [Test]
         public void Update()
         {
-            State oregon = new State(Data.Oregon.Code, Data.Oregon.Name);
+            State oregon = new State(Data.Oregon.Id, Data.Oregon.Name);
             Collection.QueueInsert(oregon);
             Container.SaveChanges();
             Assert.That(Collection.IsPersisted(oregon));
@@ -65,7 +65,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
                 oregon.SetProperty("Name", newName);
                 Collection.QueueUpdate(oregon);
                 Container.SaveChanges();
-                State actual = Session.Get<State>(oregon.Code);
+                State actual = Session.Get<State>(oregon.Id);
                 Assert.AreEqual(newName, actual.Name);
             }
         }

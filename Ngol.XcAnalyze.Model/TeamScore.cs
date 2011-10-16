@@ -46,11 +46,7 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <inheritdoc />
-        public int? Score
-        {
-            get;
-            set;
-        }
+        public int? Score { get; set; }
 
         /// <summary>
         /// The team which earned the score.

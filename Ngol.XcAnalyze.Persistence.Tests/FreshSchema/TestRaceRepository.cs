@@ -89,7 +89,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
                 race.Distance = expected;
                 Collection.QueueUpdate(race);
                 Container.SaveChanges();
-                Race actual = Session.Get<Race>(race.ID);
+                Race actual = Session.Get<Race>(race.Id);
                 Assert.AreEqual(expected, actual.Distance);
             }
         }

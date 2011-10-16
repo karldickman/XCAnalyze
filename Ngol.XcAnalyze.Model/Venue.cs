@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using SharpArch.Domain.DomainModel;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// Describes a venue at which races can be held.
     /// </summary>
-    public class Venue
+    public class Venue : Entity
     {
         #region Properties
 
@@ -38,21 +39,13 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The number that identifies this venue.
         /// </summary>
-        public virtual int ID
-        {
-            get;
-            set;
-        }
+        public override int Id { get; protected set; }
 
         /// <summary>
         /// The <see cref="MeetInstance" />s that have been held at this
         /// <see cref="Venue" />.
         /// </summary>
-        public virtual ISet<MeetInstance> MeetInstances
-        {
-            get;
-            protected set;
-        }
+        public virtual ISet<MeetInstance> MeetInstances { get; protected set; }
 
         /// <summary>
         /// The name of the venue.

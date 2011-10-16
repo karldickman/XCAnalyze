@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using SharpArch.Domain.DomainModel;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A recurring Cross-Country competition.
     /// </summary>
-    public class Meet
+    public class Meet : Entity
     {
         #region Properties
 
@@ -29,10 +30,10 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The number used to identify this meet.
         /// </summary>
-        public virtual int ID
+        public override int Id
         {
             get;
-            set;
+            protected set;
         }
 
         /// <summary>
@@ -114,41 +115,6 @@ namespace Ngol.XcAnalyze.Model
         #endregion
 
         #region Inherited methods
-
-        /// <inheritdoc />
-        public override bool Equals(object other)
-        {
-            return this == other ? true : Equals(other as Meet);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="Meet"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Meet"/>.
-        /// </summary>
-        /// <param name='that'>
-        /// The <see cref="Meet"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Meet"/>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the specified <see cref="Meet"/> is equal to the current
-        /// <see cref="Ngol.XcAnalyze.Model.Meet"/>; otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool Equals(Meet that)
-        {
-            if(that == null)
-            {
-                return false;
-            }
-            if(this == that)
-            {
-                return true;
-            }
-            return Name == that.Name;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return ToString().GetHashCode();
-        }
 
         /// <inheritdoc />
         public override string ToString()

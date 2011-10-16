@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using SharpArch.Domain.DomainModel;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// Represents a city or municipality within a <see cref="State" />.
     /// </summary>
-    public class City
+    public class City : Entity
     {
         #region Properties
 
@@ -20,7 +21,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The identifying number of this instance.
         /// </summary>
-        public virtual int ID
+        public override int Id
         {
             get;
             protected set;
@@ -111,41 +112,6 @@ namespace Ngol.XcAnalyze.Model
         #endregion
 
         #region Inherited methods
-
-        /// <inheritdoc />
-        public override bool Equals(object other)
-        {
-            return this == other ? true : Equals(other as City);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="City"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.City"/>.
-        /// </summary>
-        /// <param name='that'>
-        /// The <see cref="City"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.City"/>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the specified <see cref="City"/> is equal to the current
-        /// <see cref="Ngol.XcAnalyze.Model.City"/>; otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool Equals(City that)
-        {
-            if(that == null)
-            {
-                return false;
-            }
-            if(this == that)
-            {
-                return true;
-            }
-            return ID == that.ID && Name == that.Name && State == that.State;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return ToString().GetHashCode();
-        }
 
         /// <inheritdoc />
         public override string ToString()

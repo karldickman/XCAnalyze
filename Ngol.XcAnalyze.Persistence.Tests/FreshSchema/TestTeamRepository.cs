@@ -81,7 +81,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
                 pioneers.SetProperty("Name", newName);
                 Collection.QueueUpdate(pioneers);
                 Container.SaveChanges();
-                Team actual = Session.Get<Team>(pioneers.ID);
+                Team actual = Session.Get<Team>(pioneers.Id);
                 Assert.AreEqual(newName, actual.Name);
             }
         }

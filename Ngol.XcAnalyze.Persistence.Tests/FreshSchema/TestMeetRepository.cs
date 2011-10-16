@@ -81,7 +81,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
                 originalMeet.SetProperty("Name", newName);
                 Collection.QueueUpdate(originalMeet);
                 Container.SaveChanges();
-                Meet actual = Session.Get<Meet>(originalMeet.ID);
+                Meet actual = Session.Get<Meet>(originalMeet.Id);
                 Assert.AreEqual(newName, actual.Name);
             }
         }

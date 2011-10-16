@@ -1,14 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Ngol.Hytek.Interfaces;
+using SharpArch.Domain.DomainModel;
 
 namespace Ngol.XcAnalyze.Model
 {
     /// <summary>
     /// A runners time (in seconds) at a particular race.
     /// </summary>
-    public class Performance : IComparable<Performance>, IPerformance
+    public class Performance : BaseObject, IComparable<Performance>, IPerformance
     {
         #region Properties
 
@@ -23,11 +26,7 @@ namespace Ngol.XcAnalyze.Model
         /// The number of points the runner earned in the race for this
         /// performance.
         /// </summary>
-        public virtual int? Points
-        {
-            get;
-            set;
-        }
+        public virtual int? Points { get; set; }
 
         /// <summary>
         /// The race whereat the time was run.
@@ -35,6 +34,7 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if an attempt is made to set this property <see langword="null" />.
         /// </exception>
+        [DomainSignature]
         public virtual Race Race
         {
             get { return _race; }
@@ -56,6 +56,7 @@ namespace Ngol.XcAnalyze.Model
         /// <exception cref="ArgumentNullException">
         /// Thrown if an attempt is made to set this property <see langword="null" />.
         /// </exception>
+        [DomainSignature]
         public virtual Runner Runner
         {
             get { return _runner; }
@@ -95,11 +96,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The time that was run.
         /// </summary>
-        public virtual double? Time
-        {
-            get;
-            set;
-        }
+        public virtual double? Time { get; set; }
 
         int IPerformance.RaceDistance
         {
@@ -175,43 +172,6 @@ namespace Ngol.XcAnalyze.Model
         #region Inherited methods
 
         /// <inheritdoc />
-        public override bool Equals(object other)
-        {
-            return this == other ? true : Equals(other as Performance);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="Performance"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Performance"/>.
-        /// </summary>
-        /// <param name='that'>
-        /// The <see cref="Performance"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Performance"/>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the specified <see cref="Performance"/> is equal to the current
-        /// <see cref="Ngol.XcAnalyze.Model.Performance"/>; otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool Equals(Performance that)
-        {
-            if(ReferenceEquals(that, null))
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return Runner.Equals(that.Runner) && Race.Equals(that.Race) && Time == that.Time;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            int runnerHashCode = Runner == null ? 0 : Runner.GetHashCode();
-            int raceHashCode = Race == null ? 0 : Race.GetHashCode();
-            return runnerHashCode + raceHashCode;
-        }
-
-        /// <inheritdoc />
         public override string ToString()
         {
             int minutes = Convert.ToInt32(Math.Floor(Time.Value / 60.0));
@@ -266,6 +226,18 @@ namespace Ngol.XcAnalyze.Model
                 return comparison;
             }
             return ((IPerformance)this).RaceDistance.CompareTo(that.RaceDistance);
+        }
+
+        #endregion
+
+        #region BaseObject implementation
+
+        /// <inheritdoc />
+        protected override IEnumerable<PropertyInfo> GetTypeSpecificSignatureProperties()
+        {
+            Type type = GetTypeUnproxied();
+            yield return type.GetProperty("Runner");
+            yield return type.GetProperty("Race");
         }
 
         #endregion

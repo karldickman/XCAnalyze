@@ -80,7 +80,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
                 mcIver.SetProperty("Name", newName);
                 Collection.QueueUpdate(mcIver);
                 Container.SaveChanges();
-                Venue actual = Session.Get<Venue>(mcIver.ID);
+                Venue actual = Session.Get<Venue>(mcIver.Id);
                 Assert.AreEqual(newName, actual.Name);
             }
         }

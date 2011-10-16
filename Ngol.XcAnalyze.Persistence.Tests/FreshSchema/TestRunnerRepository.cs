@@ -80,7 +80,7 @@ namespace Ngol.XcAnalyze.Persistence.Tests.FreshSchema
             Container.SaveChanges();
             Assert.That(Collection.IsPersisted(karl));
             karl.Surname = "Diechmann";
-            Runner actual = Session.Get<Runner>(karl.ID);
+            Runner actual = Session.Get<Runner>(karl.Id);
             Assert.AreEqual(actual.Surname, karl.Surname);
         }
         
