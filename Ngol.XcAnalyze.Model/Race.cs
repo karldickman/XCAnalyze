@@ -185,49 +185,42 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public virtual void ComputeScore()
         {
-            if(IsScored)
+            if(IsScored || Results.Count == 0)
             {
                 return;
             }
             ScoresCollection = new List<TeamScore>();
-            Dictionary<Team, TeamScore > scores;
-            if(Results.Count == 0)
+            IDictionary<Team, TeamScore> scores = new Dictionary<Team, TeamScore>();
+            IEnumerable<Team> teams = Results.Values.Select(result => result.Team).Distinct();
+            foreach(Team team in teams)
             {
-                return;
+                scores[team] = new TeamScore(this, team);
             }
-            scores = new Dictionary<Team, TeamScore>();
             // Add the runners to the school
             // Sort the results
-            IEnumerable<Performance > results = Results.Values.Sorted();
-            foreach(Performance result in results)
+            IEnumerable<Performance> results = Results.Values.Sorted();
+            foreach(Performance result in results.Where(r => r.Team != null))
             {
-                if(result.Team != null)
-                {
-                    result.Points = 0;
-                    if(!scores.ContainsKey(result.Team))
-                    {
-                        scores[result.Team] = new TeamScore(this, result.Team);
-                    }
-                    scores[result.Team].AddRunner(result);
-                }
+                result.Points = 0;
+                scores[result.Team].AddRunner(result);
             }
             //Tag runners on teams with fewer than five as scoreless
             //Tag runner 8 and beyond on each team as scorelss
             foreach(TeamScore score in scores.Values)
             {
-                if(score.Runners.Count() < 5)
+                int runnerCount = score.Runners.Count();
+                IEnumerable<Performance> scorelessRunners = Enumerable.Empty<Performance>();
+                if(runnerCount < 5)
                 {
-                    foreach(Performance runner in score.Runners)
-                    {
-                        runner.Points = null;
-                    }
+                    scorelessRunners = score.Runners;
                 }
-                else if(score.Runners.Count() > 7)
+                else if(runnerCount > 7)
                 {
-                    foreach(Performance runner in score.Runners.Skip(7))
-                    {
-                        runner.Points = null;
-                    }
+                    scorelessRunners = score.Runners.Skip(7);
+                }
+                foreach(Performance runner in scorelessRunners)
+                {
+                    runner.Points = null;
                 }
             }
             // Tag first runner on a complete team with a score as the winner
@@ -238,7 +231,8 @@ namespace Ngol.XcAnalyze.Model
             }
             firstRunnerOnCompleteTeam.Points = 1;
             // Tag each runner with their points
-            results.Where(r => r.Points != null).ForEachIndexedPair(1, (runner, previous, points) =>
+            results.Where(r => r.Points != null)
+                   .ForEachIndexedPair(2, (previous, runner, points) =>
             {
                 if(runner.Time != previous.Time)
                 {

@@ -32,7 +32,9 @@ namespace Ngol.XcAnalyze.Model
             protected set
             {
                 if(value == null)
+                {
                     throw new ArgumentNullException("value");
+                }
                 _race = value;
             }
         }
@@ -61,7 +63,9 @@ namespace Ngol.XcAnalyze.Model
             protected set
             {
                 if(value == null)
+                {
                     throw new ArgumentNullException("value");
+                }
                 _team = value;
             }
         }
@@ -223,14 +227,10 @@ namespace Ngol.XcAnalyze.Model
         /// </summary>
         public int? CalculateScore()
         {
-            if(Runners.Count() < 5)
+            int? score;
+            if(Runners.Count() >= 5)
             {
-                return null;
-            }
-            int? score = 0;
-            for(int i = 0; i < 5; i++)
-            {
-                score += Runners.ElementAt(i).Points;
+                score = Runners.Take(5).Select(r => r.Points).Sum();
             }
             return score;
         }
@@ -247,7 +247,9 @@ namespace Ngol.XcAnalyze.Model
         public void AddRunner(Performance runner)
         {
             if(runner == null)
+            {
                 throw new ArgumentNullException("runner");
+            }
             RunnerCollection.Add(runner);
         }
 
@@ -279,26 +281,40 @@ namespace Ngol.XcAnalyze.Model
         int IComparable<ITeamScore>.CompareTo(ITeamScore that)
         {
             if(that == null)
+            {
                 throw new ArgumentNullException("that");
+            }
             if(ReferenceEquals(this, that))
+            {
                 return 0;
+            }
             if(Score.HasValue && !that.Score.HasValue)
+            {
                 return 1;
+            }
             if(!Score.HasValue && that.Score.HasValue)
+            {
                 return -1;
+            }
             int comparison;
             if(Score.HasValue && that.Score.HasValue)
             {
                 comparison = Score.Value.CompareTo(that.Score.Value);
                 if(comparison != 0)
+                {
                     return comparison;
+                }
             }
             comparison = BreakTie(this, that, 6);
             if(comparison != 0)
+            {
                 return comparison;
+            }
             comparison = BreakTie(this, that, 7);
             if(comparison != 0)
+            {
                 return comparison;
+            }
             return TopFiveAverage.CompareTo(that.TopFiveAverage);
         }
         
