@@ -23,6 +23,14 @@ namespace Ngol.XcAnalyze.Model
         #endregion
 
         /// <summary>
+        /// Does <see cref="Points" /> have a value?
+        /// </summary>
+        public virtual bool HasPoints
+        {
+            get { return Points.HasValue; }
+        }
+
+        /// <summary>
         /// The number of points the runner earned in the race for this
         /// performance.
         /// </summary>

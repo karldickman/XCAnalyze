@@ -191,7 +191,9 @@ namespace Ngol.XcAnalyze.Model
             }
             ScoresCollection = new List<TeamScore>();
             IDictionary<Team, TeamScore> scores = new Dictionary<Team, TeamScore>();
-            IEnumerable<Team> teams = Results.Values.Select(result => result.Team).Distinct();
+            IEnumerable<Team> teams = (from result in Results.Values
+                                      where result.Team != null
+                                      select result.Team).Distinct();
             foreach(Team team in teams)
             {
                 scores[team] = new TeamScore(this, team);
@@ -224,14 +226,14 @@ namespace Ngol.XcAnalyze.Model
                 }
             }
             // Tag first runner on a complete team with a score as the winner
-            Performance firstRunnerOnCompleteTeam = results.FirstOrDefault(r => r.Points != null);
+            Performance firstRunnerOnCompleteTeam = results.FirstOrDefault(r => r.HasPoints);
             if(firstRunnerOnCompleteTeam == default(Performance))
             {
                 return;
             }
             firstRunnerOnCompleteTeam.Points = 1;
             // Tag each runner with their points
-            results.Where(r => r.Points != null)
+            results.Where(result => result.HasPoints)
                    .ForEachIndexedPair(2, (previous, runner, points) =>
             {
                 if(runner.Time != previous.Time)
@@ -243,7 +245,7 @@ namespace Ngol.XcAnalyze.Model
                     runner.Points = previous.Points;
                 }
             });
-            //Create the final list
+            // Create the final list
             ScoresCollection.Clear();
             ScoresCollection.AddRange(scores.Values.Sorted());
             IsScored = true;

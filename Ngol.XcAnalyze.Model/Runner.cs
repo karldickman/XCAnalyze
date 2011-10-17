@@ -31,7 +31,7 @@ namespace Ngol.XcAnalyze.Model
         /// <summary>
         /// The year in which the <see cref="Runner" /> enrolled in college.
         /// </summary>
-        public virtual int EnrollmentYear { get; set; }
+        public virtual int? EnrollmentYear { get; set; }
 
         /// <summary>
         /// The full name of the <see cref="Runner" />.
@@ -75,6 +75,14 @@ namespace Ngol.XcAnalyze.Model
         public virtual ISet<string> Nicknames { get; protected set; }
 
         /// <summary>
+        /// The year the <see cref="Runner" /> was originally scheduled to graduate.
+        /// </summary>
+        public virtual int? OriginalGraduationYear
+        {
+            get { return EnrollmentYear + 4; }
+        }
+
+        /// <summary>
         /// If the <see cref="Race" /> where a <see cref="Runner" /> ran
         /// their season's best for a particular season is not known,
         /// it will appear in this collection keyed by season.
@@ -109,6 +117,11 @@ namespace Ngol.XcAnalyze.Model
         /// <see cref="Race"/>s that the <see cref="Runner" /> started but did not finish.
         /// </summary>
         public virtual ISet<Race> UnfinishedRaces { get; protected set; }
+
+        int? IRunner.GraduationYear
+        {
+            get { return OriginalGraduationYear; }
+        }
 
         string IRunner.Name
         {

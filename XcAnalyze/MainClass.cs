@@ -53,6 +53,7 @@ namespace Ngol.XcAnalyze
             VBox vBox = (VBox)dialog.Child;
             vBox.Add(label);
             dialog.ShowAll();
+            e.ExitApplication = false;
         }
 
         #endregion

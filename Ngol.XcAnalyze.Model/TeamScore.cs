@@ -19,6 +19,12 @@ namespace Ngol.XcAnalyze.Model
 
         #endregion
 
+        /// <inheritdoc />
+        public bool HasScore
+        {
+            get { return Score.HasValue; }
+        }
+
         /// <summary>
         /// The race to which this score belongs.
         /// </summary>
@@ -48,7 +54,18 @@ namespace Ngol.XcAnalyze.Model
         }
 
         /// <inheritdoc />
-        public int? Score { get; set; }
+        public int? Score
+        {
+            get
+            {
+                int? score;
+                if(Runners.Count() >= 5)
+                {
+                    score = Runners.Take(5).Select(r => r.Points).Sum();
+                }
+                return score;
+            }
+        }
 
         /// <summary>
         /// The team which earned the score.
@@ -189,7 +206,7 @@ namespace Ngol.XcAnalyze.Model
         /// <inheritdoc />
         public override string ToString()
         {
-            return string.Format("{0} {1}", Team.Name, CalculateScore());
+            return string.Format("{0} {1}", Team.Name, Score);
         }
 
         #endregion
@@ -219,20 +236,6 @@ namespace Ngol.XcAnalyze.Model
             int points1 = xThPerformance1.Points.Value;
             int points2 = xThPerformance2.Points.Value;
             return points1.CompareTo(points2);
-        }
-
-        /// <summary>
-        /// A teams score is the sum of the points earned by their first five runners.  Their score is incomplete if
-        /// they failed to field five runners.
-        /// </summary>
-        public int? CalculateScore()
-        {
-            int? score;
-            if(Runners.Count() >= 5)
-            {
-                score = Runners.Take(5).Select(r => r.Points).Sum();
-            }
-            return score;
         }
 
         /// <summary>
