@@ -100,34 +100,6 @@ namespace Ngol.XcAnalyze.Model
         #region Inherited Methods
 
         /// <inheritdoc />
-        public override bool Equals(object other)
-        {
-            return this == other ? true : Equals(other as Venue);
-        }
-
-        /// <summary>
-        /// Check whether two venues are equal.
-        /// </summary>
-        public virtual bool Equals(Venue that)
-        {
-            if(that == null)
-            {
-                return false;
-            }
-            if(this == that)
-            {
-                return true;
-            }
-            return City == that.City && Name == that.Name;
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return ToString().GetHashCode();
-        }
-
-        /// <inheritdoc />
         public override string ToString()
         {
             return string.Format("{0}, {1}", Name, City);

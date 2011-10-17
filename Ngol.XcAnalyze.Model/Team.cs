@@ -96,41 +96,6 @@ namespace Ngol.XcAnalyze.Model
         #region Inherited methods
 
         /// <inheritdoc />
-        public override bool Equals(object other)
-        {
-            return this == other ? true : Equals(other as Team);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="Team"/> is equal to the current <see cref="Ngol.XcAnalyze.Model.Team"/>.
-        /// </summary>
-        /// <param name='that'>
-        /// The <see cref="Team"/> to compare with the current <see cref="Ngol.XcAnalyze.Model.Team"/>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the specified <see cref="Team"/> is equal to the current
-        /// <see cref="Ngol.XcAnalyze.Model.Team"/>; otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool Equals(Team that)
-        {
-            if(that == null)
-            {
-                return false;
-            }
-            if(ReferenceEquals(this, that))
-            {
-                return true;
-            }
-            return Name == that.Name && Conference.Equals(that.Conference);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-
-        /// <inheritdoc />
         public override string ToString()
         {
             return Name;
