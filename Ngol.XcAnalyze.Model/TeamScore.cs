@@ -134,34 +134,11 @@ namespace Ngol.XcAnalyze.Model
         /// <param name="team">
         /// The <see cref="Team"/> to whome the score belongs.
         /// </param>
-        public TeamScore(Race race, Team team) : this(race, team, null)
-        {
-        }
-
-        /// <summary>
-        /// Create a new team score.
-        /// </summary>
-        /// <param name="race">
-        /// The <see cref="Race"/> from which the score comes.
-        /// </param>
-        /// <param name="team">
-        /// The <see cref="Team"/> to whome the score belongs.
-        /// </param>
-        /// <param name="runners">
-        /// A collection of runners who were on the team.
-        /// </param>
-        protected TeamScore(Race race, Team team, IEnumerable<Performance> runners)
+        public TeamScore(Race race, Team team)
         {
             Race = race;
             Team = team;
-            if(runners == null)
-            {
-                RunnerCollection = new List<Performance>();
-            }
-            else
-            {
-                RunnerCollection = runners.ToList();
-            }
+            RunnerCollection = new List<Performance>();
         }
 
         #endregion
@@ -285,19 +262,19 @@ namespace Ngol.XcAnalyze.Model
         {
             if(that == null)
             {
-                throw new ArgumentNullException("that");
+                throw new ArgumentException("Parameter that is not of the same type as this instance.");
             }
-            if(ReferenceEquals(this, that))
+            if(this == that)
             {
                 return 0;
             }
             if(Score.HasValue && !that.Score.HasValue)
             {
-                return 1;
+                return -1;
             }
             if(!Score.HasValue && that.Score.HasValue)
             {
-                return -1;
+                return 1;
             }
             int comparison;
             if(Score.HasValue && that.Score.HasValue)
