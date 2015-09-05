@@ -3,12 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A809AA40-8498-464B-96AF-1EA694546EAA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Ngol.XcAnalyze.Persistence.Tests</RootNamespace>
     <AssemblyName>Ngol.XcAnalyze.Persistence.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,11 +32,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="nunit.framework, Version=2.5.10.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>mono-nunit</Package>
-    </Reference>
-    <Reference Include="NHibernate, Version=3.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4" />
     <Reference Include="System.Core" />
+    <Reference Include="nunit.framework, Version=2.6.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>nunit</Package>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\packages\Iesi.Collections.4.0.0.4000\lib\net40\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.4.0.0.4000\lib\net40\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpArch.Domain">
+      <HintPath>..\packages\SharpArch.Domain.3.0.1\lib\net45\SharpArch.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -45,6 +62,7 @@
     <None Include="mysql-hibernate.cfg.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FreshSchema\TestCityRepository.cs" />
@@ -90,9 +108,9 @@
       <Project>{61454F0F-30AA-40F8-9328-77A861A30A89}</Project>
       <Name>Ngol.Utilities.NHibernate</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\External\NHibernate.SetForNet4\NHibernateSetForNet4\NHibernateSetForNet4.csproj">
-      <Project>{EEFAFFA2-1CB8-461B-AEE9-6F1B26D04D64}</Project>
-      <Name>NHibernateSetForNet4</Name>
+    <ProjectReference Include="..\..\Hytek\Ngol.Hytek\Ngol.Hytek.csproj">
+      <Project>{537CF629-FA3C-4039-8941-13BA15278B2F}</Project>
+      <Name>Ngol.Hytek</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

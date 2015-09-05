@@ -62,6 +62,9 @@ namespace Ngol.XcAnalyze.Model
                 if(Runners.Count() >= 5)
                 {
                     score = Runners.Take(5).Select(r => r.Points).Sum();
+                } else
+                {
+                    score = null;
                 }
                 return score;
             }
@@ -297,7 +300,7 @@ namespace Ngol.XcAnalyze.Model
             }
             return TopFiveAverage.CompareTo(that.TopFiveAverage);
         }
-        
+
         #endregion
     }
 }

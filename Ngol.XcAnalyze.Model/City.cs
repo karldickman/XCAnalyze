@@ -122,4 +122,3 @@ namespace Ngol.XcAnalyze.Model
         #endregion
     }
 }
-

@@ -99,4 +99,3 @@ namespace Ngol.XcAnalyze.Persistence.Interfaces
         bool UnQueueUpdate(T item);
     }
 }
-

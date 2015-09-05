@@ -1,0 +1,7 @@
+*.userprefs
+*.pidb
+*.swp
+*bin/
+*obj/
+packages/
+test-results/
